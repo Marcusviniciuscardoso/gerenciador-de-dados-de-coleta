@@ -1,23 +1,30 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
-
-# testing
-/coverage
-
-# production
-/build
-
-# misc
-.DS_Store
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
+# Node modules
+frontend/node_modules/
+backend/node_modules/
+# Logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# dotenv environment variables
+**/.env
+
+# Diretórios de build
+frontend/dist/
+backend/dist/
+
+# Diretórios de cache
+.next/
+out/
+.cache/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Vscode settings (opcional)
+.vscode/
+
+# Dependências lock file do yarn (se usar npm não precisa)
+yarn.lock
