@@ -1,0 +1,30 @@
+# Node modules
+**/node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# dotenv environment variables
+**/.env
+.env.example
+# Diretórios de build
+frontend/dist/
+backend/dist/
+
+# Diretórios de cache
+.next/
+out/
+.cache/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Vscode settings (opcional)
+.vscode/
+
+# Dependências lock file do yarn (se usar npm não precisa)
+yarn.lock
