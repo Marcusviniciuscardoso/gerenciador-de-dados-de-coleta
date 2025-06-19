@@ -1,21 +1,32 @@
 require('dotenv').config();
 const express = require('express');
 const app = express();
-const { sequelize } = require('./models');
+const { sequelize } = require('./config/database');
 
+// Middlewares
 app.use(express.json());
 
 // Rotas
 const projetoRoutes = require('./routes/projetoRoutes');
-app.use('/projetos', projetoRoutes);
+const usuarioRoutes = require('./routes/usuarioRoutes');
+const coletaRoutes = require('./routes/coletaRoutes');
+const amostraRoutes = require('./routes/amostraRoutes');
+const imagemRoutes = require('./routes/imagemRoutes');
 
-// (Adicione outras rotas aqui: usuarios, coletas, etc.)
+app.use('/projetos', projetoRoutes);
+app.use('/usuarios', usuarioRoutes);
+app.use('/coletas', coletaRoutes);
+app.use('/amostras', amostraRoutes);
+app.use('/imagens', imagemRoutes);
 
 // Sincroniza DB
 sequelize.sync().then(() => {
-  console.log('Database sincronizado');
+  console.log('Database sincronizado com sucesso!');
+}).catch((err) => {
+  console.error('Erro ao sincronizar database:', err);
 });
 
+// Inicia servidor
 app.listen(3000, () => {
   console.log('Servidor rodando na porta 3000');
 });
