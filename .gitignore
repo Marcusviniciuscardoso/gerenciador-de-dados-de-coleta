@@ -9,7 +9,7 @@ yarn-error.log*
 
 # dotenv environment variables
 **/.env
-.env.example
+
 # Diretórios de build
 frontend/dist/
 backend/dist/
