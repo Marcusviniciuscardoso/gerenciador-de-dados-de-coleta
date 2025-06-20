@@ -13,7 +13,8 @@ module.exports = {
   },
 
   async criar(req, res) {
-    const usuario = await Usuario.create(req.body);
+    const { nome, email, senha_hash } = req.body;
+    const usuario = await Usuario.create({ nome, email, senha_hash });
     res.status(201).json(usuario);
   },
 

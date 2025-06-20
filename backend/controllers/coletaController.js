@@ -6,30 +6,34 @@ module.exports = {
     res.json(coletas);
   },
 
-  async obterPorId(req, res) {
-    const coleta = await Coleta.findByPk(req.params.id);
-    if (!coleta) return res.status(404).json({ error: 'Coleta não encontrada' });
-    res.json(coleta);
-  },
-
   async criar(req, res) {
-    const coleta = await Coleta.create(req.body);
+    const {
+      projetoId, local, latitude, longitude, data,
+      hora_inicio, hora_fim, fase_lunar, tipo_armadilha,
+      observacoes, coletado_por
+    } = req.body;
+
+    const coleta = await Coleta.create({
+      projetoId, local, latitude, longitude, data,
+      hora_inicio, hora_fim, fase_lunar, tipo_armadilha,
+      observacoes, coletado_por
+    });
+
     res.status(201).json(coleta);
   },
 
   async atualizar(req, res) {
-    const coleta = await Coleta.findByPk(req.params.id);
-    if (!coleta) return res.status(404).json({ error: 'Coleta não encontrada' });
+    const { id } = req.params;
+    const dados = req.body;
 
-    await coleta.update(req.body);
-    res.json(coleta);
+    await Coleta.update(dados, { where: { idColetas: id } });
+    const coletaAtualizada = await Coleta.findByPk(id);
+    res.json(coletaAtualizada);
   },
 
   async deletar(req, res) {
-    const coleta = await Coleta.findByPk(req.params.id);
-    if (!coleta) return res.status(404).json({ error: 'Coleta não encontrada' });
-
-    await coleta.destroy();
+    const { id } = req.params;
+    await Coleta.destroy({ where: { idColetas: id } });
     res.status(204).send();
   }
 };

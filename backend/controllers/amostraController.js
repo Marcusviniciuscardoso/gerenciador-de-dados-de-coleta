@@ -6,30 +6,28 @@ module.exports = {
     res.json(amostras);
   },
 
-  async obterPorId(req, res) {
-    const amostra = await Amostra.findByPk(req.params.id);
-    if (!amostra) return res.status(404).json({ error: 'Amostra não encontrada' });
-    res.json(amostra);
-  },
-
   async criar(req, res) {
-    const amostra = await Amostra.create(req.body);
+    const { coletaId, codigo, recipiente, estado, identificacao_final, observacoes } = req.body;
+
+    const amostra = await Amostra.create({
+      coletaId, codigo, recipiente, estado, identificacao_final, observacoes
+    });
+
     res.status(201).json(amostra);
   },
 
   async atualizar(req, res) {
-    const amostra = await Amostra.findByPk(req.params.id);
-    if (!amostra) return res.status(404).json({ error: 'Amostra não encontrada' });
+    const { id } = req.params;
+    const dados = req.body;
 
-    await amostra.update(req.body);
-    res.json(amostra);
+    await Amostra.update(dados, { where: { idAmostras: id } });
+    const amostraAtualizada = await Amostra.findByPk(id);
+    res.json(amostraAtualizada);
   },
 
   async deletar(req, res) {
-    const amostra = await Amostra.findByPk(req.params.id);
-    if (!amostra) return res.status(404).json({ error: 'Amostra não encontrada' });
-
-    await amostra.destroy();
+    const { id } = req.params;
+    await Amostra.destroy({ where: { idAmostras: id } });
     res.status(204).send();
   }
 };

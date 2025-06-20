@@ -6,30 +6,28 @@ module.exports = {
     res.json(imagens);
   },
 
-  async obterPorId(req, res) {
-    const imagem = await Imagem.findByPk(req.params.id);
-    if (!imagem) return res.status(404).json({ error: 'Imagem não encontrada' });
-    res.json(imagem);
-  },
-
   async criar(req, res) {
-    const imagem = await Imagem.create(req.body);
+    const { amostraId, coletaId, arquivo_base64, descricao } = req.body;
+
+    const imagem = await Imagem.create({
+      amostraId, coletaId, arquivo_base64, descricao
+    });
+
     res.status(201).json(imagem);
   },
 
   async atualizar(req, res) {
-    const imagem = await Imagem.findByPk(req.params.id);
-    if (!imagem) return res.status(404).json({ error: 'Imagem não encontrada' });
+    const { id } = req.params;
+    const dados = req.body;
 
-    await imagem.update(req.body);
-    res.json(imagem);
+    await Imagem.update(dados, { where: { idImagens: id } });
+    const imagemAtualizada = await Imagem.findByPk(id);
+    res.json(imagemAtualizada);
   },
 
   async deletar(req, res) {
-    const imagem = await Imagem.findByPk(req.params.id);
-    if (!imagem) return res.status(404).json({ error: 'Imagem não encontrada' });
-
-    await imagem.destroy();
+    const { id } = req.params;
+    await Imagem.destroy({ where: { idImagens: id } });
     res.status(204).send();
   }
 };

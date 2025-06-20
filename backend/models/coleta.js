@@ -1,19 +1,57 @@
-module.exports = (sequelize, DataTypes) => {
-  const Coleta = sequelize.define('Coleta', {
-    id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-    especie: { type: DataTypes.STRING, allowNull: false },
-    local: { type: DataTypes.STRING, allowNull: false },
-    data: { type: DataTypes.DATEONLY, allowNull: false },
-    hora: { type: DataTypes.TIME, allowNull: false },
-    notas: { type: DataTypes.TEXT },
-  });
+const { DataTypes } = require('sequelize');
 
-  Coleta.associate = (models) => {
-    Coleta.belongsTo(models.Projeto, { foreignKey: 'projetoId' });
-    Coleta.belongsTo(models.Usuario, { foreignKey: 'usuarioId' });
-    Coleta.hasMany(models.Amostra, { foreignKey: 'coletaId' });
-    Coleta.hasMany(models.Imagem, { foreignKey: 'coletaId' });
-  };
+module.exports = (sequelize) => {
+  const Coleta = sequelize.define('Coleta', {
+    idColetas: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    projetoId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    local: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    latitude: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    longitude: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    data: {
+      type: DataTypes.DATE,
+      allowNull: false
+    },
+    hora_inicio: {
+      type: DataTypes.TIME,
+      allowNull: false
+    },
+    hora_fim: {
+      type: DataTypes.TIME,
+      allowNull: false
+    },
+    fase_lunar: {
+      type: DataTypes.STRING
+    },
+    tipo_armadilha: {
+      type: DataTypes.STRING
+    },
+    observacoes: {
+      type: DataTypes.TEXT
+    },
+    coletado_por: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    }
+  }, {
+    tableName: 'coletas',
+    timestamps: false
+  });
 
   return Coleta;
 };
