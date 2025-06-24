@@ -2,24 +2,26 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const { sequelize } = require('./config/database');
+const sequelize = require('./config/database');
 
 // Middlewares
 app.use(express.json());
 app.use(cors());
 
 // Rotas
-const projetoRoutes = require('./routes/projetoRoutes');
-const usuarioRoutes = require('./routes/usuarioRoutes');
-const coletaRoutes = require('./routes/coletaRoutes');
-const amostraRoutes = require('./routes/amostraRoutes');
-const imagemRoutes = require('./routes/imagemRoutes');
+//const projetoRoutes = require('./routes/projetoRoutes');
+//const usuarioRoutes = require('./routes/usuarioRoutes');
+//const coletaRoutes = require('./routes/coletaRoutes');
+//const amostraRoutes = require('./routes/amostraRoutes');
+//const imagemRoutes = require('./routes/imagemRoutes');
+const credencialRoutes = require('./routes/credencialRoutes');
 
-app.use('/projetos', projetoRoutes);
-app.use('/usuarios', usuarioRoutes);
-app.use('/coletas', coletaRoutes);
-app.use('/amostras', amostraRoutes);
-app.use('/imagens', imagemRoutes);
+//app.use('/projetos', projetoRoutes);
+//app.use('/usuarios', usuarioRoutes);
+//app.use('/coletas', coletaRoutes);
+//app.use('/amostras', amostraRoutes);
+//app.use('/imagens', imagemRoutes);
+app.use('/credenciais', credencialRoutes); // 👉 Adicionado aqui
 
 // Sincroniza DB
 sequelize.sync().then(() => {

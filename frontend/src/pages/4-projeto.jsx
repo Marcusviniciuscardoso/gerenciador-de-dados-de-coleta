@@ -218,7 +218,7 @@ function ProjetoPageMock() {
 
             <div className="flex gap-2 mt-4">
               <button
-                onClick={() => navigate(`/projetos/${projeto.id}`)}
+                onClick={() => navigate(`/projetos/id`)}
                 className="flex-1 border rounded px-3 py-1 hover:bg-gray-100"
               >
                 Ver Detalhes

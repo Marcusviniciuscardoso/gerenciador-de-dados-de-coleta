@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import { login } from '../services/credencialService'; // 👉 usando o service
 
 function Login() {
   const navigate = useNavigate();
@@ -14,21 +14,20 @@ function Login() {
     setErro('');
 
     try {
-      const response = await axios.post('http://localhost:3000/login', {
-        email,
-        senha,
-      });
+      const response = await login({ email, senha }); // ✅ usando o service
 
       const { token } = response.data;
       localStorage.setItem('token', token);
 
-      navigate('/home');
+      navigate('/projetos');
     } catch (error) {
+      console.error(error);
       setErro('Email ou senha incorretos.');
     }
   };
 
   return (
+    // ... (mantém exatamente o restante do seu código como já está)
     <div style={styles.container}>
       <div style={styles.box}>
         <div style={styles.logoArea}>
@@ -91,6 +90,7 @@ function Login() {
 }
 
 export default Login;
+
 
 // 🎨 Estilos Inline
 const styles = {
