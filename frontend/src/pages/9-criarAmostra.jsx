@@ -20,7 +20,7 @@ function NovaAmostra() {
     unidade: '',
     validade: '',
     coletadoPor: '',
-    processadoPor: '',
+    //processadoPor: '',
     avaliacaoQualidade: '',
     notasProcessamento: '',
     tags: '',
@@ -115,27 +115,27 @@ function NovaAmostra() {
           <h2 className="text-lg font-semibold mb-3">Responsáveis</h2>
           <div className="flex flex-col gap-3">
             <input name="coletadoPor" value={form.coletadoPor} onChange={handleChange} placeholder="Coletado por" className="border rounded px-3 py-2" />
-            <input name="processadoPor" value={form.processadoPor} onChange={handleChange} placeholder="Processado por" className="border rounded px-3 py-2" />
+            {/*<input name="processadoPor" value={form.processadoPor} onChange={handleChange} placeholder="Processado por" className="border rounded px-3 py-2" />*/}
           </div>
         </div>
 
-        {/* Avaliação */}
+        {/* Avaliação 
         <div>
           <h2 className="text-lg font-semibold mb-3">Avaliação de Qualidade</h2>
           <div className="flex flex-col gap-3">
             <textarea name="avaliacaoQualidade" value={form.avaliacaoQualidade} onChange={handleChange} placeholder="Descreva a qualidade da amostra" className="border rounded px-3 py-2" />
             <textarea name="notasProcessamento" value={form.notasProcessamento} onChange={handleChange} placeholder="Notas de Processamento" className="border rounded px-3 py-2" />
           </div>
-        </div>
+        </div>*/}
 
-        {/* Tags e Observações */}
+        {/* Tags e Observações 
         <div>
           <h2 className="text-lg font-semibold mb-3">Tags e Observações</h2>
           <div className="flex flex-col gap-3">
             <input name="tags" value={form.tags} onChange={handleChange} placeholder="Tags" className="border rounded px-3 py-2" />
             <textarea name="observacoes" value={form.observacoes} onChange={handleChange} placeholder="Observações Gerais" className="border rounded px-3 py-2" />
           </div>
-        </div>
+        </div>*/}
 
         {/* Imagens */}
         <div className="col-span-2">

@@ -135,7 +135,7 @@ function CriarProjeto() {
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <div>
+          {/*<div>
             <label className="block font-semibold">Fonte de Financiamento</label>
             <input
               type="text"
@@ -145,9 +145,9 @@ function CriarProjeto() {
               onChange={handleInputChange}
               className="w-full border rounded px-3 py-2"
             />
-          </div>
+          </div>*/}
 
-          <div>
+          {/*<div>
             <label className="block font-semibold">Orçamento (R$)</label>
             <input
               type="number"
@@ -157,7 +157,7 @@ function CriarProjeto() {
               onChange={handleInputChange}
               className="w-full border rounded px-3 py-2"
             />
-          </div>
+          </div>*/}
         </div>
 
         <div>
@@ -190,7 +190,7 @@ function CriarProjeto() {
           />
         </div>
 
-        <div>
+        {/*<div>
           <label className="block font-semibold">Palavras-chave</label>
           <input
             type="text"
@@ -199,9 +199,9 @@ function CriarProjeto() {
             onChange={handleInputChange}
             className="w-full border rounded px-3 py-2"
           />
-        </div>
+        </div>*/}
 
-        <div>
+        {/*<div>
           <label className="block font-semibold">Colaboradores</label>
           <input
             type="text"
@@ -210,7 +210,7 @@ function CriarProjeto() {
             onChange={handleInputChange}
             className="w-full border rounded px-3 py-2"
           />
-        </div>
+        </div>*/}
 
         <div>
           <label className="block font-semibold">Imagens do Projeto (Máximo 10)</label>

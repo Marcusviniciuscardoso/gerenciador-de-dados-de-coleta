@@ -78,13 +78,7 @@ function Login() {
             Entrar
           </button>
 
-          <div style={styles.divider}>
-            <hr />
-            <span>Ou</span>
-            <hr />
-          </div>
-
-          <p>
+          <p className='mt-4'>
             Não tem uma conta?{' '}
             <Link to="/cadastro" style={styles.cadastroLink}>
               Cadastre-se

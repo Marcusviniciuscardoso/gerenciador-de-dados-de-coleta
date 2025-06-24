@@ -54,14 +54,14 @@ const CadastroUsuario = () => {
           Preencha os dados para criar sua conta
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
           <input
             name="nome"
             type="text"
             placeholder="Nome Completo"
             value={form.nome}
             onChange={handleChange}
-            className="input"
+            className="input p-2 border"
             required
           />
           <input
@@ -70,7 +70,7 @@ const CadastroUsuario = () => {
             placeholder="Email"
             value={form.email}
             onChange={handleChange}
-            className="input"
+            className="input p-2 border"
             required
           />
           <input
@@ -79,14 +79,14 @@ const CadastroUsuario = () => {
             placeholder="Instituição"
             value={form.instituicao}
             onChange={handleChange}
-            className="input"
+            className="input p-2 border"
             required
           />
           <select
             name="funcao"
             value={form.funcao}
             onChange={handleChange}
-            className="input"
+            className="input p-2 border"
             required
           >
             <option value="">Selecione sua função</option>
@@ -101,7 +101,7 @@ const CadastroUsuario = () => {
             placeholder="Senha (mínimo 6 caracteres)"
             value={form.senha}
             onChange={handleChange}
-            className="input"
+            className="input p-2 border"
             required
           />
           <input
@@ -110,7 +110,7 @@ const CadastroUsuario = () => {
             placeholder="Confirmar Senha"
             value={form.confirmarSenha}
             onChange={handleChange}
-            className="input"
+            className="input p-2 border"
             required
           />
 

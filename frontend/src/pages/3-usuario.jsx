@@ -75,12 +75,12 @@ function Usuario() {
             </p>
             <p className="text-sm text-gray-600">Amostras catalogadas</p>
           </div>
-          <div className="border rounded p-4">
+          {/*<div className="border rounded p-4">
             <p className="text-lg font-semibold flex items-center gap-2">
               <Users size={16} /> {usuario.estatisticas.colaboracoes}
             </p>
             <p className="text-sm text-gray-600">Projetos colaborativos</p>
-          </div>
+          </div>*/}
         </div>
       </div>
 
