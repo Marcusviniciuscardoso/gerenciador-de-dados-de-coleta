@@ -1,9 +1,9 @@
-/*const express = require('express');
+const express = require('express');
 const router = express.Router();
 const usuarioController = require('../controllers/usuarioController');
 
 // Lista todos os usuários
-/*router.get('/', usuarioController.listar);
+router.get('/', usuarioController.listar);
 
 // Busca um usuário específico por ID
 router.get('/:id', usuarioController.obterPorId);
@@ -17,4 +17,4 @@ router.put('/:id', usuarioController.atualizar);
 // Deleta um usuário
 router.delete('/:id', usuarioController.deletar);
 
-module.exports = router;*/
+module.exports = router;

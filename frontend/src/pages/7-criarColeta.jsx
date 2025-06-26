@@ -24,7 +24,7 @@ function NovaColeta() {
     data: '',
     hora: '',
     condicoesClimaticas: '',
-    temperatura: '',
+    //temperatura: '',
     umidade: '',
     responsavel: '',
     metodo: '',
@@ -149,7 +149,7 @@ function NovaColeta() {
               className="w-full border rounded px-3 py-2"
             />
           </div>
-          {['condicoesClimaticas', 'temperatura', 'umidade'].map((field) => (
+          {['condicoesClimaticas', 'umidade'].map((field) => (
             <div key={field} className="mb-3">
               <label className="block text-sm mb-1 capitalize">{field}</label>
               <input

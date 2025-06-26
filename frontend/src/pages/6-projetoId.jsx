@@ -175,7 +175,7 @@ function ProjetoIdMock() {
       {
         id: 1,
         projetoId: id,
-        especie: 'Papilio demoleus',
+        especie: 'Trilha 1',
         local: 'Parque Nacional',
         data: '2025-06-10',
         hora: '14:30',
@@ -184,7 +184,7 @@ function ProjetoIdMock() {
       {
         id: 2,
         projetoId: id,
-        especie: 'Morpho menelaus',
+        especie: 'Trilha 2',
         local: 'Reserva Biológica',
         data: '2025-06-15',
         hora: '10:00',

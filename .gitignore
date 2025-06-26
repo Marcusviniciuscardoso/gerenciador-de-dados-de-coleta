@@ -28,3 +28,7 @@ Thumbs.db
 
 # Dependências lock file do yarn (se usar npm não precisa)
 yarn.lock
+
+# HTTPS
+cert.pem
+key.pem

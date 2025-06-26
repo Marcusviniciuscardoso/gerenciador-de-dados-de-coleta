@@ -15,7 +15,7 @@ function NovaAmostra() {
     idRecipiente: '',
     metodoPreservacao: '',
     localArmazenamento: '',
-    temperatura: '',
+    //temperatura: '',
     quantidade: '',
     unidade: '',
     validade: '',
@@ -96,7 +96,7 @@ function NovaAmostra() {
             <input name="idRecipiente" value={form.idRecipiente} onChange={handleChange} placeholder="ID do Recipiente" className="border rounded px-3 py-2" />
             <input name="metodoPreservacao" value={form.metodoPreservacao} onChange={handleChange} placeholder="Método de Preservação *" className="border rounded px-3 py-2" />
             <input name="localArmazenamento" value={form.localArmazenamento} onChange={handleChange} placeholder="Local de Armazenamento" className="border rounded px-3 py-2" />
-            <input name="temperatura" value={form.temperatura} onChange={handleChange} placeholder="Temperatura (°C)" className="border rounded px-3 py-2" />
+            {/*<input name="temperatura" value={form.temperatura} onChange={handleChange} placeholder="Temperatura (°C)" className="border rounded px-3 py-2" />*/}
           </div>
         </div>
 

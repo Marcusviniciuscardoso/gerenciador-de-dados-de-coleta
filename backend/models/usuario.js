@@ -11,14 +11,27 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: false
     },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true
+    telefone: {
+      type: DataTypes.STRING
     },
-    senha_hash: {
-      type: DataTypes.STRING,
-      allowNull: false
+    instituicao: {
+      type: DataTypes.STRING
+    },
+    biografia: {
+      type: DataTypes.TEXT
+    },
+    data_cadastro: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW
+    },
+    credencial_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'credenciais',
+        key: 'idCredenciais'
+      }
     }
   }, {
     tableName: 'usuarios',

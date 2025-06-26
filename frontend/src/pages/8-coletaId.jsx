@@ -304,7 +304,7 @@ function Coleta() {
         </button>
       </div>
 
-      <h3 className="text-xl font-semibold mb-4">Coletas Registradas</h3>
+      <h3 className="text-xl font-semibold mb-4">Amostras Registradas</h3>
 
       <div className="space-y-4">
         {coletas.map((coleta) => (
