@@ -13,9 +13,14 @@ module.exports = {
   },
 
   async criar(req, res) {
-    const { nome, email, senha_hash } = req.body;
-    const usuario = await Usuario.create({ nome, email, senha_hash });
-    res.status(201).json(usuario);
+    try {
+      const { nome, telefone, instituicao, biografia, credencial_id } = req.body;
+      const usuario = await Usuario.create({ nome, telefone, instituicao, biografia, credencial_id });
+      res.status(201).json(usuario);
+    } catch (error) {
+      console.error('Erro ao criar usuário:', error);
+      res.status(500).json({ error: 'Erro ao criar usuário' });
+    }
   },
 
   async atualizar(req, res) {

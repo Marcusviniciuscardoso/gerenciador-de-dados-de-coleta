@@ -11,22 +11,32 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: false
     },
-    descricao: {
-      type: DataTypes.TEXT
+    descricao: DataTypes.TEXT,
+    objetivos: DataTypes.TEXT,
+    metodologia: DataTypes.TEXT,
+    resultadosEsperados: DataTypes.TEXT,
+    palavrasChave: DataTypes.TEXT,
+    colaboradores: {
+      type: DataTypes.TEXT,
+      allowNull: false
     },
-    objetivo: {
-      type: DataTypes.TEXT
-    },
+    financiamento: DataTypes.TEXT,
+    orcamento: DataTypes.TEXT,
     data_inicio: {
       type: DataTypes.DATE,
       allowNull: false
     },
-    data_fim: {
-      type: DataTypes.DATE
-    },
+    data_fim: DataTypes.DATE,
     criado_por: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      references: {
+        model: 'usuarios',
+        key: 'idUsuarios'
+      }
+    },
+    imageLink: {
+      type: DataTypes.TEXT
     }
   }, {
     tableName: 'projetos',

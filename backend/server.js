@@ -14,17 +14,15 @@ app.use(cors());
 
 // 🔗 Rotas
 const credencialRoutes = require('./routes/credencialRoutes');
-
-app.use('/credenciais', credencialRoutes);
-
-// const projetoRoutes = require('./routes/projetoRoutes');
-// const usuarioRoutes = require('./routes/usuarioRoutes');
+const projetoRoutes = require('./routes/projetoRoutes');
+const usuarioRoutes = require('./routes/usuarioRoutes');
 // const coletaRoutes = require('./routes/coletaRoutes');
 // const amostraRoutes = require('./routes/amostraRoutes');
 // const imagemRoutes = require('./routes/imagemRoutes');
 
-// app.use('/projetos', projetoRoutes);
-// app.use('/usuarios', usuarioRoutes);
+app.use('/credenciais', credencialRoutes);
+app.use('/projetos', projetoRoutes);
+app.use('/usuarios', usuarioRoutes);
 // app.use('/coletas', coletaRoutes);
 // app.use('/amostras', amostraRoutes);
 // app.use('/imagens', imagemRoutes);

@@ -1,4 +1,4 @@
-/*const express = require('express');
+const express = require('express');
 const router = express.Router();
 const projetoController = require('../controllers/projetoController');
 
@@ -6,7 +6,8 @@ const projetoController = require('../controllers/projetoController');
 router.get('/', projetoController.listar);
 
 // Busca um projeto específico por ID
-/*router.get('/:id', projetoController.obterPorId);
+//TODO: Entender qual o erro aqui
+//router.get('/:id', projetoController.obterPorId);
 
 // Cria um novo projeto
 router.post('/', projetoController.criar);
@@ -17,4 +18,4 @@ router.put('/:id', projetoController.atualizar);
 // Deleta um projeto
 router.delete('/:id', projetoController.deletar);
 
-module.exports = router;*/
+module.exports = router;

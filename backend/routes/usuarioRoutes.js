@@ -2,6 +2,10 @@ const express = require('express');
 const router = express.Router();
 const usuarioController = require('../controllers/usuarioController');
 
+router.get('/teste', (req, res) => {
+  res.send('Rota /usuarios/teste está funcionando');
+});
+
 // Lista todos os usuários
 router.get('/', usuarioController.listar);
 
