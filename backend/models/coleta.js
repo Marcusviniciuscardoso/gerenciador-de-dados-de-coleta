@@ -9,21 +9,25 @@ module.exports = (sequelize) => {
     },
     projetoId: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      references: {
+        model: 'projetos',
+        key: 'idProjetos'
+      }
     },
     local: {
       type: DataTypes.STRING,
       allowNull: false
     },
     latitude: {
-      type: DataTypes.STRING,
+      type: DataTypes.DECIMAL(9, 6),
       allowNull: false
     },
     longitude: {
-      type: DataTypes.STRING,
+      type: DataTypes.DECIMAL(9, 6),
       allowNull: false
     },
-    data: {
+    dataColeta: {
       type: DataTypes.DATE,
       allowNull: false
     },
@@ -35,18 +39,22 @@ module.exports = (sequelize) => {
       type: DataTypes.TIME,
       allowNull: false
     },
-    fase_lunar: {
+    /*fase_lunar: {
       type: DataTypes.STRING
     },
     tipo_armadilha: {
       type: DataTypes.STRING
-    },
+    },*/
     observacoes: {
       type: DataTypes.TEXT
     },
     coletado_por: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      references: {
+        model: 'usuarios',
+        key: 'idUsuarios'
+      }
     }
   }, {
     tableName: 'coletas',
