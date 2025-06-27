@@ -9,23 +9,46 @@ module.exports = (sequelize) => {
     },
     coletaId: {
       type: DataTypes.INTEGER,
-      allowNull: false
+      allowNull: false,
+      references: {
+        model: 'coletas',
+        key: 'idColetas'
+      }
     },
     codigo: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(100),
+      allowNull: false
+    },
+    descricao: {
+      type: DataTypes.TEXT
+    },
+    tipoAmostra: {
+      type: DataTypes.STRING(100),
+      allowNull: false
+    },
+    quantidade: {
+      type: DataTypes.STRING(100),
       allowNull: false
     },
     recipiente: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(100),
       allowNull: false
     },
-    estado: {
-      type: DataTypes.STRING
+    metodoPreservacao: {
+      type: DataTypes.STRING(255),
+      allowNull: false
+    },
+    validade: {
+      type: DataTypes.DATE,
+      allowNull: false
     },
     identificacao_final: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING(255)
     },
     observacoes: {
+      type: DataTypes.TEXT
+    },
+    imageLink: {
       type: DataTypes.TEXT
     }
   }, {
@@ -35,3 +58,4 @@ module.exports = (sequelize) => {
 
   return Amostra;
 };
+
