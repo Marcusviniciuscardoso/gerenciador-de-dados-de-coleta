@@ -1,5 +1,7 @@
 import React from 'react';
 import { Pencil, Mail, Phone, School, Folder, ClipboardList, Camera, Users } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { getUsuarioById } from '../services/usuarioService';
 
 function Usuario() {
   const usuario = {
@@ -25,6 +27,20 @@ function Usuario() {
       { data: '19/01/2024', descricao: 'Colaboração iniciada - Fauna Aquática' },
     ],
   };
+
+  const [user, setUser] = useState();
+  
+  useEffect(() =>{
+    const usuario = async() =>{
+      try{
+        await getUsuarioById();
+      }catch(error){
+        console.error("Erro ao identificar usuário: ", error)
+      }
+    }
+    setUser(usuario);
+  }, [])
+
 
   return (
     <div className="p-8">

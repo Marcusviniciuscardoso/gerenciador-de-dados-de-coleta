@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { criarUsuario } from '../services/usuarioService';
+import { criarCredencial } from '../services/credencialService';
 
 const CadastroUsuario = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({
     nome: '',
+    telefone: '',
     email: '',
     instituicao: '',
-    funcao: '',
+    biografia: '',
     senha: '',
     confirmarSenha: '',
     termos: false
@@ -21,7 +24,7 @@ const CadastroUsuario = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!form.termos) {
@@ -34,8 +37,31 @@ const CadastroUsuario = () => {
       return;
     }
 
-    console.log('Dados enviados:', form);
-    navigate('/login');
+    try {
+      // 1. Criar credencial
+      const credencialResponse = await criarCredencial({
+        email: form.email,
+        senha: form.senha
+      });
+
+      const credencialId = credencialResponse.data.idCredenciais;
+
+      // 2. Criar usuário
+      await criarUsuario({
+        nome: form.nome,
+        telefone: form.telefone,
+        instituicao: form.instituicao,
+        biografia: form.biografia,
+        credencial_id: credencialId
+      });
+
+      alert('Usuário criado com sucesso!');
+      navigate('/login');
+
+    } catch (error) {
+      console.error(error);
+      alert('Erro ao criar usuário');
+    }
   };
 
   return (
@@ -65,6 +91,14 @@ const CadastroUsuario = () => {
             required
           />
           <input
+            name="telefone"
+            type="text"
+            placeholder="Telefone"
+            value={form.telefone}
+            onChange={handleChange}
+            className="input p-2 border"
+          />
+          <input
             name="email"
             type="email"
             placeholder="Email"
@@ -82,18 +116,14 @@ const CadastroUsuario = () => {
             className="input p-2 border"
             required
           />
-          <select
-            name="funcao"
-            value={form.funcao}
+          <input
+            name="biografia"
+            type="text"
+            placeholder="Biografia ou Função"
+            value={form.biografia}
             onChange={handleChange}
             className="input p-2 border"
-            required
-          >
-            <option value="">Selecione sua função</option>
-            <option value="Pesquisador">Pesquisador</option>
-            <option value="Assistente">Assistente</option>
-            <option value="Estudante">Estudante</option>
-          </select>
+          />
 
           <input
             name="senha"
