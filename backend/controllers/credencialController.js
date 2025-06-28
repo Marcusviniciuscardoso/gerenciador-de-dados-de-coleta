@@ -48,11 +48,25 @@ module.exports = {
                 { expiresIn: '7d' }
             );
 
+            res.cookie('token', token, {
+                httpOnly: true,
+                secure: true,              // true se estiver rodando HTTPS
+                sameSite: 'Strict',
+                maxAge: 7 * 24 * 60 * 60 * 1000 // 7 dias
+            });
+
             res.json({ message: 'Login bem-sucedido', token });
         } catch (error) {
             console.error('Erro no login:', error);
             res.status(500).json({ error: 'Erro no login', details: error.message });
         }
+    },
+
+    async logout(req, res) {
+        try{
+            res.clearCookie('token');
+            res.json({ message: 'Logout realizado com sucesso' });
+        }catch{}
     },
 
     async listarCredenciais(req, res) {
