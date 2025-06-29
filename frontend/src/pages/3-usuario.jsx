@@ -1,54 +1,51 @@
 import React from 'react';
-import { Pencil, Mail, Phone, School, Folder, ClipboardList, Camera, Users } from 'lucide-react';
+import { Pencil, Mail, Phone, School /*, Folder, ClipboardList, Camera, Users*/ } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { getUsuarioById } from '../services/usuarioService';
+import { getCredencialById } from '../services/credencialService';
+import { obterUsuarioLogado } from '../services/usuarioService';
 
 function Usuario() {
-  const usuario = {
-    nome: 'Dr. Maria Silva',
-    cargo: 'Pesquisador Ativo',
-    email: 'maria.silva@universidade.edu.br',
-    telefone: '+55 11 99999-9999',
-    instituicao: 'Universidade Federal do Brasil',
-    membroDesde: '14/01/2024',
-    biografia:
-      'Pesquisadora especializada em biodiversidade da Mata Atlântica com mais de 10 anos de experiência em coletas de campo e análises taxonômicas. Doutora em Biologia pela USP, com foco em conservação de espécies nativas.',
-    especializacoes: ['Botânica', 'Taxonomia', 'Conservação', 'Ecologia'],
-    estatisticas: {
-      projetos: 5,
-      coletas: 23,
-      amostras: 87,
-      colaboracoes: 12,
-    },
-    atividades: [
-      { data: '22/01/2024', descricao: 'Nova coleta registrada - Cecropia pachystachya na Trilha do Morro' },
-      { data: '21/01/2024', descricao: 'Amostra catalogada - Folha jovem processada - Código CP-001-F1' },
-      { data: '20/01/2024', descricao: 'Projeto criado - Flora do Cerrado' },
-      { data: '19/01/2024', descricao: 'Colaboração iniciada - Fauna Aquática' },
-    ],
-  };
-
-  const [user, setUser] = useState();
+  const [usuario, setUsuario] = useState({});
+  const [credencial, setCredencial] = useState({});
   
-  useEffect(() =>{
-    const usuario = async() =>{
-      try{
-        await getUsuarioById();
-      }catch(error){
-        console.error("Erro ao identificar usuário: ", error)
+  useEffect(() => {
+    console.log("Chegou aqui");
+    const buscarUsuario = async () => {
+      try {
+        console.log("Chegou aqui");
+        const response = await obterUsuarioLogado();
+        setUsuario(response.data);
+      } catch (error) {
+        console.error("Erro ao identificar usuário:", error);
       }
-    }
-    setUser(usuario);
-  }, [])
+    };
+    buscarUsuario();
+  }, []);
 
+  useEffect(() => {
+    if(!usuario) return;
+    console.log("Chegou aqui");
+    const obterCredencial = async () => {
+      try{
+         const credencial = await getCredencialById(usuario.idUsuarios);
+         setCredencial(credencial);
+      }catch(error){
+         console.error("Não foi possível obter as credencias em usuário: ", error)
+      }
+    };
 
+    obterCredencial();
+  }, [usuario]);
+
+  console.log("vrau")
   return (
     <div className="p-8">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold">Meu Perfil</h1>
-          <p className="text-gray-600">{usuario.cargo}</p>
+          <p className="text-gray-600">Adicionar campo cargo</p>
         </div>
         <button className="flex items-center gap-2 bg-black text-white px-4 py-2 rounded hover:bg-gray-800">
           <Pencil size={16} />
@@ -60,7 +57,7 @@ function Usuario() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div className="space-y-2">
           <p className="flex items-center gap-2">
-            <Mail size={16} /> {usuario.email}
+            <Mail size={16} /> {credencial.email}
           </p>
           <p className="flex items-center gap-2">
             <Phone size={16} /> {usuario.telefone}
@@ -68,10 +65,11 @@ function Usuario() {
           <p className="flex items-center gap-2">
             <School size={16} /> {usuario.instituicao}
           </p>
-          <p className="text-gray-500">Membro desde {usuario.membroDesde}</p>
+          <p className="text-gray-500">Membro desde {usuario.data_cadastro}</p>
         </div>
 
         {/* Estatísticas */}
+        {/*
         <div className="grid grid-cols-2 gap-4">
           <div className="border rounded p-4">
             <p className="text-lg font-semibold flex items-center gap-2">
@@ -91,16 +89,20 @@ function Usuario() {
             </p>
             <p className="text-sm text-gray-600">Amostras catalogadas</p>
           </div>
-          {/*<div className="border rounded p-4">
+          
+          <div className="border rounded p-4">
             <p className="text-lg font-semibold flex items-center gap-2">
               <Users size={16} /> {usuario.estatisticas.colaboracoes}
             </p>
             <p className="text-sm text-gray-600">Projetos colaborativos</p>
-          </div>*/}
+          </div>
         </div>
+        */}
+
       </div>
 
       {/* Biografia */}
+      {/*
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-2">Biografia</h2>
         <p className="text-gray-700">{usuario.biografia}</p>
@@ -115,8 +117,10 @@ function Usuario() {
           ))}
         </div>
       </div>
+      */}
 
       {/* Atividade Recente */}
+      {/*
       <div>
         <h2 className="text-xl font-semibold mb-2">Atividade Recente</h2>
         <ul className="space-y-2">
@@ -128,6 +132,7 @@ function Usuario() {
           ))}
         </ul>
       </div>
+      */}
     </div>
   );
 }

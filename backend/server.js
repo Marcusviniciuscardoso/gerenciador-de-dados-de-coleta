@@ -5,15 +5,17 @@ const fs = require('fs');
 const https = require('https');
 const http = require('http');
 const cookieParser = require('cookie-parser');
+
 const app = express();
 const sequelize = require('./config/database');
 
 // Middlewares
 app.use(express.json());
 app.use(cors({
-  origin: 'https://localhost:3000', // ajuste para o seu frontend
+  origin: ['http://localhost:3001', 'https://localhost:3000'],
   credentials: true
 }));
+app.use(cookieParser());
 
 // 🔗 Rotas
 const credencialRoutes = require('./routes/credencialRoutes');
@@ -29,8 +31,6 @@ app.use('/usuarios', usuarioRoutes);
 app.use('/coletas', coletaRoutes);
 app.use('/amostras', amostraRoutes);
 // app.use('/imagens', imagemRoutes);
-
-app.use(cookieParser());
 
 // 🔐 HTTPS Configuração
 const httpsOptions = {

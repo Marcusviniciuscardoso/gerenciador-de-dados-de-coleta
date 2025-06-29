@@ -12,6 +12,22 @@ module.exports = {
     res.json(usuario);
   },
 
+  async obterUsuarioLogado(req, res) {
+     try{
+        const userId = req.user.id;
+
+        const usuario = await Usuario.findByPk(userId);
+
+        if(!usuario){
+          return res.status(404).json({error: "Usuario não encontrado"})
+        }
+
+        res.json(usuario);
+     }catch(error){
+        console.error("Erro ao obter nome de usuário logado: ", error);
+     }
+  },
+
   async criar(req, res) {
     try {
       const { nome, telefone, instituicao, biografia, credencial_id } = req.body;

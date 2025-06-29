@@ -1,10 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const usuarioController = require('../controllers/usuarioController');
+const auth = require('../middleware/authMiddleware');
 
+// Teste simples
 router.get('/teste', (req, res) => {
   res.send('Rota /usuarios/teste está funcionando');
 });
+
+router.get('/me', auth, usuarioController.obterUsuarioLogado);
 
 // Lista todos os usuários
 router.get('/', usuarioController.listar);
