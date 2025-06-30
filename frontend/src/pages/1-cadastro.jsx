@@ -2,6 +2,33 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { criarUsuario } from '../services/usuarioService';
 import { criarCredencial } from '../services/credencialService';
+import * as Yup from 'yup';
+
+const schema = Yup.object().shape({
+  nome: Yup.string()
+    .required('Nome é obrigatório')
+    .min(3, 'Nome deve ter no mínimo 3 caracteres'),
+  telefone: Yup.string()
+    .matches(/^\d{8,15}$/, 'Telefone inválido')
+    .nullable(),
+  email: Yup.string()
+    .email('Email inválido')
+    .required('Email é obrigatório'),
+  instituicao: Yup.string()
+    .required('Instituição é obrigatória'),
+  biografia: Yup.string()
+    .max(255, 'Biografia muito longa')
+    .nullable(),
+  senha: Yup.string()
+    .required('Senha é obrigatória')
+    .min(6, 'Senha deve ter no mínimo 6 caracteres'),
+  confirmarSenha: Yup.string()
+    .oneOf([Yup.ref('senha')], 'As senhas não coincidem')
+    .required('Confirmação da senha é obrigatória'),
+  termos: Yup.boolean()
+    .oneOf([true], 'Você deve aceitar os termos de uso.')
+});
+
 
 const CadastroUsuario = () => {
   const navigate = useNavigate();
@@ -27,18 +54,20 @@ const CadastroUsuario = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!form.termos) {
+    
+    /*if (!form.termos) {
       alert('Você deve aceitar os termos de uso.');
       return;
-    }
-
-    if (form.senha !== form.confirmarSenha) {
-      alert('As senhas não coincidem.');
-      return;
-    }
-
+      }
+      
+      if (form.senha !== form.confirmarSenha) {
+        alert('As senhas não coincidem.');
+        return;
+        }*/
+       
     try {
-      // 1. Criar credencial
+      await schema.validate(form, { abortEarly: false });
+         // 1. Criar credencial
       const credencialResponse = await criarCredencial({
         email: form.email,
         senha: form.senha

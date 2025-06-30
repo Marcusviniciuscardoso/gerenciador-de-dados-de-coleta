@@ -1,7 +1,6 @@
 import React from 'react';
 import { Pencil, Mail, Phone, School /*, Folder, ClipboardList, Camera, Users*/ } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { getUsuarioById } from '../services/usuarioService';
 import { getCredencialById } from '../services/credencialService';
 import { obterUsuarioLogado } from '../services/usuarioService';
 
@@ -10,33 +9,30 @@ function Usuario() {
   const [credencial, setCredencial] = useState({});
   
   useEffect(() => {
-    console.log("Chegou aqui");
-    const buscarUsuario = async () => {
-      try {
-        console.log("Chegou aqui");
-        const response = await obterUsuarioLogado();
-        setUsuario(response.data);
-      } catch (error) {
-        console.error("Erro ao identificar usuário:", error);
-      }
-    };
-    buscarUsuario();
-  }, []);
+  const buscarDadosUsuario = async () => {
+    try {
+      console.log("Iniciando busca de usuário...");
 
-  useEffect(() => {
-    if(!usuario) return;
-    console.log("Chegou aqui");
-    const obterCredencial = async () => {
-      try{
-         const credencial = await getCredencialById(usuario.idUsuarios);
-         setCredencial(credencial);
-      }catch(error){
-         console.error("Não foi possível obter as credencias em usuário: ", error)
-      }
-    };
+      // 1. Busca o usuário logado
+      const usuarioResponse = await obterUsuarioLogado();
+      console.log("Usuário retornado:", usuarioResponse.data);
+      setUsuario(usuarioResponse.data);
 
-    obterCredencial();
-  }, [usuario]);
+      // 2. Só chama a credencial se tiver usuário
+      if (usuarioResponse.data?.idUsuarios) {
+        const credencialResponse = await getCredencialById(usuarioResponse.data.idUsuarios);
+        console.log("Credencial retornada:", credencialResponse.data);
+        setCredencial(credencialResponse.data);
+      }
+
+    } catch (error) {
+      console.error("Erro ao buscar usuário ou credencial:", error);
+    }
+  };
+
+  buscarDadosUsuario();
+}, []);
+
 
   console.log("vrau")
   return (

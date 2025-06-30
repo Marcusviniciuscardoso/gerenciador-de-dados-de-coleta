@@ -115,6 +115,7 @@ export default ProjetoPage;*/
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Folder, Trash, Pencil } from 'lucide-react';
+import { getProjetoById } from '../services/projetoService';
 
 function ProjetoPageMock() {
   const [projetos, setProjetos] = useState([]);

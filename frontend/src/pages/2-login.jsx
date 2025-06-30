@@ -1,19 +1,35 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { login } from '../services/credencialService'; // 👉 usando o service
+import { login } from '../services/credencialService';
+import * as Yup from 'yup';
+
 
 function Login() {
+
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [lembrar, setLembrar] = useState(false);
   const [erro, setErro] = useState('');
+  
+  const schema = Yup.object().shape({
+    email: Yup.string()
+      .email('Digite um email válido')
+      .required('O campo email é obrigatório'),
+    senha: Yup.string()
+      .min(6, 'A senha deve ter no mínimo 6 caracteres')
+      .required('O campo senha é obrigatório'),
+  });
+
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setErro('');
 
     try {
+
+      await schema.validate({ email, senha }, { abortEarly: false });
+      
       const response = await login({ email, senha }); // ✅ usando o service
 
       const { token } = response.data;
