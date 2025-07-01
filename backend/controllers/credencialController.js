@@ -2,6 +2,7 @@ const sequelize = require('../config/database');
 const { DataTypes } = require('sequelize');
 
 const Credencial = require('../models/credencial')(sequelize, DataTypes);
+const Auditoria = require('../models/auditoria')(sequelize, DataTypes);
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -17,6 +18,12 @@ module.exports = {
             const novaCredencial = await Credencial.create({
                 email,
                 senha_hash: hash
+            });
+
+            // AUDITORIA
+            await Auditoria.create({
+                usuario: email,
+                acao: `Criou uma nova credencial`
             });
 
             res.status(201).json(novaCredencial);
@@ -55,6 +62,12 @@ module.exports = {
                 maxAge: 7 * 24 * 60 * 60 * 1000 // 7 dias
             });
 
+            // AUDITORIA
+            await Auditoria.create({
+                usuario: email,
+                acao: `Realizou login no sistema`
+            });
+
             res.json({ message: 'Login bem-sucedido', token });
         } catch (error) {
             console.error('Erro no login:', error);
@@ -63,15 +76,32 @@ module.exports = {
     },
 
     async logout(req, res) {
-        try{
+        try {
+            const email = req.user?.email || 'desconhecido';
+
+            // AUDITORIA
+            await Auditoria.create({
+                usuario: email,
+                acao: `Realizou logout no sistema`
+            });
+
             res.clearCookie('token');
             res.json({ message: 'Logout realizado com sucesso' });
-        }catch{}
+        } catch (error) {
+            console.error('Erro ao realizar logout:', error);
+            res.status(500).json({ error: 'Erro ao realizar logout', details: error.message });
+        }
     },
 
     async listarCredenciais(req, res) {
         try {
             const credenciais = await Credencial.findAll();
+
+            await Auditoria.create({
+                usuario: req.user?.email || 'desconhecido',
+                acao: `Listou todas as credenciais`
+            });
+
             res.json(credenciais);
         } catch (error) {
             console.error('Erro ao listar credenciais:', error);
@@ -88,6 +118,11 @@ module.exports = {
             if (!credencial) {
                 return res.status(404).json({ error: 'Credencial não encontrada' });
             }
+
+            await Auditoria.create({
+                usuario: req.user?.email || 'desconhecido',
+                acao: `Consultou credencial ID ${id}`
+            });
 
             res.json(credencial);
         } catch (error) {
@@ -112,6 +147,11 @@ module.exports = {
 
             await credencial.save();
 
+            await Auditoria.create({
+                usuario: req.user?.email || 'desconhecido',
+                acao: `Atualizou credencial ID ${id}`
+            });
+
             res.json({ message: 'Credencial atualizada com sucesso', credencial });
         } catch (error) {
             console.error('Erro ao atualizar credencial:', error);
@@ -130,6 +170,11 @@ module.exports = {
             }
 
             await credencial.destroy();
+
+            await Auditoria.create({
+                usuario: req.user?.email || 'desconhecido',
+                acao: `Deletou credencial ID ${id}`
+            });
 
             res.json({ message: 'Credencial deletada com sucesso' });
         } catch (error) {

@@ -1,9 +1,16 @@
-const { Coleta } = require('../models');
+const { Coleta, Auditoria } = require('../models');
 
 module.exports = {
   async listar(req, res) {
     try {
       const coletas = await Coleta.findAll();
+
+      // AUDITORIA
+      await Auditoria.create({
+        usuario: req.user?.email || 'desconhecido',
+        acao: 'Listou todas as coletas'
+      });
+
       res.json(coletas);
     } catch (error) {
       console.error('Erro ao listar coletas:', error);
@@ -41,6 +48,12 @@ module.exports = {
         coletado_por
       });
 
+      // AUDITORIA
+      await Auditoria.create({
+        usuario: req.user?.email || 'desconhecido',
+        acao: `Criou coleta no local ${coleta.local}`
+      });
+
       res.status(201).json(coleta);
     } catch (error) {
       console.error('Erro ao criar coleta:', error);
@@ -55,6 +68,13 @@ module.exports = {
 
       await Coleta.update(dados, { where: { idColetas: id } });
       const coletaAtualizada = await Coleta.findByPk(id);
+
+      // AUDITORIA
+      await Auditoria.create({
+        usuario: req.user?.email || 'desconhecido',
+        acao: `Atualizou coleta ID ${id}`
+      });
+
       res.json(coletaAtualizada);
     } catch (error) {
       console.error('Erro ao atualizar coleta:', error);
@@ -65,7 +85,15 @@ module.exports = {
   async deletar(req, res) {
     try {
       const { id } = req.params;
+
       await Coleta.destroy({ where: { idColetas: id } });
+
+      // AUDITORIA
+      await Auditoria.create({
+        usuario: req.user?.email || 'desconhecido',
+        acao: `Deletou coleta ID ${id}`
+      });
+
       res.status(204).send();
     } catch (error) {
       console.error('Erro ao deletar coleta:', error);

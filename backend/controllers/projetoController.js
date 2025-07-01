@@ -1,9 +1,17 @@
 const { Projeto } = require('../models');
+const { Auditoria } = require('../models');
 
 module.exports = {
   async listar(req, res) {
     try {
       const projetos = await Projeto.findAll();
+
+      // AUDITORIA
+      await Auditoria.create({
+        usuario: req.user?.email || 'desconhecido',
+        acao: 'Listou todos os projetos'
+      });
+
       res.json(projetos);
     } catch (error) {
       console.error('Erro ao listar projetos:', error);
@@ -45,6 +53,12 @@ module.exports = {
         imageLink
       });
 
+      // AUDITORIA
+      await Auditoria.create({
+        usuario: req.user?.email || 'desconhecido',
+        acao: `Criou o projeto ${nome}`
+      });
+
       res.status(201).json(projeto);
     } catch (error) {
       console.error('Erro ao criar projeto:', error);
@@ -59,6 +73,13 @@ module.exports = {
 
       await Projeto.update(dados, { where: { idProjetos: id } });
       const projetoAtualizado = await Projeto.findByPk(id);
+
+      // AUDITORIA
+      await Auditoria.create({
+        usuario: req.user?.email || 'desconhecido',
+        acao: `Atualizou o projeto ID ${id}`
+      });
+
       res.json(projetoAtualizado);
     } catch (error) {
       console.error('Erro ao atualizar projeto:', error);
@@ -70,6 +91,13 @@ module.exports = {
     try {
       const { id } = req.params;
       await Projeto.destroy({ where: { idProjetos: id } });
+
+      // AUDITORIA
+      await Auditoria.create({
+        usuario: req.user?.email || 'desconhecido',
+        acao: `Deletou o projeto ID ${id}`
+      });
+
       res.status(204).send();
     } catch (error) {
       console.error('Erro ao deletar projeto:', error);

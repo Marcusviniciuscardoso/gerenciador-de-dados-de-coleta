@@ -1,9 +1,16 @@
-const { Amostra } = require('../models');
+const { Amostra, Auditoria } = require('../models');
 
 module.exports = {
   async listar(req, res) {
     try {
       const amostras = await Amostra.findAll();
+
+      // REGISTRO DE AUDITORIA
+      await Auditoria.create({
+        usuario: req.user?.email || 'desconhecido',
+        acao: 'Listou todas as amostras'
+      });
+
       res.json(amostras);
     } catch (error) {
       console.error('Erro ao listar amostras:', error);
@@ -41,6 +48,12 @@ module.exports = {
         imageLink
       });
 
+      // REGISTRO DE AUDITORIA
+      await Auditoria.create({
+        usuario: req.user?.email || 'desconhecido',
+        acao: `Criou amostra ${amostra.codigo}`
+      });
+
       res.status(201).json(amostra);
     } catch (error) {
       console.error('Erro ao criar amostra:', error);
@@ -55,6 +68,13 @@ module.exports = {
 
       await Amostra.update(dados, { where: { idAmostras: id } });
       const amostraAtualizada = await Amostra.findByPk(id);
+
+      // REGISTRO DE AUDITORIA
+      await Auditoria.create({
+        usuario: req.user?.email || 'desconhecido',
+        acao: `Atualizou amostra ID ${id}`
+      });
+
       res.json(amostraAtualizada);
     } catch (error) {
       console.error('Erro ao atualizar amostra:', error);
@@ -65,7 +85,15 @@ module.exports = {
   async deletar(req, res) {
     try {
       const { id } = req.params;
+
       await Amostra.destroy({ where: { idAmostras: id } });
+
+      // REGISTRO DE AUDITORIA
+      await Auditoria.create({
+        usuario: req.user?.email || 'desconhecido',
+        acao: `Deletou amostra ID ${id}`
+      });
+
       res.status(204).send();
     } catch (error) {
       console.error('Erro ao deletar amostra:', error);
