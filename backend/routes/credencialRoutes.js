@@ -1,23 +1,38 @@
 const express = require('express');
 const router = express.Router();
 const credencialController = require('../controllers/credencialController');
+const { body } = require('express-validator');
+const auth = require('../middleware/authMiddleware');
 
-// Fazer login
-router.post('/login', credencialController.login);
+// Login (público)
+router.post(
+  '/login',
+  [
+    body('email').isEmail().withMessage('Email inválido'),
+    body('senha').notEmpty().withMessage('Senha obrigatória')
+  ],
+  credencialController.login
+);
 
-// Registrar
-router.post('/registrar', credencialController.criarCredencial);
+// Registrar (público)
+router.post(
+  '/registrar',
+  [
+    body('email').isEmail().withMessage('Email inválido'),
+    body('senha')
+      .isLength({ min: 6 })
+      .withMessage('A senha deve ter no mínimo 6 caracteres')
+  ],
+  credencialController.criarCredencial
+);
 
-// Listar todas as credenciais (admin)
-router.get('/', credencialController.listarCredenciais);
+// ⚠️ Rotas abaixo protegidas!
+router.get('/', auth, credencialController.listarCredenciais);
 
-// Buscar por ID
-router.get('/:id', credencialController.buscarCredencialPorId);
+router.get('/:id', auth, credencialController.buscarCredencialPorId);
 
-// Atualizar
-router.put('/:id', credencialController.atualizarCredencial);
+router.put('/:id', auth, credencialController.atualizarCredencial);
 
-// Deletar
-router.delete('/:id', credencialController.deletarCredencial);
+router.delete('/:id', auth, credencialController.deletarCredencial);
 
 module.exports = router;

@@ -1,21 +1,22 @@
 const express = require('express');
 const router = express.Router();
 const amostraController = require('../controllers/amostraController');
+const auth = require('../middleware/authMiddleware');
 
 // Listar todas as amostras
-router.get('/', amostraController.listar);
+router.get('/', auth, amostraController.listar);
 
 // Buscar uma amostra por ID
 //TODO: Descobrir o BUG
 //router.get('/:id', amostraController.obterPorId);
 
 // Criar uma nova amostra
-router.post('/', amostraController.criar);
+router.post('/', auth, amostraController.criar);
 
 // Atualizar uma amostra existente
-router.put('/:id', amostraController.atualizar);
+router.put('/:id', auth, amostraController.atualizar);
 
 // Deletar uma amostra
-router.delete('/:id', amostraController.deletar);
+router.delete('/:id', auth, amostraController.deletar);
 
 module.exports = router;
