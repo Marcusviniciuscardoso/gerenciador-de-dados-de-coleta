@@ -87,9 +87,15 @@ const CadastroUsuario = () => {
       alert('Usuário criado com sucesso!');
       navigate('/login');
 
-    } catch (error) {
-      console.error(error);
-      alert('Erro ao criar usuário');
+    } catch (err) {
+      if (err.name === 'ValidationError') {
+      // Junta todas as mensagens
+        const mensagem = err.errors.join('\n');
+        alert(mensagem);
+      } else {
+      console.error(err);
+      alert('Erro ao criar usuário.');
+    }
     }
   };
 
