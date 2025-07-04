@@ -115,18 +115,31 @@ export default ProjetoPage;*/
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Folder, Trash, Pencil } from 'lucide-react';
-import { getProjetoById } from '../services/projetoService';
+import { getProjetoById, atualizarProjeto, deletarProjeto } from '../services/projetoService';
+import { obterUsuarioLogado } from '../services/usuarioService';
 
 function ProjetoPageMock() {
   const [projetos, setProjetos] = useState([]);
   const [busca, setBusca] = useState('');
+  const [usuario, setUsuario] = useState([]);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    carregarProjetosMock();
-  }, []);
+  useEffect(() =>{
+    const obterProjetoId = async() =>{
+      try{
+        const usuarioResponse = await obterUsuarioLogado();
+        setUsuario(usuarioResponse.data);
+        const projetoResponse = await getProjetoById(usuario.idUsuario);
+        setProjetos(projetoResponse.data);
+      }catch(error){
+          console.error("Erro na obtenção dos projetos, ", error);
+      }
+    }
 
-  const carregarProjetosMock = () => {
+    obterProjetoId();
+  }, [usuario.idUsuario])
+
+  /*const carregarProjetosMock = () => {
     const dadosFake = [
       {
         id: 1,
@@ -154,11 +167,11 @@ function ProjetoPageMock() {
       },
     ];
     setProjetos(dadosFake);
-  };
+  };*/
 
   const excluirProjeto = (id) => {
     if (window.confirm('Tem certeza que deseja excluir este projeto?')) {
-      setProjetos(projetos.filter((p) => p.id !== id));
+      setProjetos(projetos.filter((p) => p.idProjetos !== id));
     }
   };
 
@@ -231,7 +244,7 @@ function ProjetoPageMock() {
                 <Pencil className="w-4 h-4" />
               </button>
               <button
-                onClick={() => excluirProjeto(projeto.id)}
+                onClick={() => excluirProjeto(projeto.idProjeto)}
                 className="p-2 border rounded hover:bg-red-100"
               >
                 <Trash className="w-4 h-4 text-red-500" />

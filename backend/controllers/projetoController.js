@@ -103,5 +103,28 @@ module.exports = {
       console.error('Erro ao deletar projeto:', error);
       res.status(500).json({ error: 'Erro ao deletar projeto', detalhes: error.message });
     }
+  },
+
+  async obterPorId(req, res) {
+    try {
+      const { id } = req.params;
+
+      const projeto = await Projeto.findByPk(id);
+
+      if (!projeto) {
+        return res.status(404).json({ error: 'Projeto não encontrado' });
+      }
+
+      // AUDITORIA
+      await Auditoria.create({
+        usuario: req.user?.email || 'desconhecido',
+        acao: `Consultou o projeto ID ${id}`
+      });
+
+      res.json(projeto);
+    } catch (error) {
+      console.error('Erro ao obter projeto por ID:', error);
+      res.status(500).json({ error: 'Erro ao obter projeto', detalhes: error.message });
+    }
   }
 };

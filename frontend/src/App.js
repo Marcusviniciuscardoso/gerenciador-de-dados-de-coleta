@@ -3,6 +3,7 @@ import { db } from './db/database';
 import './App.css';
 import { useParams, Link, useNavigate } from 'react-router-dom'; // adicionado useNavigate
 
+
 function App() {
   const { pastaId } = useParams();
   const navigate = useNavigate(); // necessário para redirecionamento

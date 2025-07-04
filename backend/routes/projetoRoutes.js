@@ -8,7 +8,7 @@ router.get('/', auth, projetoController.listar);
 
 // Busca um projeto específico por ID
 //TODO: Entender qual o erro aqui
-//router.get('/:id', projetoController.obterPorId);
+router.get('/:id', auth, projetoController.obterPorId);
 
 // Cria um novo projeto
 router.post('/', auth, projetoController.criar);
