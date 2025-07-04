@@ -129,7 +129,7 @@ function ProjetoPageMock() {
       try{
         const usuarioResponse = await obterUsuarioLogado();
         setUsuario(usuarioResponse.data);
-        const projetoResponse = await getProjetoById(usuario.idUsuario);
+        const projetoResponse = await getProjetoById(usuarioResponse.data.idUsuarios);
         setProjetos(projetoResponse.data);
       }catch(error){
           console.error("Erro na obtenção dos projetos, ", error);

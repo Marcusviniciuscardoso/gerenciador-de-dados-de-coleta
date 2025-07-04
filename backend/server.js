@@ -1,4 +1,7 @@
-require('dotenv').config();
+require('dotenv').config({ path: './.env' });
+console.log("🔍 Working directory:", process.cwd());
+
+console.log("🗝️ JWT_SECRET =", process.env.JWT_SECRET);
 const express = require('express');
 const cors = require('cors');
 const fs = require('fs');

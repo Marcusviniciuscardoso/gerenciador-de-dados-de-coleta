@@ -11,6 +11,7 @@ module.exports = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, SECRET);
     req.user = decoded; // Ex: { id: 3, email: 'fulano@x.com' }
+    console.log("Token encontrado: ", token)
     next();
   } catch (error) {
     return res.status(401).json({ error: 'Token inválido' });

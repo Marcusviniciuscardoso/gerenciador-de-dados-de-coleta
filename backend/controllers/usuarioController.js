@@ -41,7 +41,11 @@ module.exports = {
   async obterUsuarioLogado(req, res) {
     try {
       const userId = req.user.id;
-      const usuario = await Usuario.findByPk(userId);
+      console.log("UserID: ", userId);
+      const usuario = await Usuario.findOne({
+        where: { credencial_id: userId }
+      });
+      console.log("Usuario: ", usuario);
 
       if (!usuario) {
         return res.status(404).json({ error: 'Usuário não encontrado' });

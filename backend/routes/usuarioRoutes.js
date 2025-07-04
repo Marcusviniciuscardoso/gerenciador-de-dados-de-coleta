@@ -21,7 +21,6 @@ router.get('/:id', auth, usuarioController.obterPorId);
 // Cria usuário (se desejar deixar público, remova o `auth` daqui)
 router.post(
   '/',
-  auth,
   [
     body('nome').notEmpty().withMessage('O nome é obrigatório'),
     body('email').isEmail().withMessage('O email deve ser válido'),
