@@ -131,14 +131,15 @@ function ProjetoPageMock() {
         setUsuario(usuarioResponse.data);
         const projetoResponse = await getProjetoById(usuarioResponse.data.idUsuarios);
         setProjetos(projetoResponse.data);
+        //console.log("Olha o projeto response: ", projetoResponse);
       }catch(error){
-          console.error("Erro na obtenção dos projetos, ", error);
+        console.error("Erro na obtenção dos projetos, ", error);
       }
     }
-
+    
     obterProjetoId();
-  }, [usuario.idUsuario])
-
+  }, [usuario.idUsuarios])
+  
   /*const carregarProjetosMock = () => {
     const dadosFake = [
       {
@@ -148,7 +149,7 @@ function ProjetoPageMock() {
         coletas: 12,
         amostras: 54,
         data_criacao: '2024-05-10',
-      },
+        },
       {
         id: 2,
         nome: 'Monitoramento de Mariposas',
@@ -156,28 +157,30 @@ function ProjetoPageMock() {
         coletas: 8,
         amostras: 32,
         data_criacao: '2023-11-22',
-      },
-      {
-        id: 3,
-        nome: 'Impacto Ambiental em Rios',
-        descricao: 'Acompanhamento da qualidade da água',
-        coletas: 5,
-        amostras: 20,
-        data_criacao: '2024-02-15',
-      },
-    ];
-    setProjetos(dadosFake);
-  };*/
-
+        },
+        {
+          id: 3,
+          nome: 'Impacto Ambiental em Rios',
+          descricao: 'Acompanhamento da qualidade da água',
+          coletas: 5,
+          amostras: 20,
+          data_criacao: '2024-02-15',
+          },
+          ];
+          setProjetos(dadosFake);
+          };*/
+          
+  console.log("Obteve usuario logado: ", usuario);
+  console.log("Olha os projetos: ", projetos);
   const excluirProjeto = (id) => {
     if (window.confirm('Tem certeza que deseja excluir este projeto?')) {
       setProjetos(projetos.filter((p) => p.idProjetos !== id));
     }
   };
 
-  const projetosFiltrados = projetos.filter((p) =>
+  /*const projetosFiltrados = projetos.filter((p) =>
     p.nome.toLowerCase().includes(busca.toLowerCase())
-  );
+  );*/
 
   return (
     <div className="p-8">
@@ -209,11 +212,11 @@ function ProjetoPageMock() {
       </div>
 
       <p className="mb-4 text-gray-600">
-        {projetosFiltrados.length} projetos encontrados
+        {projetos.length} projetos encontrados
       </p>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {projetosFiltrados.map((projeto) => (
+        {projetos.map((projeto) => (
           <div key={projeto.id} className="border rounded-lg p-4">
             <div className="flex justify-between items-center mb-2">
               <h2 className="text-lg font-semibold">
@@ -227,7 +230,8 @@ function ProjetoPageMock() {
               <p>{projeto.amostras} amostras</p>
             </div>
             <p className="text-sm text-gray-500 mt-1">
-              Criado em {new Date(projeto.data_criacao).toLocaleDateString()}
+              {/*Criado em {new Date(projeto.data_criacao).toLocaleDateString()}*/}
+              Criado em {projeto.data_inicio}
             </p>
 
             <div className="flex gap-2 mt-4">

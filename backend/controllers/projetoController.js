@@ -109,7 +109,9 @@ module.exports = {
     try {
       const { id } = req.params;
 
-      const projeto = await Projeto.findByPk(id);
+      const projeto = await Projeto.findAll({
+        where: {criado_por: id}
+      });
 
       if (!projeto) {
         return res.status(404).json({ error: 'Projeto não encontrado' });
