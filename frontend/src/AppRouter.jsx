@@ -29,7 +29,7 @@ function AppRouter() {
           <Route path="/projetos/novo" element={<CriarProjeto />} />
           <Route path="/projetos/:id" element={<ProjetoId />} />
 
-          <Route path="/projetos/id/coletas/novo" element={<CriarColeta />} />
+          <Route path="/projetos/:id/coletas/novo" element={<CriarColeta />} />
           <Route path="/projetos/id/coletas/coletaId" element={<ColetaId />} />
 
           <Route path="/projetos/id/coletas/coletaId/amostras/novo" element={<CriarAmostra />} />

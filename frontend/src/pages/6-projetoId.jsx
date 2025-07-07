@@ -184,7 +184,7 @@ function ProjetoIdMock() {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold">Coletas Recentes</h2>
         <button
-          onClick={() => navigate(`/coletas/nova/${coletas.idColetas}`)}
+          onClick={() => navigate(`coletas/novo/`)}
           className="flex items-center bg-black text-white px-4 py-2 rounded hover:bg-gray-800"
         >
           <Plus className="w-4 h-4 mr-2" />
