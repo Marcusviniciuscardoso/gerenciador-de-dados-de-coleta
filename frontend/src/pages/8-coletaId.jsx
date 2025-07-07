@@ -95,7 +95,7 @@ function Coleta() {
             )}
 
             <Link
-              to={`/projetos/id/coletas/${coletaId}/amostras/${amostra.idAmostras}`}
+              to={`/projetos/${id}/coletas/${coletaId}/amostras/${amostra.idAmostras}`}
               className="inline-block mt-4 text-sm text-blue-600 hover:underline"
             >
               Ver Detalhes

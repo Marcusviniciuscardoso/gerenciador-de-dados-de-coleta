@@ -33,7 +33,7 @@ function AppRouter() {
           <Route path="/projetos/:id/coletas/:coletaId" element={<ColetaId />} />
 
           <Route path="/projetos/:id/coletas/:coletaId/amostras/novo" element={<CriarAmostra />} />
-          <Route path="/projetos/id/coletas/coletaId/amostras/amostraId" element={<AmostrasId />} />
+          <Route path="/projetos/:id/coletas/:coletaId/amostras/:amostraId" element={<AmostrasId />} />
         </Route>
       </Routes>
     </Router>
