@@ -45,6 +45,7 @@ module.exports = {
 
   async criar(req, res) {
     try {
+      console.log("Olha o req body: ", req.body)
       const {
         coletaId,
         codigo,

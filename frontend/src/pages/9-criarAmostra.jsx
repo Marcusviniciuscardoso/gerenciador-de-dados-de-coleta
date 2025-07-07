@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Plus, ArrowLeft } from 'lucide-react';
-import api from '../services/api';
+import { criarAmostra } from '../services/amostraService';
 
 function NovaAmostra() {
   const { projetoId, coletaId } = useParams();
@@ -12,20 +12,12 @@ function NovaAmostra() {
     codigo: '',
     tipoAmostra: '',
     recipiente: '',
-    idRecipiente: '',
     metodoPreservacao: '',
-    localArmazenamento: '',
-    //temperatura: '',
     quantidade: '',
-    unidade: '',
     validade: '',
-    coletadoPor: '',
-    //processadoPor: '',
-    avaliacaoQualidade: '',
-    notasProcessamento: '',
-    tags: '',
+    identificacao_final: '',
     observacoes: '',
-    imagens: [],
+    imagens: [], // vai ficar vazio se não estiver enviando arquivos
   });
 
   const handleImagem = (e) => {
@@ -40,17 +32,12 @@ function NovaAmostra() {
 
   const salvarAmostra = async () => {
     try {
-      const formData = new FormData();
-      Object.entries(form).forEach(([key, value]) => {
-        if (key === 'imagens') {
-          value.forEach((img) => formData.append('imagens', img));
-        } else {
-          formData.append(key, value);
-        }
-      });
-      formData.append('coletaId', coletaId);
+      const payload = {
+        ...form,
+        coletaId,
+      };
 
-      await api.post(`/amostras`, formData);
+      await criarAmostra(payload);
       alert('Amostra registrada com sucesso!');
       navigate(`/projetos/${projetoId}/coletas/${coletaId}`);
     } catch (error) {
@@ -82,9 +69,34 @@ function NovaAmostra() {
         <div>
           <h2 className="text-lg font-semibold mb-3">Identificação da Amostra</h2>
           <div className="flex flex-col gap-3">
-            <input name="descricao" value={form.descricao} onChange={handleChange} placeholder="Descrição da Amostra *" className="border rounded px-3 py-2" />
-            <input name="codigo" value={form.codigo} onChange={handleChange} placeholder="Código de Identificação *" className="border rounded px-3 py-2" />
-            <input name="tipoAmostra" value={form.tipoAmostra} onChange={handleChange} placeholder="Tipo de Amostra (Ex: Tecido)" className="border rounded px-3 py-2" />
+            <input
+              name="descricao"
+              value={form.descricao}
+              onChange={handleChange}
+              placeholder="Descrição da Amostra *"
+              className="border rounded px-3 py-2"
+            />
+            <input
+              name="codigo"
+              value={form.codigo}
+              onChange={handleChange}
+              placeholder="Código de Identificação *"
+              className="border rounded px-3 py-2"
+            />
+            <input
+              name="tipoAmostra"
+              value={form.tipoAmostra}
+              onChange={handleChange}
+              placeholder="Tipo de Amostra (Ex: Folha, Solo)"
+              className="border rounded px-3 py-2"
+            />
+            <input
+              name="identificacao_final"
+              value={form.identificacao_final}
+              onChange={handleChange}
+              placeholder="Identificação Final"
+              className="border rounded px-3 py-2"
+            />
           </div>
         </div>
 
@@ -92,11 +104,20 @@ function NovaAmostra() {
         <div>
           <h2 className="text-lg font-semibold mb-3">Armazenamento</h2>
           <div className="flex flex-col gap-3">
-            <input name="recipiente" value={form.recipiente} onChange={handleChange} placeholder="Tipo de Recipiente *" className="border rounded px-3 py-2" />
-            <input name="idRecipiente" value={form.idRecipiente} onChange={handleChange} placeholder="ID do Recipiente" className="border rounded px-3 py-2" />
-            <input name="metodoPreservacao" value={form.metodoPreservacao} onChange={handleChange} placeholder="Método de Preservação *" className="border rounded px-3 py-2" />
-            <input name="localArmazenamento" value={form.localArmazenamento} onChange={handleChange} placeholder="Local de Armazenamento" className="border rounded px-3 py-2" />
-            {/*<input name="temperatura" value={form.temperatura} onChange={handleChange} placeholder="Temperatura (°C)" className="border rounded px-3 py-2" />*/}
+            <input
+              name="recipiente"
+              value={form.recipiente}
+              onChange={handleChange}
+              placeholder="Tipo de Recipiente *"
+              className="border rounded px-3 py-2"
+            />
+            <input
+              name="metodoPreservacao"
+              value={form.metodoPreservacao}
+              onChange={handleChange}
+              placeholder="Método de Preservação *"
+              className="border rounded px-3 py-2"
+            />
           </div>
         </div>
 
@@ -104,43 +125,45 @@ function NovaAmostra() {
         <div>
           <h2 className="text-lg font-semibold mb-3">Quantificação</h2>
           <div className="flex flex-col gap-3">
-            <input name="quantidade" value={form.quantidade} onChange={handleChange} placeholder="Quantidade" className="border rounded px-3 py-2" />
-            <input name="unidade" value={form.unidade} onChange={handleChange} placeholder="Unidade (Ex: gramas)" className="border rounded px-3 py-2" />
-            <input name="validade" type="date" value={form.validade} onChange={handleChange} className="border rounded px-3 py-2" />
+            <input
+              name="quantidade"
+              value={form.quantidade}
+              onChange={handleChange}
+              placeholder="Quantidade *"
+              className="border rounded px-3 py-2"
+            />
+            <input
+              name="validade"
+              type="date"
+              value={form.validade}
+              onChange={handleChange}
+              className="border rounded px-3 py-2"
+            />
           </div>
         </div>
 
-        {/* Responsáveis */}
+        {/* Observações */}
         <div>
-          <h2 className="text-lg font-semibold mb-3">Responsáveis</h2>
-          <div className="flex flex-col gap-3">
-            <input name="coletadoPor" value={form.coletadoPor} onChange={handleChange} placeholder="Coletado por" className="border rounded px-3 py-2" />
-            {/*<input name="processadoPor" value={form.processadoPor} onChange={handleChange} placeholder="Processado por" className="border rounded px-3 py-2" />*/}
-          </div>
+          <h2 className="text-lg font-semibold mb-3">Observações</h2>
+          <textarea
+            name="observacoes"
+            value={form.observacoes}
+            onChange={handleChange}
+            placeholder="Observações gerais"
+            className="border rounded px-3 py-2"
+          />
         </div>
-
-        {/* Avaliação 
-        <div>
-          <h2 className="text-lg font-semibold mb-3">Avaliação de Qualidade</h2>
-          <div className="flex flex-col gap-3">
-            <textarea name="avaliacaoQualidade" value={form.avaliacaoQualidade} onChange={handleChange} placeholder="Descreva a qualidade da amostra" className="border rounded px-3 py-2" />
-            <textarea name="notasProcessamento" value={form.notasProcessamento} onChange={handleChange} placeholder="Notas de Processamento" className="border rounded px-3 py-2" />
-          </div>
-        </div>*/}
-
-        {/* Tags e Observações 
-        <div>
-          <h2 className="text-lg font-semibold mb-3">Tags e Observações</h2>
-          <div className="flex flex-col gap-3">
-            <input name="tags" value={form.tags} onChange={handleChange} placeholder="Tags" className="border rounded px-3 py-2" />
-            <textarea name="observacoes" value={form.observacoes} onChange={handleChange} placeholder="Observações Gerais" className="border rounded px-3 py-2" />
-          </div>
-        </div>*/}
 
         {/* Imagens */}
         <div className="col-span-2">
           <h2 className="text-lg font-semibold mb-3">Documentação Fotográfica</h2>
-          <input type="file" multiple accept="image/*" onChange={handleImagem} className="border rounded px-3 py-2" />
+          <input
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={handleImagem}
+            className="border rounded px-3 py-2"
+          />
           <p className="text-sm text-gray-500 mt-1">Máximo 10 imagens</p>
         </div>
       </div>

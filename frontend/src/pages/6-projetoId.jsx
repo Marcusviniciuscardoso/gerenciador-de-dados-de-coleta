@@ -214,7 +214,7 @@ function ProjetoIdMock() {
             </div>
             <div className="flex items-center gap-2 mt-2 md:mt-0">
               <button
-                onClick={() => navigate(`/projetos/id/coletas/${coletas.idColetas}`)}
+                onClick={() => navigate(`/projetos/${id}/coletas/${coleta.idColetas}`)}
                 className="border px-3 py-1 rounded hover:bg-gray-100"
               >
                 Ver Detalhes
