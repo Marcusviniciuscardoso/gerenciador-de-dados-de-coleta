@@ -149,20 +149,41 @@ export default ProjetoId;*/
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Plus, Pencil, Trash } from 'lucide-react';
+import { obterUsuarioLogado } from '../services/usuarioService';
+import { getProjetoById } from '../services/projetoService';
+import { getColetaById } from '../services/coletaService';
+import { getAmostraById } from '../services/amostraService';
 
 function ProjetoIdMock() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [projeto, setProjeto] = useState({});
+  const [projeto, setProjetos] = useState({});
   const [coletas, setColetas] = useState([]);
   const [amostras, setAmostras] = useState([]);
+  const [usuario, setUsuario] = useState([]);
 
-  useEffect(() => {
-    carregarDadosMock();
-  }, [id]);
+ useEffect(() =>{
+    const obterProjetoId = async() =>{
+      try{
+        const usuarioResponse = await obterUsuarioLogado();
+        setUsuario(usuarioResponse.data);
+        const projetoResponse = await getProjetoById(usuarioResponse.data.idUsuarios);
+        setProjetos(projetoResponse.data);
+        const coletaResponse = await getColetaById(usuarioResponse.data.idUsuarios);
+        setColetas(coletaResponse);
+        const amostraResponse = await getAmostraById(usuarioResponse.data.idUsuarios);
+        setAmostras(amostraResponse);
+        //console.log("Olha o projeto response: ", projetoResponse);
+      }catch(error){
+        console.error("Erro na obtenção dos projetos, ", error);
+      }
+    }
+    
+    obterProjetoId();
+  }, [usuario.idUsuarios])
 
-  const carregarDadosMock = () => {
+  /*const carregarDadosMock = () => {
     const projetoMock = {
       id,
       nome: 'Projeto Mata Atlântica',
@@ -203,7 +224,7 @@ function ProjetoIdMock() {
     setProjeto(projetoMock);
     setColetas(coletasMock);
     setAmostras(amostrasMock);
-  };
+  };*/
 
   const contarAmostrasPorColeta = (coletaId) => {
     return amostras.filter((a) => a.coletaId === coletaId).length;

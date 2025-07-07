@@ -190,7 +190,7 @@ function ProjetoPageMock() {
           <p className="text-gray-600">Gerencie todos os seus projetos de pesquisa</p>
         </div>
         <button
-          onClick={() => navigate('/novo-projeto')}
+          onClick={() => navigate('novo')}
           className="flex items-center bg-black text-white px-4 py-2 rounded hover:bg-gray-800"
         >
           <Plus className="w-4 h-4 mr-2" />
