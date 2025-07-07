@@ -18,6 +18,34 @@ module.exports = {
     }
   },
 
+  async obterPorId(req, res) {
+    try {
+      const { id } = req.params;
+      console.log("Olha os params: ", req.params);
+      const coleta = await Coleta.findAll({
+        where: {projetoId: id}
+      });
+      console.log("Espia o Id: ", id);
+      console.log("Espia a coleta: ", coleta);
+
+      if (!coleta) {
+        return res.status(404).json({ error: 'Coleta não encontrada' });
+      }
+
+      // AUDITORIA
+      await Auditoria.create({
+        usuario: req.user?.email || 'desconhecido',
+        acao: `Consultou a coleta ID ${id}`
+      });
+
+      res.json(coleta);
+    } catch (error) {
+      console.error('Erro ao obter coleta por ID:', error);
+      res.status(500).json({ error: 'Erro ao obter coleta', detalhes: error.message });
+    }
+  },
+
+
   async criar(req, res) {
     try {
       const {

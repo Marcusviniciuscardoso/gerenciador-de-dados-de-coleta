@@ -110,7 +110,7 @@ module.exports = {
       const { id } = req.params;
 
       const projeto = await Projeto.findAll({
-        where: {criado_por: id}
+        where: {idProjetos: id}
       });
 
       if (!projeto) {

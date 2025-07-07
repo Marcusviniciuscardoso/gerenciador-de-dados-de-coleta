@@ -236,19 +236,19 @@ function ProjetoPageMock() {
 
             <div className="flex gap-2 mt-4">
               <button
-                onClick={() => navigate(`/projetos/id`)}
+                onClick={() => navigate(`/projetos/${projeto.idProjetos}`)}
                 className="flex-1 border rounded px-3 py-1 hover:bg-gray-100"
               >
                 Ver Detalhes
               </button>
               <button
-                onClick={() => navigate(`/projetos/editar/${projeto.id}`)}
+                onClick={() => navigate(`/projetos/editar/${projeto.idProjetos}`)}
                 className="p-2 border rounded hover:bg-gray-100"
               >
                 <Pencil className="w-4 h-4" />
               </button>
               <button
-                onClick={() => excluirProjeto(projeto.idProjeto)}
+                onClick={() => excluirProjeto(projeto.idProjetos)}
                 className="p-2 border rounded hover:bg-red-100"
               >
                 <Trash className="w-4 h-4 text-red-500" />

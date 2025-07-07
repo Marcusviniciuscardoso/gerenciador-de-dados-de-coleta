@@ -18,6 +18,31 @@ module.exports = {
     }
   },
 
+  async obterPorId(req, res) {
+    try {
+      const { id } = req.params;
+
+      const amostra = await Amostra.findAll({
+        where: {coletaId: id}
+      });
+
+      if (!amostra) {
+        return res.status(404).json({ error: 'Amostra não encontrada' });
+      }
+
+      // REGISTRO DE AUDITORIA
+      await Auditoria.create({
+        usuario: req.user?.email || 'desconhecido',
+        acao: `Consultou a amostra ID ${id}`
+      });
+
+      res.json(amostra);
+    } catch (error) {
+      console.error('Erro ao obter amostra por ID:', error);
+      res.status(500).json({ error: 'Erro ao obter amostra', detalhes: error.message });
+    }
+  },
+
   async criar(req, res) {
     try {
       const {

@@ -8,7 +8,7 @@ router.get('/', auth, amostraController.listar);
 
 // Buscar uma amostra por ID
 //TODO: Descobrir o BUG
-//router.get('/:id', amostraController.obterPorId);
+router.get('/:id', amostraController.obterPorId);
 
 // Criar uma nova amostra
 router.post('/', auth, amostraController.criar);

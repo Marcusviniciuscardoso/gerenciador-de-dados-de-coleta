@@ -8,7 +8,7 @@ router.get('/', auth, coletaController.listar);
 
 // Buscar uma coleta por ID
 //TODO: Descobrir o erro
-//router.get('/:id', coletaController.obterPorId);
+router.get('/:id', auth, coletaController.obterPorId);
 
 // Criar uma nova coleta
 router.post('/', auth, coletaController.criar);
