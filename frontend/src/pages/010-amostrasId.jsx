@@ -239,6 +239,27 @@ function AmostraDetalhes() {
           )}
         </div>
       </div>
+      {/*
+      <div className="mb-8">
+      <h2 className="text-xl font-bold mb-4">Documentação Fotográfica</h2>
+      <div className="flex gap-4">
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/2/24/Coccinella_septempunctata_Kaldari.jpg"
+          alt="Imagem 1"
+          className="w-32 h-32 object-cover rounded"
+        />
+        <img
+          src="https://media.istockphoto.com/id/175531668/pt/foto/joaninha.jpg?s=612x612&w=0&k=20&c=5-FpE3PGJrY6Oi9qA_wfiScSbQcfJ0MZnkriUpYodAk="
+          alt="Imagem 2"
+          className="w-32 h-32 object-cover rounded"
+        />
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Lady_beetle_taking_flight_right_bright.jpg/250px-Lady_beetle_taking_flight_right_bright.jpg"
+          alt="Imagem 3"
+          className="w-32 h-32 object-cover rounded"
+        />
+      </div>
+    </div>*/}
     </div>
   );
 }
