@@ -10,6 +10,9 @@ router.get('/', auth, projetoController.listar);
 //TODO: Entender qual o erro aqui
 router.get('/:id', auth, projetoController.obterPorId);
 
+// Listar projetos por usuário
+router.get('/usuario/:usuarioId', auth, projetoController.listarPorUsuario)
+
 // Cria um novo projeto
 router.post('/', auth, projetoController.criar);
 

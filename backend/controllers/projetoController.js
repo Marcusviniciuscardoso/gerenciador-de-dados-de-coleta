@@ -105,13 +105,32 @@ module.exports = {
     }
   },
 
+  async listarPorUsuario(req, res) {
+    try {
+      const { usuarioId } = req.params;
+
+      const projetos = await Projeto.findAll({
+        where: { criado_por: usuarioId }
+      });
+
+      // AUDITORIA
+      await Auditoria.create({
+        usuario: req.user?.email || 'desconhecido',
+        acao: `Listou projetos do usuário ID ${usuarioId}`
+      });
+
+      res.json(projetos);
+    } catch (error) {
+      console.error('Erro ao listar projetos do usuário:', error);
+      res.status(500).json({ error: 'Erro ao listar projetos do usuário', detalhes: error.message });
+    }
+  },
+
   async obterPorId(req, res) {
     try {
       const { id } = req.params;
 
-      const projeto = await Projeto.findAll({
-        where: {idProjetos: id}
-      });
+      const projeto = await Projeto.findByPk(id);
 
       if (!projeto) {
         return res.status(404).json({ error: 'Projeto não encontrado' });

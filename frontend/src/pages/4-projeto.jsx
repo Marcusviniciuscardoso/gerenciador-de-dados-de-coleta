@@ -115,7 +115,7 @@ export default ProjetoPage;*/
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Folder, Trash, Pencil } from 'lucide-react';
-import { getProjetoById, atualizarProjeto, deletarProjeto } from '../services/projetoService';
+import { getProjetoById, getProjetosByUsuarioId, atualizarProjeto, deletarProjeto } from '../services/projetoService';
 import { obterUsuarioLogado } from '../services/usuarioService';
 
 function ProjetoPageMock() {
@@ -129,7 +129,7 @@ function ProjetoPageMock() {
       try{
         const usuarioResponse = await obterUsuarioLogado();
         setUsuario(usuarioResponse.data);
-        const projetoResponse = await getProjetoById(usuarioResponse.data.idUsuarios);
+        const projetoResponse = await getProjetosByUsuarioId(usuarioResponse.data.idUsuarios);
         setProjetos(projetoResponse.data);
         //console.log("Olha o projeto response: ", projetoResponse);
       }catch(error){
