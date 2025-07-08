@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { getColetaById } from '../services/coletaService';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { getColetaById, atualizarColeta, deletarColeta } from '../services/coletaService';
 import { getAmostraById } from '../services/amostraService';
 
 function Coleta() {
   const { id, coletaId } = useParams();
+  const navigate = useNavigate();
+
+  const [modoEdicao, setModoEdicao] = useState(false);
   const [coleta, setColeta] = useState(null);
   const [amostras, setAmostras] = useState([]);
 
@@ -41,24 +44,105 @@ function Coleta() {
     carregarColeta();
   }, [id, coletaId]);
 
+  const handleChange = (e) => {
+    setColeta({
+      ...coleta,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const salvarEdicao = async () => {
+    try {
+      await atualizarColeta(coletaId, coleta);
+      alert('Coleta atualizada com sucesso!');
+      setModoEdicao(false);
+    } catch (error) {
+      console.error('Erro ao atualizar coleta:', error);
+      alert('Erro ao atualizar a coleta.');
+    }
+  };
+
+  const excluirColeta = async () => {
+    if (window.confirm('Tem certeza que deseja excluir esta coleta?')) {
+      try {
+        await deletarColeta(coletaId);
+        alert('Coleta excluída com sucesso!');
+        navigate(`/projetos/${coleta.projetoId}`);
+      } catch (error) {
+        console.error('Erro ao excluir coleta:', error);
+        alert('Erro ao excluir a coleta.');
+      }
+    }
+  };
+
   if (!coleta) {
     return <p className="p-8 text-gray-500">Carregando coleta...</p>;
   }
 
+  const renderCampo = (label, nome, tipo = 'text') => {
+    return (
+      <p className="mb-2">
+        <span className="font-semibold">{label}:</span>{' '}
+        {modoEdicao ? (
+          tipo === 'textarea' ? (
+            <textarea
+              name={nome}
+              value={coleta[nome] || ''}
+              onChange={handleChange}
+              className="border px-2 py-1 rounded w-full mt-1"
+            />
+          ) : (
+            <input
+              type={tipo}
+              name={nome}
+              value={coleta[nome] || ''}
+              onChange={handleChange}
+              className="border px-2 py-1 rounded w-full mt-1"
+            />
+          )
+        ) : (
+          <span>{coleta[nome] || '—'}</span>
+        )}
+      </p>
+    );
+  };
+
   return (
     <div className="p-8 max-w-4xl mx-auto">
-      <h2 className="text-3xl font-bold mb-4">Detalhes da Coleta</h2>
+      <div className="flex justify-between items-start mb-4">
+        <h2 className="text-3xl font-bold">Detalhes da Coleta</h2>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setModoEdicao(!modoEdicao)}
+            className="border px-4 py-2 rounded hover:bg-gray-100"
+          >
+            {modoEdicao ? 'Cancelar' : 'Editar'}
+          </button>
+          {modoEdicao && (
+            <button
+              onClick={salvarEdicao}
+              className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800"
+            >
+              Salvar
+            </button>
+          )}
+          <button
+            onClick={excluirColeta}
+            className="border border-red-500 text-red-500 px-4 py-2 rounded hover:bg-red-100"
+          >
+            Excluir
+          </button>
+        </div>
+      </div>
 
       <div className="border rounded shadow p-6 mb-8">
-        <p><span className="font-semibold">Local:</span> {coleta.local}</p>
-        <p><span className="font-semibold">Data da Coleta:</span> {coleta.dataColeta}</p>
-        <p><span className="font-semibold">Hora Início:</span> {coleta.hora_inicio}</p>
-        <p><span className="font-semibold">Hora Fim:</span> {coleta.hora_fim}</p>
-        <p><span className="font-semibold">Latitude:</span> {coleta.latitude}</p>
-        <p><span className="font-semibold">Longitude:</span> {coleta.longitude}</p>
-        {coleta.observacoes && (
-          <p><span className="font-semibold">Observações:</span> {coleta.observacoes}</p>
-        )}
+        {renderCampo('Local', 'local')}
+        {renderCampo('Data da Coleta', 'data', 'date')}
+        {renderCampo('Hora Início', 'hora_inicio', 'time')}
+        {renderCampo('Hora Fim', 'hora_fim', 'time')}
+        {renderCampo('Latitude', 'latitude')}
+        {renderCampo('Longitude', 'longitude')}
+        {renderCampo('Observações', 'observacoes', 'textarea')}
       </div>
 
       <div className="flex justify-between items-center mb-6">

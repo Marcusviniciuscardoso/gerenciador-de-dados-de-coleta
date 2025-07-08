@@ -115,7 +115,7 @@ export default ProjetoPage;*/
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Folder, Trash, Pencil } from 'lucide-react';
-import { getProjetoById, getProjetosByUsuarioId, atualizarProjeto, deletarProjeto } from '../services/projetoService';
+import { getProjetosByUsuarioId, atualizarProjeto, deletarProjeto } from '../services/projetoService';
 import { obterUsuarioLogado } from '../services/usuarioService';
 
 function ProjetoPageMock() {
@@ -172,9 +172,15 @@ function ProjetoPageMock() {
           
   console.log("Obteve usuario logado: ", usuario);
   console.log("Olha os projetos: ", projetos);
-  const excluirProjeto = (id) => {
+  const excluirProjeto = async (id) => {
     if (window.confirm('Tem certeza que deseja excluir este projeto?')) {
-      setProjetos(projetos.filter((p) => p.idProjetos !== id));
+      try {
+        await deletarProjeto(id);
+        setProjetos(projetos.filter((p) => p.idProjetos !== id));
+      } catch (error) {
+        console.error('Erro ao excluir projeto:', error);
+        alert('Ocorreu um erro ao tentar excluir o projeto.');
+      }
     }
   };
 
