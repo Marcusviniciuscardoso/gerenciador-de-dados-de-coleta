@@ -26,7 +26,7 @@ Este projeto é um sistema web desenvolvido para auxiliar pesquisadores no geren
 ### 1. Clonar o repositório
 
 ```bash
-git clone https://github.com/seu-usuario/seu-repositorio.git
+git clone https://github.com/Marcusviniciuscardoso/gerenciador-de-dados-de-coleta.git
 cd seu-repositorio
 ```
 
@@ -40,6 +40,7 @@ DB_USER=root
 DB_PASSWORD=sua_senha
 DB_DATABASE=nome_do_banco
 PORT=3001
+JWT_SECRET=chave_segredo
 ```
 
 ### 3. Instalar dependências
