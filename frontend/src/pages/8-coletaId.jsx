@@ -2,6 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getColetaById, atualizarColeta, deletarColeta } from '../services/coletaService';
 import { getAmostraById } from '../services/amostraService';
+import { ArrowLeft} from 'lucide-react';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
+
 
 function Coleta() {
   const { id, coletaId } = useParams();
@@ -10,6 +14,64 @@ function Coleta() {
   const [modoEdicao, setModoEdicao] = useState(false);
   const [coleta, setColeta] = useState(null);
   const [amostras, setAmostras] = useState([]);
+
+  const exportarColetaParaXLSX = () => {
+  if (!coleta) {
+    alert('Nenhuma coleta carregada para exportar.');
+    return;
+  }
+
+  // Aba Coleta (dados únicos)
+  const coletaSheet = [
+    {
+      idColetas: coleta.idColetas,
+      projetoId: coleta.projetoId,
+      local: coleta.local,
+      data: coleta.data,
+      hora_inicio: coleta.hora_inicio,
+      hora_fim: coleta.hora_fim,
+      latitude: coleta.latitude,
+      longitude: coleta.longitude,
+      observacoes: coleta.observacoes,
+    },
+  ];
+
+  // Aba Amostras
+  const amostrasSheet = amostras.map((a) => ({
+    idAmostras: a.idAmostras,
+    coletaId: a.coletaId,
+    codigo: a.codigo,
+    descricao: a.descricao,
+    tipoAmostra: a.tipoAmostra,
+    quantidade: a.quantidade,
+    recipiente: a.recipiente,
+    metodoPreservacao: a.metodoPreservacao,
+    validade: a.validade,
+    identificacao_final: a.identificacao_final,
+    observacoes: a.observacoes,
+    imageLink: a.imageLink,
+  }));
+
+  const wb = XLSX.utils.book_new();
+
+  const wsColeta = XLSX.utils.json_to_sheet(coletaSheet);
+  XLSX.utils.book_append_sheet(wb, wsColeta, 'Coleta');
+
+  const wsAmostras = XLSX.utils.json_to_sheet(amostrasSheet);
+  XLSX.utils.book_append_sheet(wb, wsAmostras, 'Amostras');
+
+  const excelBuffer = XLSX.write(wb, {
+    bookType: 'xlsx',
+    type: 'array',
+  });
+
+  const blob = new Blob([excelBuffer], {
+    type:
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  });
+  saveAs(blob, `Coleta_${coleta.idColetas || 'dados'}.xlsx`);
+};
+
 
   useEffect(() => {
     const carregarColeta = async () => {
@@ -112,6 +174,9 @@ function Coleta() {
       <div className="flex justify-between items-start mb-4">
         <h2 className="text-3xl font-bold">Detalhes da Coleta</h2>
         <div className="flex gap-2">
+          <button onClick={() => navigate(-1)} className="flex items-center px-4 py-2 rounded border">
+            <ArrowLeft className="w-4 h-4 mr-2" /> Voltar
+          </button>
           <button
             onClick={() => setModoEdicao(!modoEdicao)}
             className="border px-4 py-2 rounded hover:bg-gray-100"
@@ -131,6 +196,12 @@ function Coleta() {
             className="border border-red-500 text-red-500 px-4 py-2 rounded hover:bg-red-100"
           >
             Excluir
+          </button>
+          <button
+            onClick={exportarColetaParaXLSX}
+            className="border px-4 py-2 rounded hover:bg-gray-100"
+          >
+            Exportar Planilha
           </button>
         </div>
       </div>

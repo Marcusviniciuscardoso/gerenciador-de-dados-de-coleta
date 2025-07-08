@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Copy, Edit, Trash, Save } from 'lucide-react';
 import { getAmostraById, deletarAmostra, atualizarAmostra } from '../services/amostraService';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
+
 
 function AmostraDetalhes() {
   const { projetoId, coletaId, amostraId } = useParams();
@@ -9,6 +12,46 @@ function AmostraDetalhes() {
 
   const [amostra, setAmostra] = useState(null);
   const [modoEdicao, setModoEdicao] = useState(false);
+
+  const exportarAmostraParaXLSX = () => {
+    if (!amostra) {
+      alert('Nenhuma amostra carregada para exportar.');
+      return;
+    }
+
+    const amostraSheet = [
+      {
+        idAmostras: amostra.idAmostras,
+        coletaId: amostra.coletaId,
+        codigo: amostra.codigo,
+        descricao: amostra.descricao,
+        tipoAmostra: amostra.tipoAmostra,
+        quantidade: amostra.quantidade,
+        recipiente: amostra.recipiente,
+        metodoPreservacao: amostra.metodoPreservacao,
+        validade: amostra.validade,
+        identificacao_final: amostra.identificacao_final,
+        observacoes: amostra.observacoes,
+        imageLink: amostra.imageLink,
+      }
+    ];
+
+    const wb = XLSX.utils.book_new();
+    const wsAmostra = XLSX.utils.json_to_sheet(amostraSheet);
+    XLSX.utils.book_append_sheet(wb, wsAmostra, 'Amostra');
+
+    const excelBuffer = XLSX.write(wb, {
+      bookType: 'xlsx',
+      type: 'array',
+    });
+
+    const blob = new Blob([excelBuffer], {
+      type:
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    saveAs(blob, `Amostra_${amostra.codigo || 'dados'}.xlsx`);
+  };
+
 
   useEffect(() => {
     const fetchAmostra = async () => {
@@ -154,6 +197,12 @@ function AmostraDetalhes() {
             className="p-2 border rounded hover:bg-red-100"
           >
             <Trash className="w-4 h-4 text-red-500" />
+          </button>
+          <button
+            onClick={exportarAmostraParaXLSX}
+            className="p-2 border rounded hover:bg-gray-100"
+          >
+            Exportar Planilha
           </button>
         </div>
       </div>

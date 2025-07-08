@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, Pencil, Trash } from 'lucide-react';
+import { Plus, Pencil, Trash, ArrowLeft } from 'lucide-react';
 import { obterUsuarioLogado } from '../services/usuarioService';
 import { getProjetoById, deletarProjeto, atualizarProjeto } from '../services/projetoService';
 import { getColetaById } from '../services/coletaService';
 import { getAmostraById } from '../services/amostraService';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 function ProjetoIdMock() {
   const { id } = useParams();
@@ -15,6 +17,81 @@ function ProjetoIdMock() {
   const [coletas, setColetas] = useState([]);
   const [amostras, setAmostras] = useState([]);
   const [usuario, setUsuario] = useState([]);
+
+  const exportarProjetoParaXLSX = () => {
+    // Aba Projeto
+    const projetoSheet = [
+      {
+        idProjetos: projeto.idProjetos,
+        nome: projeto.nome,
+        descricao: projeto.descricao,
+        objetivos: projeto.objetivos,
+        metodologia: projeto.metodologia,
+        resultadosEsperados: projeto.resultadosEsperados,
+        palavrasChave: projeto.palavrasChave,
+        colaboradores: projeto.colaboradores,
+        financiamento: projeto.financiamento,
+        orcamento: projeto.orcamento,
+        data_inicio: projeto.data_inicio,
+        data_fim: projeto.data_fim,
+        imageLink: projeto.imageLink,
+      }
+    ];
+
+    // Aba Coletas
+    const coletasSheet = coletas.map((c) => ({
+      idColetas: c.idColetas,
+      projetoId: c.projetoId,
+      local: c.local,
+      data: c.data,
+      hora_inicio: c.hora_inicio,
+      hora_fim: c.hora_fim,
+      latitude: c.latitude,
+      longitude: c.longitude,
+      observacoes: c.observacoes,
+    }));
+
+    // Aba Amostras
+    const amostrasSheet = amostras.map((a) => ({
+      idAmostras: a.idAmostras,
+      coletaId: a.coletaId,
+      codigo: a.codigo,
+      descricao: a.descricao,
+      tipoAmostra: a.tipoAmostra,
+      quantidade: a.quantidade,
+      recipiente: a.recipiente,
+      metodoPreservacao: a.metodoPreservacao,
+      validade: a.validade,
+      identificacao_final: a.identificacao_final,
+      observacoes: a.observacoes,
+      imageLink: a.imageLink,
+    }));
+
+    // Cria workbook
+    const wb = XLSX.utils.book_new();
+
+    const wsProjeto = XLSX.utils.json_to_sheet(projetoSheet);
+    XLSX.utils.book_append_sheet(wb, wsProjeto, 'Projeto');
+
+    const wsColetas = XLSX.utils.json_to_sheet(coletasSheet);
+    XLSX.utils.book_append_sheet(wb, wsColetas, 'Coletas');
+
+    const wsAmostras = XLSX.utils.json_to_sheet(amostrasSheet);
+    XLSX.utils.book_append_sheet(wb, wsAmostras, 'Amostras');
+
+    // Gera arquivo em memória
+    const excelBuffer = XLSX.write(wb, {
+      bookType: 'xlsx',
+      type: 'array',
+    });
+
+    // Faz download
+    const blob = new Blob([excelBuffer], {
+      type:
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    saveAs(blob, `Projeto_${projeto.nome || 'dados'}.xlsx`);
+  };
 
   useEffect(() => {
     const obterProjetoId = async () => {
@@ -194,6 +271,9 @@ function ProjetoIdMock() {
           )}
         </div>
         <div className="flex flex-col gap-2 ml-4">
+          <button onClick={() => navigate(-1)} className="flex items-center px-4 py-2 rounded border">
+            <ArrowLeft className="w-4 h-4 mr-2" /> Voltar
+          </button>
           <button
             onClick={() => setModoEdicao(!modoEdicao)}
             className="flex items-center border rounded px-3 py-1 hover:bg-gray-100"
@@ -215,6 +295,12 @@ function ProjetoIdMock() {
           >
             <Trash className="w-4 h-4 mr-1" />
             Excluir
+          </button>
+          <button
+            onClick={exportarProjetoParaXLSX}
+            className="flex items-center border rounded px-3 py-1 hover:bg-gray-100"
+          >
+            Exportar Planilha
           </button>
         </div>
       </div>
