@@ -10,7 +10,7 @@ const app = express();
 // Middlewares
 app.use(express.json());
 app.use(cors({
-  origin: 'https://localhost:3001', // ajuste isso para o domínio Railway depois!
+  origin: process.env.FRONTEND_URL, // ajuste isso para o domínio Railway depois!
   credentials: true
 }));
 app.use(cookieParser());
