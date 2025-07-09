@@ -2,18 +2,15 @@ require('dotenv').config({ path: './.env' });
 
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs');
-const https = require('https');
-const http = require('http');
 const cookieParser = require('cookie-parser');
+const sequelize = require('./config/database');
 
 const app = express();
-const sequelize = require('./config/database');
 
 // Middlewares
 app.use(express.json());
 app.use(cors({
-  origin: 'https://localhost:3001',
+  origin: 'https://localhost:3001', // ajuste isso para o domínio Railway depois!
   credentials: true
 }));
 app.use(cookieParser());
@@ -33,20 +30,11 @@ app.use('/coletas', coletaRoutes);
 app.use('/amostras', amostraRoutes);
 // app.use('/imagens', imagemRoutes);
 
-// 🔐 HTTPS Configuração
-const httpsOptions = {
-  key: fs.readFileSync('./cert/key.pem'),
-  cert: fs.readFileSync('./cert/cert.pem')
-};
+// 🚀 Inicializa servidor HTTP (Railway fornece HTTPS externamente)
+const PORT = process.env.PORT || 3000;
 
-// 🚀 Inicializa HTTPS
-https.createServer(httpsOptions, app).listen(3000, () => {
-  console.log('🔐 Servidor rodando em HTTPS na porta 3000');
-});
-
-// (Opcional) HTTP como fallback na porta 8080
-http.createServer(app).listen(8080, () => {
-  console.log('🌐 Servidor rodando em HTTP na porta 8080');
+app.listen(PORT, () => {
+  console.log(`🌐 Servidor rodando na porta ${PORT}`);
 });
 
 // 🗄️ Sincroniza DB
