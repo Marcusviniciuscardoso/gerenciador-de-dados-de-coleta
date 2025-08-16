@@ -1,27 +1,34 @@
 -- Cria o banco se não existir
-CREATE DATABASE IF NOT EXISTS coleta_dados;
-USE coleta_dados;
+-- CREATE DATABASE IF NOT EXISTS coleta_dados;
+USE railway;
 
 -- Tabelas
+-- NF1. O sistema deve permitir o cadastro e login de usuários com autenticação por e-mail e senha.
 CREATE TABLE credenciais (
   idCredenciais INT NOT NULL AUTO_INCREMENT,
   email VARCHAR(255) NOT NULL UNIQUE,
   senha_hash VARCHAR(255) NOT NULL,
   PRIMARY KEY (idCredenciais)
 );
-
+-- NF2. O sistema deve permitir que o usuário edite seus dados pessoais e visualize seu perfil.
+-- NF3. O sistema deve registrar a data de cadastro de cada usuário.
 CREATE TABLE usuarios (
   idUsuarios INT NOT NULL AUTO_INCREMENT,
   nome VARCHAR(255) NOT NULL,
-  telefone VARCHAR(50),
-  instituicao VARCHAR(255),
+  telefone VARCHAR(50), -- Usar a primeira forma da normalização
+  instituicao VARCHAR(255), -- Mais de uma instituição ? Provavelmente não
   biografia TEXT,
   data_cadastro TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   credencial_id INT NOT NULL,
   PRIMARY KEY (idUsuarios),
   FOREIGN KEY (credencial_id) REFERENCES credenciais(idCredenciais)
 );
+-- 
 
+-- NF4 O sistema deve permitir o cadastro de novos projetos com campos descritivos completos (nome, descrição, objetivos, metodologia, etc.).
+-- NF5 O sistema deve associar cada projeto a um usuário criador
+--  NF7 O sistema deve permitir associar colaboradores (nomes livres) ao projeto
+--  NF8 O sistema deve permitir anexar uma imagem representativa ao projeto
 CREATE TABLE projetos (
   idProjetos INT NOT NULL AUTO_INCREMENT,
   nome VARCHAR(255) NOT NULL,
@@ -29,18 +36,61 @@ CREATE TABLE projetos (
   objetivos TEXT,
   metodologia TEXT,
   resultadosEsperados TEXT,
-  palavrasChave TEXT,
-  colaboradores TEXT NOT NULL, 
-  financiamento TEXT,
-  orcamento TEXT,
+  palavrasChave TEXT, -- 1 forma de normalização ? 
+  colaboradores TEXT NOT NULL,  -- 1 forma de normalização ? 
+  financiamento TEXT, -- 1 forma de normalização ? 
+  orcamento DECIMAL(10,2),
   data_inicio DATE NOT NULL,
   data_fim DATE,
   criado_por INT NOT NULL,
-  imageLink TEXT,
+  imageLink TEXT, -- 1 forma de normalização ? 
   PRIMARY KEY (idProjetos),
   FOREIGN KEY (criado_por) REFERENCES usuarios(idUsuarios)
 );
 
+-- Novas adições para a primeira forma de normalização abaixo
+CREATE TABLE projeto_financeiros(
+   projeto_id INT NOT NULL AUTO_INCREMENT,
+   financiadores_id INT NOT NULL AUTO_INCREMENT,
+   PRIMARY KEY (projeto_id, financiadores_id),
+   FOREIGN KEY (projeto_id) REFERENCES projetos(idProjetos),
+   FOREIGN KEY (financiadores_id) REFERENCES financiadores(idFinanciadores)
+);
+
+CREATE TABLE financiadores (
+   idFinanciadores INT NOT NULL AUTO_INCREMENT,
+   financiadorNome VARCHAR(255) NOT NULL,
+   PRIMARY KEY (idFinanciadores)
+);
+-- Ligação direta para entender os colaboradores
+CREATE TABLE projeto_usuarios (
+  projeto_id INT NOT NULL,
+  usuario_id INT NOT NULL,
+  PRIMARY KEY (projeto_id, usuario_id),
+  FOREIGN KEY (projeto_id) REFERENCES projetos(idProjetos),
+  FOREIGN KEY (usuario_id) REFERENCES usuarios(idUsuarios)
+);
+
+CREATE TABLE palavras_chave (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  palavra VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE projeto_palavras_chave (
+  projeto_id INT NOT NULL,
+  palavra_id INT NOT NULL,
+  PRIMARY KEY (projeto_id, palavra_id),
+  FOREIGN KEY (projeto_id) REFERENCES projetos(idProjetos),
+  FOREIGN KEY (palavra_id) REFERENCES palavras_chave(id)
+);
+-- Novas adições para a primeira forma de normalização acima
+
+
+-- NF9 O sistema deve permitir registrar coletas de campo, com dados de localização (latitude, longitude), data, horário e observações.
+    
+-- NF10 Cada coleta deve ser vinculada a um projeto e a um usuário coletor.
+    
+-- NF11 O sistema deve permitir listar as coletas associadas a um determinado projeto.
 CREATE TABLE coletas (
   idColetas INT NOT NULL AUTO_INCREMENT,
   projetoId INT NOT NULL,
@@ -50,8 +100,8 @@ CREATE TABLE coletas (
   dataColeta DATE NOT NULL,
   hora_inicio TIME NOT NULL,
   hora_fim TIME NOT NULL,
-  observacoes TEXT,
-  coletado_por INT NOT NULL,
+  observacoes TEXT, -- 1 forma de normalização ? 
+  coletado_por INT NOT NULL, -- 1 forma de normalização ? 
   PRIMARY KEY (idColetas),
   FOREIGN KEY (projetoId) REFERENCES projetos(idProjetos),
   FOREIGN KEY (coletado_por) REFERENCES usuarios(idUsuarios)
@@ -63,13 +113,13 @@ CREATE TABLE amostras (
   codigo VARCHAR(100) NOT NULL,
   descricao TEXT,
   tipoAmostra VARCHAR(100) NOT NULL,
-  quantidade VARCHAR(100) NOT NULL,
+  quantidade DECIMAL NOT NULL,
   recipiente VARCHAR(100) NOT NULL,
-  metodoPreservacao VARCHAR(255) NOT NULL,
+  metodoPreservacao VARCHAR(255) NOT NULL, 
   validade TIMESTAMP NOT NULL,
   identificacao_final VARCHAR(255),
-  observacoes TEXT,
-  imageLink TEXT,
+  observacoes TEXT, -- 1 forma de normalização ? 
+  imageLink TEXT, -- 1 forma de normalização ? 
   PRIMARY KEY (idAmostras),
   FOREIGN KEY (coletaId) REFERENCES coletas(idColetas)
 );
@@ -86,10 +136,12 @@ CREATE TABLE imagens (
 
 CREATE TABLE Auditoria (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  usuario VARCHAR(255) NOT NULL,
+  usuario_id INT NOT NULL,
   acao VARCHAR(255) NOT NULL,
-  dataHora TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+  dataHora TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (usuario_id) REFERENCES usuarios(idUsuarios)
 );
+
 
 -- Dados de teste
 
