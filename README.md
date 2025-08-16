@@ -2,7 +2,7 @@
 
 Este projeto é um sistema web desenvolvido para auxiliar pesquisadores no gerenciamento de projetos científicos, registro de coletas de campo, cadastro de amostras, e exportação de dados para planilhas Excel. O sistema também permite armazenar imagens associadas às amostras, garantindo rastreabilidade e organização de dados científicos.
 
-🌐 **Acesse o sistema online:** [Gerenciador de Dados de Coleta](https://gerenciador-de-dados-de-coleta-eymp-hyfcyqoba.vercel.app/)
+🌐 **Acesse o sistema online:** [Gerenciador de Dados de Coleta](https://gerenciador-de-dados-de-coleta.vercel.app/)
 
 ✅ **Funcionalidades principais:**
 
