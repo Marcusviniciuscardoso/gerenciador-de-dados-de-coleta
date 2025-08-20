@@ -5,20 +5,31 @@ module.exports = (sequelize) => {
     idImagens: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      autoIncrement: true
-    },
-    amostraId: {
-      type: DataTypes.INTEGER
-    },
-    coletaId: {
-      type: DataTypes.INTEGER
-    },
-    arquivo_base64: {
-      type: DataTypes.TEXT('long'),
+      autoIncrement: true,
       allowNull: false
     },
+    amostraId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'amostras',
+        key: 'idAmostras'
+      }
+    },
+    coletaId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'coletas',
+        key: 'idColetas'
+      }
+    },
+    /*arquivo_base64: {
+      type: DataTypes.TEXT('long'),
+      allowNull: false
+    },*/
     descricao: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING(255)
     }
   }, {
     tableName: 'imagens',

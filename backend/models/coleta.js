@@ -5,7 +5,8 @@ module.exports = (sequelize) => {
     idColetas: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      autoIncrement: true
+      autoIncrement: true,
+      allowNull: false,
     },
     projetoId: {
       type: DataTypes.INTEGER,
@@ -16,7 +17,7 @@ module.exports = (sequelize) => {
       }
     },
     local: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(255),
       allowNull: false
     },
     latitude: {

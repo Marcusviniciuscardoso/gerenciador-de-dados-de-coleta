@@ -8,13 +8,14 @@ module.exports = (sequelize) => {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
+      allowNull: false,
     },
-    usuario: {
-      type: DataTypes.STRING,
+    usuario_id: {
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     acao: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(255),
       allowNull: false,
     },
     dataHora: {

@@ -3,6 +3,7 @@ const { DataTypes } = require('sequelize');
 module.exports = (sequelize) => {
   const Amostra = sequelize.define('Amostra', {
     idAmostras: {
+      field: 'idAmostras',
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true
@@ -27,7 +28,7 @@ module.exports = (sequelize) => {
       allowNull: false
     },
     quantidade: {
-      type: DataTypes.STRING(100),
+      type: DataTypes.DECIMAL(10,2),
       allowNull: false
     },
     recipiente: {

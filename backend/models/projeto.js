@@ -5,10 +5,11 @@ module.exports = (sequelize) => {
     idProjetos: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      autoIncrement: true
+      autoIncrement: true,
+      allowNull: false
     },
     nome: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(255),
       allowNull: false
     },
     descricao: DataTypes.TEXT,
@@ -21,7 +22,7 @@ module.exports = (sequelize) => {
       allowNull: false
     },
     financiamento: DataTypes.TEXT,
-    orcamento: DataTypes.TEXT,
+    orcamento: DataTypes.DECIMAL(10, 2),
     data_inicio: {
       type: DataTypes.DATE,
       allowNull: false

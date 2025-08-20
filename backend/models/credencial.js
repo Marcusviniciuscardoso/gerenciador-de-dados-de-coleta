@@ -4,10 +4,11 @@ module.exports = (sequelize, DataTypes) => {
             idCredenciais: {
                 type: DataTypes.INTEGER,
                 primaryKey: true,
-                autoIncrement: true
+                autoIncrement: true,
+                allowNull: false
             },
             email: {
-                type: DataTypes.STRING,
+                type: DataTypes.STRING(255),
                 allowNull: false,
                 unique: true,
                 validate: {
@@ -15,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
                 }
             },
             senha_hash: {
-                type: DataTypes.STRING,
+                type: DataTypes.STRING(255),
                 allowNull: false
             }
         }, {
