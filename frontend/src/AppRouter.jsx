@@ -10,7 +10,8 @@ import CriarColeta from './pages/7-criarColeta';
 import ColetaId from './pages/8-coletaId';
 import CriarAmostra from './pages/9-criarAmostra';
 import AmostrasId from './pages/010-amostrasId';
-import AdminDashboard from './pages/011-dashboard';
+import Admin from './pages/011-admin';
+import AdminDashboardPage from './pages/012-adminDashboard';
 import PrivateRoute from './components/PrivateRoute';
 
 function AppRouter() {
@@ -20,7 +21,8 @@ function AppRouter() {
         {/* ROTAS PÚBLICAS */}
         <Route path="/cadastro" element={<CadastroUsuario />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin" element={<Admin />} />
+        <Route path="/admin" element={<AdminDashboardPage />} />
 
         {/* ROTAS PRIVADAS */}
         <Route element={<PrivateRoute />}>

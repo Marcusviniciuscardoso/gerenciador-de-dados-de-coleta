@@ -173,7 +173,7 @@ const dataMock = {
   ]
 };
 
-export default function AdminDashboardMock() {
+export default function Admin() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
