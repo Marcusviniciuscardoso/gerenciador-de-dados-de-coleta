@@ -2,16 +2,16 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BreadcrumbNav } from "@/components/breadcrumb-nav";
-import { OverviewCards } from "@/components/dashboard/overview-cards";
-import { ProjectsCharts } from "@/components/dashboard/projects-charts";
-import { CollectionsMap } from "@/components/dashboard/collections-map";
-import { SamplesOverview } from "@/components/dashboard/samples-overview";
-import { ImagesGallery } from "@/components/dashboard/images-gallery";
-import { AuditTimeline } from "@/components/dashboard/audit-timeline";
-import { generateDashboardData } from "@/lib/dashboard-data"; 
-import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/UI/tabs";
+import { OverviewCards } from "../components/dashboard/overview-cards";
+import { ProjectsCharts } from "../components/dashboard/projects-charts";
+import { CollectionsMap } from "../components/dashboard/collections-map";
+import { BreadcrumbNav } from "../components/dashboard/breadcrumb";
+import { SamplesOverview } from "../components/dashboard/samples-overview";
+import { ImagesGallery } from "../components/dashboard/images-gallery";
+import { AuditTimeline } from "../components/dashboard/audit-timeline";
+import { generateDashboardData } from "../lib/dashboard-data"; 
+import { Button } from "../components/UI/button";
 import { RefreshCw, Download, Filter } from "lucide-react";
 
 export default function AdminDashboardPage() {
