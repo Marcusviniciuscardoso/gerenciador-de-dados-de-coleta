@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/UI/tabs";
 import { OverviewCards } from "../components/dashboard/overview-cards";
-import { ProjectsCharts } from "../components/dashboard/projects-charts";
+import { ProjectsCharts } from "../components/dashboard/projects-charts.tsx";
 import { CollectionsMap } from "../components/dashboard/collections-map";
 import { BreadcrumbNav } from "../components/dashboard/breadcrumb";
 import { SamplesOverview } from "../components/dashboard/samples-overview";
