@@ -10,7 +10,7 @@ import { BreadcrumbNav } from "../components/dashboard/breadcrumb";
 import { SamplesOverview } from "../components/dashboard/samples-overview";
 import { ImagesGallery } from "../components/dashboard/images-gallery";
 import { AuditTimeline } from "../components/dashboard/audit-timeline";
-import { generateDashboardData } from "../lib/dashboard-data"; 
+import { generateDashboardData } from "../lib/dashboard-data.ts"; 
 import { Button } from "../components/UI/button";
 import { RefreshCw, Download, Filter } from "lucide-react";
 

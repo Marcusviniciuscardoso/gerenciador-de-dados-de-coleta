@@ -22,7 +22,7 @@ function AppRouter() {
         <Route path="/cadastro" element={<CadastroUsuario />} />
         <Route path="/login" element={<Login />} />
         <Route path="/admin" element={<Admin />} />
-        <Route path="/admin" element={<AdminDashboardPage />} />
+        <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
 
         {/* ROTAS PRIVADAS */}
         <Route element={<PrivateRoute />}>
