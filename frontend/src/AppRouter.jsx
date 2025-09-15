@@ -11,7 +11,8 @@ import ColetaId from './pages/8-coletaId';
 import CriarAmostra from './pages/9-criarAmostra';
 import AmostrasId from './pages/010-amostrasId';
 import Admin from './pages/011-admin';
-import AdminDashboardPage from './pages/012-adminDashboard';
+import AdminDashboardPage from './pages/012-adminDashboard'
+import AdminUsers from './pages/013-adminUsers';
 import PrivateRoute from './components/PrivateRoute';
 
 function AppRouter() {
@@ -23,6 +24,7 @@ function AppRouter() {
         <Route path="/login" element={<Login />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+        <Route path="/admin/users" element={<AdminUsers />} />
 
         {/* ROTAS PRIVADAS */}
         <Route element={<PrivateRoute />}>
