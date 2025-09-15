@@ -42,7 +42,7 @@ Auditoria.belongsTo(Usuario, { foreignKey: 'usuario_id', as: 'usuario' });
 Usuario.hasMany(Auditoria,   { foreignKey: 'usuario_id', as: 'auditorias' });
 
 const throughProjUsers = { through: 'projeto_usuarios', foreignKey: 'projeto_id', otherKey: 'usuario_id' };
-Projeto.belongsToMany(Usuario, { ...throughProjUsers, as: 'colaboradores' });
+//Projeto.belongsToMany(Usuario, { ...throughProjUsers, as: 'colaboradores' });
 Usuario.belongsToMany(Projeto, { ...throughProjUsers, as: 'projetosColaborador' });
 
 const throughProjTags = { through: 'projeto_palavras_chave', foreignKey: 'projeto_id', otherKey: 'palavra_id' };
