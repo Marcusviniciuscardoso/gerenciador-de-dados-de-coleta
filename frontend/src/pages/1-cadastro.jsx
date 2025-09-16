@@ -51,53 +51,53 @@ const CadastroUsuario = () => {
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    
-    /*if (!form.termos) {
-      alert('Você deve aceitar os termos de uso.');
-      return;
-      }
-      
-      if (form.senha !== form.confirmarSenha) {
-        alert('As senhas não coincidem.');
-        return;
-        }*/
-       
-    try {
-      await schema.validate(form, { abortEarly: false });
-         // 1. Criar credencial
-      const credencialResponse = await criarCredencial({
-        email: form.email,
-        senha: form.senha
-      });
+  try {
+    console.log("➡️ Iniciando validação do formulário...");
+    await schema.validate(form, { abortEarly: false });
+    console.log("✅ Validação concluída com sucesso:", form);
 
-      const credencialId = credencialResponse.data.idCredenciais;
+    // 1. Criar credencial
+    console.log("➡️ Chamando criarCredencial...");
+    const credencialResponse = await criarCredencial({
+      email: form.email,
+      senha: form.senha
+    });
+    console.log("✅ Resposta criarCredencial:", credencialResponse);
 
-      // 2. Criar usuário
-      await criarUsuario({
-        nome: form.nome,
-        telefone: form.telefone,
-        instituicao: form.instituicao,
-        biografia: form.biografia,
-        credencial_id: credencialId
-      });
+    const credencialId = credencialResponse.data.idCredenciais;
+    console.log("➡️ ID da credencial recebida:", credencialId);
 
-      alert('Usuário criado com sucesso!');
-      navigate('/login');
+    // 2. Criar usuário
+    console.log("➡️ Chamando criarUsuario...");
+    const usuarioResponse = await criarUsuario({
+      nome: form.nome,
+      telefone: form.telefone,
+      instituicao: form.instituicao,
+      biografia: form.biografia,
+      credencial_id: credencialId
+    });
+    console.log("✅ Resposta criarUsuario:", usuarioResponse);
 
-    } catch (err) {
-      if (err.name === 'ValidationError') {
+    alert('Usuário criado com sucesso!');
+    navigate('/login');
+
+  } catch (err) {
+    console.error("❌ Erro capturado no handleSubmit:", err);
+
+    if (err.name === 'ValidationError') {
       // Junta todas as mensagens
-        const mensagem = err.errors.join('\n');
-        alert(mensagem);
-      } else {
-      console.error(err);
-      alert('Erro ao criar usuário.');
+      const mensagem = err.errors.join('\n');
+      console.warn("⚠️ Erros de validação:", mensagem);
+      alert(mensagem);
+    } else {
+      console.error("❌ Erro inesperado ao criar usuário:", err.response?.data || err.message);
+      alert('Erro ao criar usuário. Veja o console para detalhes.');
     }
-    }
-  };
+  }
+};
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-green-50 to-blue-50">
