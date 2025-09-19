@@ -1,4 +1,5 @@
 -- Procedures 
+-- Aceito
 DELIMITER //
 CREATE PROCEDURE sp_auditar(
   IN p_usuario_id INT,
@@ -17,27 +18,8 @@ DELIMITER ;
 -- TRIGGERS PARA AUDITORIA COMPLETA
 -- ==============================================
 
-
 -- Trigger para INSERT em amostras
-DELIMITER //
-CREATE TRIGGER tr_amostras_au
-AFTER UPDATE ON amostras
-FOR EACH ROW
-BEGIN
-  CALL sp_auditar(
-    IFNULL(@app_user_id, NULL),             -- setado pelo app na sessão
-    'amostras',
-    NEW.idAmostras,
-    'UPDATE',
-    JSON_OBJECT(
-      'old', JSON_OBJECT('codigo', OLD.codigo, 'quantidade', OLD.quantidade),
-      'new', JSON_OBJECT('codigo', NEW.codigo, 'quantidade', NEW.quantidade)
-    )
-  );
-END//
-DELIMITER ;
-
--- Trigger para INSERT em amostras
+-- Aceito
 DELIMITER //
 CREATE TRIGGER tr_amostras_ai
 AFTER INSERT ON amostras
@@ -60,6 +42,7 @@ END//
 DELIMITER ;
 
 -- Trigger para DELETE em amostras
+-- Aceito
 DELIMITER //
 CREATE TRIGGER tr_amostras_ad
 AFTER DELETE ON amostras
@@ -81,6 +64,7 @@ END//
 DELIMITER ;
 
 -- Trigger para UPDATE em amostras 
+-- Aceito
 DELIMITER //
 CREATE TRIGGER	 tr_amostras_aL
 AFTER UPDATE ON amostras
@@ -103,6 +87,7 @@ END//
 DELIMITER;
 
 -- Trigger para projetos (INSERT)
+-- Aceito
 DELIMITER //
 CREATE TRIGGER tr_projetos_ai
 AFTER INSERT ON projetos
@@ -124,6 +109,7 @@ END//
 DELIMITER ;
 
 -- Trigger para projetos (UPDATE)
+-- Aceito
 DELIMITER //
 CREATE TRIGGER tr_projetos_ad
 AFTER UPDATE ON projetos
@@ -145,6 +131,7 @@ END//
 DELIMITER ;
 
 -- Trigger para projetos (DELETE)
+-- Aceito
 DELIMITER //
 CREATE TRIGGER tr_projetos_al
 AFTER DELETE ON projetos
@@ -166,6 +153,7 @@ END //
 DELIMITER ;
 
 -- Trigger para coletas (INSERT)
+-- Aceito
 DELIMITER //
 CREATE TRIGGER tr_coletas_ai
 AFTER INSERT ON coletas
@@ -187,6 +175,7 @@ END//
 DELIMITER;
 
 -- Trigger para coletas (UPDATE)
+-- Aceito
 DELIMITER //
 CREATE TRIGGER tr_coletas_ad
 AFTER UPDATE ON coletas
@@ -208,6 +197,7 @@ END//
 DELIMITER;
 
 -- Trigger para coletas (DELETE)
+-- Aceito
 DELIMITER //
 CREATE TRIGGER tr_coletas_al
 AFTER DELETE ON coletas
@@ -233,6 +223,7 @@ DELIMITER;
 -- ==============================================
 
 -- Validar datas de projetos
+-- Aceito
 DELIMITER //
 CREATE TRIGGER tr_projetos_data_validacao
 BEFORE INSERT ON projetos
@@ -251,6 +242,7 @@ END//
 DELIMITER ;
 
 -- Validar coordenadas geográficas
+-- Aceito
 DELIMITER //
 CREATE TRIGGER tr_coletas_coordenadas_validacao
 BEFORE INSERT ON coletas
@@ -278,6 +270,7 @@ DELIMITER ;
 -- ==============================================
 
 -- Relatório de amostras por projeto
+-- Aceito
 DELIMITER //
 CREATE PROCEDURE sp_relatorio_amostras_projeto(
   IN p_projeto_id INT
@@ -302,6 +295,7 @@ END//
 DELIMITER ;
 
 -- Estatísticas gerais do sistema
+/*
 DELIMITER //
 CREATE PROCEDURE sp_estatisticas_sistema()
 BEGIN
@@ -337,8 +331,9 @@ BEGIN
   JOIN coletas c ON a.coletaId = c.idColetas;
 END//
 DELIMITER ;
-
+*/
 -- Buscar projetos por localização
+/*
 DELIMITER //
 CREATE PROCEDURE sp_buscar_projetos_por_localizacao(
   IN p_latitude DECIMAL(9,6),
@@ -366,7 +361,7 @@ BEGIN
   ORDER BY distancia_km;
 END//
 DELIMITER ;
-
+*/
 -- ==============================================
 -- FUNCTIONS ÚTEIS
 -- ==============================================
@@ -388,7 +383,7 @@ END//
 DELIMITER ;
 
 -- Gerar código único para amostras
-DELIMITER //
+/*DELIMITER //
 CREATE FUNCTION fn_gerar_codigo_amostra(
   p_projeto_id INT,
   p_coleta_id INT
@@ -413,10 +408,10 @@ BEGIN
   
   RETURN v_codigo;
 END//
-DELIMITER ;
+DELIMITER ;*/
 
 -- Validar se amostra está dentro do prazo de validade
-DELIMITER //
+/*DELIMITER //
 CREATE FUNCTION fn_amostra_valida(
   p_validade TIMESTAMP
 ) RETURNS BOOLEAN
@@ -425,10 +420,10 @@ DETERMINISTIC
 BEGIN
   RETURN p_validade > NOW();
 END//
-DELIMITER ;
+DELIMITER ;*/
 
 -- Calcular distância entre dois pontos geográficos
-DELIMITER //
+/*DELIMITER //
 CREATE FUNCTION fn_distancia_geografica(
   p_lat1 DECIMAL(9,6),
   p_lon1 DECIMAL(9,6),
@@ -446,7 +441,7 @@ BEGIN
     sin(radians(p_lat2))
   ));
 END//
-DELIMITER ;
+DELIMITER ;*/
 
 -- ==============================================
 -- PROCEDURE PARA MANUTENÇÃO
@@ -464,6 +459,7 @@ END//
 DELIMITER ;
 
 -- Backup de dados críticos
+/*
 DELIMITER //
 CREATE PROCEDURE sp_backup_dados_projeto(
   IN p_projeto_id INT
@@ -495,7 +491,7 @@ BEGIN
   DROP TEMPORARY TABLE temp_backup_projeto;
 END//
 DELIMITER ;
-
+*/
 -- ==============================================
 -- VIEWS ÚTEIS
 -- ==============================================
