@@ -39,7 +39,6 @@ Imagem.belongsTo(Coleta,  { foreignKey: 'coletaId',  as: 'coleta' });
 Coleta.hasMany(Imagem,    { foreignKey: 'coletaId',  as: 'imagens' });
 
 Auditoria.belongsTo(Usuario, { foreignKey: 'usuario_id', as: 'usuario' });
-Usuario.hasMany(Auditoria,   { foreignKey: 'usuario_id', as: 'auditorias' });
 
 const throughProjUsers = { through: 'projeto_usuarios', foreignKey: 'projeto_id', otherKey: 'usuario_id' };
 //Projeto.belongsToMany(Usuario, { ...throughProjUsers, as: 'colaboradores' });
