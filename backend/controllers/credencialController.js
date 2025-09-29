@@ -29,6 +29,8 @@ module.exports = {
             res.status(201).json(novaCredencial);
         } catch (error) {
             console.error('Erro ao criar credencial:', error);
+            console.error("Olha o email: ", email);
+            console.error("Olha a senha: ", senha);
             res.status(500).json({ error: 'Erro ao criar credencial', details: error.message });
         }
     },
