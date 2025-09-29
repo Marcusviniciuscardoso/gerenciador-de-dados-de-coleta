@@ -16,7 +16,7 @@ module.exports = {
             const hash = await bcrypt.hash(senha, 10);
 
             const novaCredencial = await Credencial.create({
-                email,
+                email: email,
                 senha_hash: hash
             });
 
