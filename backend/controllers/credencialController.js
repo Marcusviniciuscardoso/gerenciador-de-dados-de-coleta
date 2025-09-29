@@ -21,10 +21,10 @@ module.exports = {
             });
 
             // AUDITORIA
-            await Auditoria.create({
+            /*await Auditoria.create({
                 usuario_id: email,
                 acao: `Criou uma nova credencial`
-            });
+            });*/
 
             res.status(201).json(novaCredencial);
         } catch (error) {
