@@ -22,7 +22,7 @@ module.exports = {
 
             // AUDITORIA
             await Auditoria.create({
-                usuario: email,
+                usuario_id: email,
                 acao: `Criou uma nova credencial`
             });
 
