@@ -7,7 +7,7 @@ module.exports = {
 
       // AUDITORIA
       await Auditoria.create({
-        usuario: req.user?.email || 'desconhecido',
+        usuario_id: req.user?.id || null,
         acao: 'Listou todos os usuários'
       });
 
@@ -27,7 +27,7 @@ module.exports = {
 
       // AUDITORIA
       await Auditoria.create({
-        usuario: req.user?.email || 'desconhecido',
+        usuario_id: req.user?.id || null,
         acao: `Consultou o usuário ID ${req.params.id}`
       });
 
@@ -41,11 +41,9 @@ module.exports = {
   async obterUsuarioLogado(req, res) {
     try {
       const userId = req.user.id;
-      console.log("UserID: ", userId);
       const usuario = await Usuario.findOne({
         where: { credencial_id: userId }
       });
-      console.log("Usuario: ", usuario);
 
       if (!usuario) {
         return res.status(404).json({ error: 'Usuário não encontrado' });
@@ -53,8 +51,8 @@ module.exports = {
 
       // AUDITORIA
       await Auditoria.create({
-        usuario: req.user?.email || 'desconhecido',
-        acao: `Consultou seus próprios dados (usuario logado)`
+        usuario_id: req.user?.id || null,
+        acao: 'Consultou seus próprios dados (usuario logado)'
       });
 
       res.json(usuario);
@@ -71,7 +69,7 @@ module.exports = {
 
       // AUDITORIA
       await Auditoria.create({
-        usuario: req.user?.email || 'desconhecido',
+        usuario_id: req.user?.id || null,
         acao: `Criou o usuário ${nome}`
       });
 
@@ -93,7 +91,7 @@ module.exports = {
 
       // AUDITORIA
       await Auditoria.create({
-        usuario: req.user?.email || 'desconhecido',
+        usuario_id: req.user?.id || null,
         acao: `Atualizou o usuário ID ${req.params.id}`
       });
 
@@ -115,7 +113,7 @@ module.exports = {
 
       // AUDITORIA
       await Auditoria.create({
-        usuario: req.user?.email || 'desconhecido',
+        usuario_id: req.user?.id || null,
         acao: `Deletou o usuário ID ${req.params.id}`
       });
 
