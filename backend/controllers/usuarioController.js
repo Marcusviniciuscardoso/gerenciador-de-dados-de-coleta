@@ -103,13 +103,13 @@ module.exports = {
 
       // Criação da auditoria
       console.log("🕵️ [AUDITORIA] Registrando ação na tabela Auditoria...");
-      await Auditoria.create(
+      /*await Auditoria.create(
         {
           usuario_id: usuario.idUsuarios,
           acao: `Criou o usuário ${nome}`,
         },
         { transaction: t }
-      );
+      );*/
       console.log("✅ [AUDITORIA] Registro de auditoria criado com sucesso.");
 
       // Commit
