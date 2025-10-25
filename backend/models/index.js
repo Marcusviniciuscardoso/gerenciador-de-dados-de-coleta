@@ -77,8 +77,9 @@ Projeto.belongsToMany(Usuario, {
   through: ProjetoUsuarios,
   foreignKey: 'projeto_id',
   otherKey: 'usuario_id',
-  as: 'colaboradores'
+  as: 'usuariosColaboradores'
 });
+
 Usuario.belongsToMany(Projeto, {
   through: ProjetoUsuarios,
   foreignKey: 'usuario_id',
