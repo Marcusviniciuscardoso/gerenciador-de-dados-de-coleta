@@ -1,4 +1,4 @@
-const { Coleta, Auditoria } = require('../models');
+const { Coleta /*, Auditoria*/ } = require('../models'); // Comentado Auditoria para desativar
 
 module.exports = {
   async listar(req, res) {
@@ -6,10 +6,12 @@ module.exports = {
       const coletas = await Coleta.findAll();
 
       // AUDITORIA
+      /*
       await Auditoria.create({
         usuario: req.user?.email || 'desconhecido',
         acao: 'Listou todas as coletas'
       });
+      */
 
       res.json(coletas);
     } catch (error) {
@@ -23,7 +25,7 @@ module.exports = {
       const { id } = req.params;
       console.log("Olha os params: ", req.params);
       const coleta = await Coleta.findAll({
-        where: {projetoId: id}
+        where: { projetoId: id }
       });
       console.log("Espia o Id: ", id);
       console.log("Espia a coleta: ", coleta);
@@ -33,10 +35,12 @@ module.exports = {
       }
 
       // AUDITORIA
+      /*
       await Auditoria.create({
         usuario: req.user?.email || 'desconhecido',
         acao: `Consultou a coleta ID ${id}`
       });
+      */
 
       res.json(coleta);
     } catch (error) {
@@ -44,7 +48,6 @@ module.exports = {
       res.status(500).json({ error: 'Erro ao obter coleta', detalhes: error.message });
     }
   },
-
 
   async criar(req, res) {
     try {
@@ -77,10 +80,12 @@ module.exports = {
       });
 
       // AUDITORIA
+      /*
       await Auditoria.create({
         usuario: req.user?.email || 'desconhecido',
         acao: `Criou coleta no local ${coleta.local}`
       });
+      */
 
       res.status(201).json(coleta);
     } catch (error) {
@@ -98,10 +103,12 @@ module.exports = {
       const coletaAtualizada = await Coleta.findByPk(id);
 
       // AUDITORIA
+      /*
       await Auditoria.create({
         usuario: req.user?.email || 'desconhecido',
         acao: `Atualizou coleta ID ${id}`
       });
+      */
 
       res.json(coletaAtualizada);
     } catch (error) {
@@ -117,10 +124,12 @@ module.exports = {
       await Coleta.destroy({ where: { idColetas: id } });
 
       // AUDITORIA
+      /*
       await Auditoria.create({
         usuario: req.user?.email || 'desconhecido',
         acao: `Deletou coleta ID ${id}`
       });
+      */
 
       res.status(204).send();
     } catch (error) {

@@ -1,5 +1,5 @@
 const { Projeto } = require('../models');
-const { Auditoria } = require('../models');
+// const { Auditoria } = require('../models'); // Comentado caso deseje desativar todas as auditorias
 
 module.exports = {
   async listar(req, res) {
@@ -7,10 +7,12 @@ module.exports = {
       const projetos = await Projeto.findAll();
 
       // AUDITORIA
+      /*
       await Auditoria.create({
         usuario: req.user?.email || 'desconhecido',
         acao: 'Listou todos os projetos'
       });
+      */
 
       res.json(projetos);
     } catch (error) {
@@ -54,10 +56,12 @@ module.exports = {
       });
 
       // AUDITORIA
+      /*
       await Auditoria.create({
         usuario: req.user?.email || 'desconhecido',
         acao: `Criou o projeto ${nome}`
       });
+      */
 
       res.status(201).json(projeto);
     } catch (error) {
@@ -75,10 +79,12 @@ module.exports = {
       const projetoAtualizado = await Projeto.findByPk(id);
 
       // AUDITORIA
+      /*
       await Auditoria.create({
         usuario: req.user?.email || 'desconhecido',
         acao: `Atualizou o projeto ID ${id}`
       });
+      */
 
       res.json(projetoAtualizado);
     } catch (error) {
@@ -93,10 +99,12 @@ module.exports = {
       await Projeto.destroy({ where: { idProjetos: id } });
 
       // AUDITORIA
+      /*
       await Auditoria.create({
         usuario: req.user?.email || 'desconhecido',
         acao: `Deletou o projeto ID ${id}`
       });
+      */
 
       res.status(204).send();
     } catch (error) {
@@ -114,10 +122,12 @@ module.exports = {
       });
 
       // AUDITORIA
+      /*
       await Auditoria.create({
         usuario: req.user?.email || 'desconhecido',
         acao: `Listou projetos do usuário ID ${usuarioId}`
       });
+      */
 
       res.json(projetos);
     } catch (error) {
@@ -137,10 +147,12 @@ module.exports = {
       }
 
       // AUDITORIA
+      /*
       await Auditoria.create({
         usuario: req.user?.email || 'desconhecido',
         acao: `Consultou o projeto ID ${id}`
       });
+      */
 
       res.json(projeto);
     } catch (error) {

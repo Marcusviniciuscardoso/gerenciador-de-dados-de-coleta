@@ -1,4 +1,4 @@
-const { Amostra, Auditoria } = require('../models');
+const { Amostra /*, Auditoria*/ } = require('../models'); // Comentado Auditoria para desativar auditoria temporariamente
 
 module.exports = {
   async listar(req, res) {
@@ -6,10 +6,12 @@ module.exports = {
       const amostras = await Amostra.findAll();
 
       // REGISTRO DE AUDITORIA
+      /*
       await Auditoria.create({
         usuario: req.user?.email || 'desconhecido',
         acao: 'Listou todas as amostras'
       });
+      */
 
       res.json(amostras);
     } catch (error) {
@@ -23,7 +25,7 @@ module.exports = {
       const { id } = req.params;
 
       const amostra = await Amostra.findAll({
-        where: {coletaId: id}
+        where: { coletaId: id }
       });
 
       if (!amostra) {
@@ -31,10 +33,12 @@ module.exports = {
       }
 
       // REGISTRO DE AUDITORIA
+      /*
       await Auditoria.create({
         usuario: req.user?.email || 'desconhecido',
         acao: `Consultou a amostra ID ${id}`
       });
+      */
 
       res.json(amostra);
     } catch (error) {
@@ -75,10 +79,12 @@ module.exports = {
       });
 
       // REGISTRO DE AUDITORIA
+      /*
       await Auditoria.create({
         usuario: req.user?.email || 'desconhecido',
         acao: `Criou amostra ${amostra.codigo}`
       });
+      */
 
       res.status(201).json(amostra);
     } catch (error) {
@@ -96,10 +102,12 @@ module.exports = {
       const amostraAtualizada = await Amostra.findByPk(id);
 
       // REGISTRO DE AUDITORIA
+      /*
       await Auditoria.create({
         usuario: req.user?.email || 'desconhecido',
         acao: `Atualizou amostra ID ${id}`
       });
+      */
 
       res.json(amostraAtualizada);
     } catch (error) {
@@ -115,10 +123,12 @@ module.exports = {
       await Amostra.destroy({ where: { idAmostras: id } });
 
       // REGISTRO DE AUDITORIA
+      /*
       await Auditoria.create({
         usuario: req.user?.email || 'desconhecido',
         acao: `Deletou amostra ID ${id}`
       });
+      */
 
       res.status(204).send();
     } catch (error) {
