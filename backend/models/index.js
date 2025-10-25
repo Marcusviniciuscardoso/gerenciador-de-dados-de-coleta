@@ -49,9 +49,14 @@ const throughProjTags = { through: 'projeto_palavras_chave', foreignKey: 'projet
 Projeto.belongsToMany(PalavraChave, { ...throughProjTags, as: 'palavras' });
 PalavraChave.belongsToMany(Projeto, { ...throughProjTags, as: 'projetos' });
 
-const throughProjFin = { through: 'projeto_financeiros', foreignKey: 'projeto_id', otherKey: 'financiadores_id' };
+const throughProjFin = {
+  through: { tableName: 'projeto_financeiros' },
+  foreignKey: 'projeto_id',
+  otherKey: 'financiadores_id'
+};
 Projeto.belongsToMany(Financiador, { ...throughProjFin, as: 'financiadores' });
 Financiador.belongsToMany(Projeto, { ...throughProjFin, as: 'projetos' });
+
 
 module.exports = {
   sequelize,
