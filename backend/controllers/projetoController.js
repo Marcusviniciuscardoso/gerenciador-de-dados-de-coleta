@@ -29,7 +29,7 @@ module.exports = {
         metodologia,
         resultadosEsperados,
         palavrasChave,       // pode vir como array de strings ou IDs
-        colaboradores,        // IDs de usuários
+        //colaboradores,        // IDs de usuários
         financiamento,        // IDs de financiadores
         orcamento,
         data_inicio,
