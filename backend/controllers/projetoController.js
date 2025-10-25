@@ -88,6 +88,10 @@ module.exports = {
     } catch (error) {
       await t.rollback();
       console.error('Erro ao criar projeto:', error);
+      console.error('SQL que falhou:', error?.original?.sql);
+      console.error('Parâmetros:', error?.original?.parameters); // às vezes vem
+      console.error('Campos:', error?.fields);                   // útil em notNull/unique
+      console.error('Stack:', error?.stack);
       res.status(500).json({ error: 'Erro ao criar projeto', detalhes: error.message });
     }
   },

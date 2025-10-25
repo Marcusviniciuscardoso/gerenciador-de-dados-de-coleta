@@ -13,7 +13,8 @@ const sequelize = new Sequelize(
     dialectOptions: {
       ssl: false // Railway geralmente não exige SSL
     },
-    logging: console.log
+    logging: console.log,     // imprime cada SQL gerado
+    benchmark: true,          // mostra tempo de execução (opcional)
   }
 );
 
