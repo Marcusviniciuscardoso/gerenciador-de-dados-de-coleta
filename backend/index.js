@@ -27,7 +27,7 @@ const projetoRoutes = require('./routes/projetoRoutes');
 const usuarioRoutes = require('./routes/usuarioRoutes');
 const coletaRoutes = require('./routes/coletaRoutes');
 const amostraRoutes = require('./routes/amostraRoutes');
-const cadastroRoute = require('./routes/cadastroRoute');
+const cadastroRoute = require('./routes/cadastroRoutes');
 // const imagemRoutes = require('./routes/imagemRoutes');
 
 app.use('/credenciais', credencialRoutes);
