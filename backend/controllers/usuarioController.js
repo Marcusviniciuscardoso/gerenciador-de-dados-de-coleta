@@ -77,16 +77,32 @@ module.exports = {
   },
 
   async criar(req, res) {
+    console.log("📥 [USUARIO_CONTROLLER] Iniciando criação de usuário...");
+
     const t = await sequelize.transaction();
+    console.log("🧾 [TRANSACTION] Transação iniciada.");
+
     try {
       const { nome, telefone, instituicao, biografia, credencial_id } = req.body;
+      console.log("📦 [REQUEST BODY] Dados recebidos:", {
+        nome,
+        telefone,
+        instituicao,
+        biografia,
+        credencial_id,
+      });
 
+      // Criação do usuário
+      console.log("👤 [USUARIO] Criando usuário...");
       const usuario = await Usuario.create(
         { nome, telefone, instituicao, biografia, credencial_id },
         { transaction: t }
       );
 
-      // Para cadastro (sem usuário autenticado), use o próprio usuário recém-criado
+      console.log("✅ [USUARIO] Usuário criado com sucesso:", usuario?.dataValues || usuario);
+
+      // Criação da auditoria
+      console.log("🕵️ [AUDITORIA] Registrando ação na tabela Auditoria...");
       await Auditoria.create(
         {
           usuario_id: usuario.idUsuarios,
@@ -94,13 +110,28 @@ module.exports = {
         },
         { transaction: t }
       );
+      console.log("✅ [AUDITORIA] Registro de auditoria criado com sucesso.");
 
+      // Commit
       await t.commit();
+      console.log("💾 [TRANSACTION] Transação confirmada (commit realizado).");
+
       res.status(201).json(usuario);
+      console.log("📤 [RESPONSE] Usuário retornado com sucesso ao cliente.");
+
     } catch (error) {
+      console.error("❌ [ERRO] Ocorreu um erro durante a criação do usuário:");
+      console.error("Mensagem:", error.message);
+      console.error("Stack:", error.stack);
+      console.error("Detalhes do erro completo:", error);
+
       await t.rollback();
-      console.error('Erro ao criar usuário:', error);
-      res.status(500).json({ error: 'Erro ao criar usuário' });
+      console.warn("↩️ [TRANSACTION] Rollback executado devido ao erro.");
+
+      res.status(500).json({
+        error: "Erro ao criar usuário",
+        details: error.message,
+      });
     }
   },
 
