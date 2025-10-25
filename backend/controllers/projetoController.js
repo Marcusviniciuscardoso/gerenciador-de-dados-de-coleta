@@ -92,7 +92,14 @@ module.exports = {
       console.error('Parâmetros:', error?.original?.parameters); // às vezes vem
       console.error('Campos:', error?.fields);                   // útil em notNull/unique
       console.error('Stack:', error?.stack);
-      res.status(500).json({ error: 'Erro ao criar projeto', detalhes: error.message });
+      return res.status(500).json({
+        error: 'Erro ao criar projeto',
+        detalhes: error?.message,
+        sql: error?.original?.sql || null,
+        params: error?.original?.parameters || error?.original?.bind || null,
+        fields: error?.fields || null,
+        stack: error?.stack || null
+      });
     }
   },
 
