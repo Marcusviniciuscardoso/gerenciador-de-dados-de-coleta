@@ -1,43 +1,28 @@
-module.exports = (sequelize, DataTypes) => {
-    try {
-        const Credencial = sequelize.define('Credencial', {
-            idCredenciais: {
-                type: DataTypes.INTEGER,
-                primaryKey: true,
-                autoIncrement: true,
-                allowNull: false
-            },
-            email: {
-                type: DataTypes.STRING(255),
-                allowNull: false,
-                unique: true,
-                validate: {
-                    isEmail: true
-                }
-            },
-            senha_hash: {
-                type: DataTypes.STRING(255),
-                allowNull: false
-            }
-        }, {
-            tableName: 'credenciais',
-            timestamps: false
-        });
+const { DataTypes } = require('sequelize');
 
-        Credencial.associate = (models) => {
-            try {
-                Credencial.hasOne(models.Usuario, {
-                    foreignKey: 'credencial_id',
-                    as: 'usuario'
-                });
-            } catch (err) {
-                console.error('Erro na associação do model Credencial:', err.message);
-            }
-        };
-
-        return Credencial;
-    } catch (error) {
-        console.error('Erro na definição do model Credencial:', error.message);
-        throw error;
+module.exports = (sequelize) => {
+  const Credencial = sequelize.define('Credencial', {
+    idCredenciais: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      allowNull: false
+    },
+    email: {
+      type: DataTypes.STRING(255),
+      allowNull: false,
+      unique: true,
+      validate: {
+        isEmail: true
+      }
+    },
+    senha_hash: {
+      type: DataTypes.STRING(255),
+      allowNull: false
     }
+  }, {
+    tableName: 'credenciais',
+    timestamps: false
+  });
+
+  return Credencial;
 };

@@ -5,22 +5,15 @@ module.exports = (sequelize) => {
     idUsuarios: {
       type: DataTypes.INTEGER,
       primaryKey: true,
-      autoIncrement: true,
       allowNull: false
     },
     nome: {
       type: DataTypes.STRING(255),
       allowNull: false
     },
-    telefone: {
-      type: DataTypes.STRING(50),
-    },
-    instituicao: {
-      type: DataTypes.STRING(255)
-    },
-    biografia: {
-      type: DataTypes.TEXT
-    },
+    telefone: DataTypes.STRING(50),
+    instituicao: DataTypes.STRING(255),
+    biografia: DataTypes.TEXT,
     data_cadastro: {
       type: DataTypes.DATE,
       allowNull: false,
