@@ -21,38 +21,30 @@ module.exports = {
 
   async criar(req, res) {
     const t = await Projeto.sequelize.transaction();
-    try {
-      const {
-        nome,
-        descricao,
-        objetivos,
-        metodologia,
-        resultadosEsperados,
-        palavrasChave,       
-        colaboradores,       
-        financiamento,       
-        orcamento,
-        data_inicio,
-        data_fim,
-        criado_por,
-        imageLink
+     try {
+        const {
+        nome, descricao, objetivos, metodologia,
+        resultadosEsperados, palavrasChave,
+        colaboradores, financiamento, orcamento,
+        data_inicio, data_fim, imageLink
       } = req.body;
 
+      // 1) Mapear credencial -> usuário
+      const credencialId = req.user?.id; // id da CREDENCIAL vindo do token
+      const usuario = await Usuario.findOne({ where: { credencial_id: credencialId } });
+      if (!usuario) {
+        await t.rollback();
+        return res.status(400).json({ error: 'Usuário não encontrado para a credencial do token' });
+      }
+
+        // 2) Criar usando o idUsuarios real
       const projeto = await Projeto.create({
-      nome,
-      descricao,
-      objetivos,
-      metodologia,
-      resultadosEsperados,
-      palavrasChave,      
-      colaboradores,       
-      financiamento,       
-      orcamento,
-      data_inicio,
-      data_fim,
-      criado_por,
-      imageLink
-    }, { transaction: t });
+        nome, descricao, objetivos, metodologia,
+        resultadosEsperados, palavrasChave, colaboradores,
+        financiamento, orcamento, data_inicio, data_fim,
+        imageLink,
+        criado_por: usuario.idUsuarios   // ✅ id do USUÁRIO
+      }, { transaction: t });
 
       // 2️⃣ Associa colaboradores (usuários)
       if (Array.isArray(colaboradores) && colaboradores.length > 0) {
