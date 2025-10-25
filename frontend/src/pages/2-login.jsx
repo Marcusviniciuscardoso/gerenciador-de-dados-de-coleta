@@ -29,9 +29,9 @@ function Login() {
     try {
 
       await schema.validate({ email, senha }, { abortEarly: false });
-      
+      console.log("✅ Validação do formulário bem-sucedida:", { email, senha });
       const response = await login({ email, senha }); // ✅ usando o service
-
+      console.log("✅ Login bem-sucedido:", response.data);
       const { token } = response.data;
       localStorage.setItem('token', token);
 

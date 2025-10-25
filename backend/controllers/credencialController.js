@@ -66,10 +66,11 @@ module.exports = {
 
 
             // AUDITORIA
+            /*
             await Auditoria.create({
                 usuario: email,
                 acao: `Realizou login no sistema`
-            });
+            });*/
 
             res.json({ message: 'Login bem-sucedido', token });
         } catch (error) {
