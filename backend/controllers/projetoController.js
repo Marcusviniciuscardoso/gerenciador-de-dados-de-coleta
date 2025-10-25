@@ -28,9 +28,9 @@ module.exports = {
         objetivos,
         metodologia,
         resultadosEsperados,
-        palavrasChave,       // pode vir como array de strings ou IDs
-        //colaboradores,        // IDs de usuários
-        financiamento,        // IDs de financiadores
+        palavrasChave,       
+        colaboradores,       
+        financiamento,       
         orcamento,
         data_inicio,
         data_fim,
@@ -38,19 +38,21 @@ module.exports = {
         imageLink
       } = req.body;
 
-      // 1️⃣ Cria o projeto principal
       const projeto = await Projeto.create({
-        nome,
-        descricao,
-        objetivos,
-        metodologia,
-        resultadosEsperados,
-        orcamento,
-        data_inicio,
-        data_fim,
-        criado_por,
-        imageLink
-      }, { transaction: t });
+      nome,
+      descricao,
+      objetivos,
+      metodologia,
+      resultadosEsperados,
+      palavrasChave,      
+      colaboradores,       
+      financiamento,       
+      orcamento,
+      data_inicio,
+      data_fim,
+      criado_por,
+      imageLink
+    }, { transaction: t });
 
       // 2️⃣ Associa colaboradores (usuários)
       if (Array.isArray(colaboradores) && colaboradores.length > 0) {
