@@ -22,10 +22,10 @@ module.exports = {
 
       const actorId = await getActorUserId(req);
       if (actorId) {
-        await Auditoria.create({
-          usuario_id: actorId,
-          acao: 'Listou todos os usuários',
-        });
+        // await Auditoria.create({
+        //   usuario_id: actorId,
+        //   acao: 'Listou todos os usuários',
+        // });
       }
 
       res.json(usuarios);
@@ -42,10 +42,10 @@ module.exports = {
 
       const actorId = await getActorUserId(req);
       if (actorId) {
-        await Auditoria.create({
-          usuario_id: actorId,
-          acao: `Consultou o usuário ID ${req.params.id}`,
-        });
+        // await Auditoria.create({
+        //   usuario_id: actorId,
+        //   acao: `Consultou o usuário ID ${req.params.id}`,
+        // });
       }
 
       res.json(usuario);
@@ -63,10 +63,10 @@ module.exports = {
 
       const actorId = await getActorUserId(req);
       if (actorId) {
-        await Auditoria.create({
-          usuario_id: actorId,
-          acao: 'Consultou seus próprios dados (usuario logado)',
-        });
+        // await Auditoria.create({
+        //   usuario_id: actorId,
+        //   acao: 'Consultou seus próprios dados (usuario logado)',
+        // });
       }
 
       res.json(usuario);
@@ -92,7 +92,6 @@ module.exports = {
         credencial_id,
       });
 
-      // Criação do usuário
       console.log("👤 [USUARIO] Criando usuário...");
       const usuario = await Usuario.create(
         { nome, telefone, instituicao, biografia, credencial_id },
@@ -101,18 +100,16 @@ module.exports = {
 
       console.log("✅ [USUARIO] Usuário criado com sucesso:", usuario?.dataValues || usuario);
 
-      // Criação da auditoria
       console.log("🕵️ [AUDITORIA] Registrando ação na tabela Auditoria...");
-      /*await Auditoria.create(
-        {
-          usuario_id: usuario.idUsuarios,
-          acao: `Criou o usuário ${nome}`,
-        },
-        { transaction: t }
-      );*/
+      // await Auditoria.create(
+      //   {
+      //     usuario_id: usuario.idUsuarios,
+      //     acao: `Criou o usuário ${nome}`,
+      //   },
+      //   { transaction: t }
+      // );
       console.log("✅ [AUDITORIA] Registro de auditoria criado com sucesso.");
 
-      // Commit
       await t.commit();
       console.log("💾 [TRANSACTION] Transação confirmada (commit realizado).");
 
@@ -144,10 +141,10 @@ module.exports = {
 
       const actorId = await getActorUserId(req);
       if (actorId) {
-        await Auditoria.create({
-          usuario_id: actorId,
-          acao: `Atualizou o usuário ID ${req.params.id}`,
-        });
+        // await Auditoria.create({
+        //   usuario_id: actorId,
+        //   acao: `Atualizou o usuário ID ${req.params.id}`,
+        // });
       }
 
       res.json(usuario);
@@ -166,10 +163,10 @@ module.exports = {
 
       const actorId = await getActorUserId(req);
       if (actorId) {
-        await Auditoria.create({
-          usuario_id: actorId,
-          acao: `Deletou o usuário ID ${req.params.id}`,
-        });
+        // await Auditoria.create({
+        //   usuario_id: actorId,
+        //   acao: `Deletou o usuário ID ${req.params.id}`,
+        // });
       }
 
       res.status(204).send();
