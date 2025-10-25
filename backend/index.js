@@ -9,10 +9,16 @@ const app = express();
 
 // Middlewares
 app.use(express.json());
+
+const allowedOrigins = [
+  "https://gerenciador-de-dados-de-coleta.vercel.app",
+  "http://localhost:3000"
+];
 app.use(cors({
-  origin: process.env.FRONTEND_URL, // ajuste isso para o domínio Railway depois!
+  origin: allowedOrigins,
   credentials: true
 }));
+
 app.use(cookieParser());
 
 // 🔗 Rotas

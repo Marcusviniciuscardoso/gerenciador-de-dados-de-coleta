@@ -1,7 +1,11 @@
 import api from './api';
 
 // Registrar uma nova credencial (criar login)
-export const criarCredencial = (data) => api.post('/credenciais/registrar', data);
+export const criarCredencial = (data) => {
+  console.log("🔍 Enviando requisição para:", `${api.defaults.baseURL}/credenciais/registrar`);
+  console.log("📦 Dados enviados:", data);
+  return api.post('/credenciais/registrar', data);
+};
 
 // Fazer login
 export const login = (data) => api.post('/credenciais/login', data);
