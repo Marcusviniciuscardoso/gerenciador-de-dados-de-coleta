@@ -1,63 +1,108 @@
 const sequelize = require('../config/database');
 const { DataTypes } = require('sequelize');
 
-const Credencial    = require('./credencial')(sequelize, DataTypes);
-const Usuario       = require('./usuario')(sequelize, DataTypes);
-const Projeto       = require('./projeto')(sequelize, DataTypes);
-const Coleta        = require('./coleta')(sequelize, DataTypes);
-const Amostra       = require('./amostra')(sequelize, DataTypes);
-const Imagem        = require('./imagem')(sequelize, DataTypes);
-const Auditoria     = require('./auditoria')(sequelize, DataTypes);
+// ===== Models principais =====
+const Credencial = require('./credencial')(sequelize, DataTypes);
+const Usuario = require('./usuario')(sequelize, DataTypes);
+const Projeto = require('./projeto')(sequelize, DataTypes);
+const Coleta = require('./coleta')(sequelize, DataTypes);
+const Amostra = require('./amostra')(sequelize, DataTypes);
+const Imagem = require('./imagem')(sequelize, DataTypes);
+const Auditoria = require('./auditoria')(sequelize, DataTypes);
 
-// novos models
-const Financiador   = require('./financiador')(sequelize, DataTypes);
-const PalavraChave  = require('./palavraChave')(sequelize, DataTypes);
+// ===== Models auxiliares =====
+const Financiador = require('./financiador')(sequelize, DataTypes);
+const PalavraChave = require('./palavraChave')(sequelize, DataTypes);
+
+// ===== Models intermediários (tabelas de ligação) =====
+const ProjetoFinanceiros = require('./projeto_financeiros')(sequelize, DataTypes);
+const ProjetoUsuarios = require('./projeto_usuarios')(sequelize, DataTypes);
+const ProjetoPalavrasChave = require('./projeto_palavras_chave')(sequelize, DataTypes);
 
 /* =======================
-   Relacionamentos
+   RELACIONAMENTOS
    ======================= */
 
+// Usuário <-> Credencial
 Credencial.hasOne(Usuario, { foreignKey: 'credencial_id', as: 'usuario' });
 Usuario.belongsTo(Credencial, { foreignKey: 'credencial_id', as: 'credencial' });
 
+// Usuário <-> Projeto
 Usuario.hasMany(Projeto, { foreignKey: 'criado_por', as: 'projetosCriados' });
 Projeto.belongsTo(Usuario, { foreignKey: 'criado_por', as: 'criador' });
 
+// Projeto <-> Coleta
 Projeto.hasMany(Coleta, { foreignKey: 'projetoId', as: 'coletas' });
 Coleta.belongsTo(Projeto, { foreignKey: 'projetoId', as: 'projeto' });
 
+// Usuário <-> Coleta
 Usuario.hasMany(Coleta, { foreignKey: 'coletado_por', as: 'coletas' });
 Coleta.belongsTo(Usuario, { foreignKey: 'coletado_por', as: 'coletor' });
 
+// Coleta <-> Amostra
 Coleta.hasMany(Amostra, { foreignKey: 'coletaId', as: 'amostras' });
 Amostra.belongsTo(Coleta, { foreignKey: 'coletaId', as: 'coleta' });
 
+// Amostra <-> Imagem
+Amostra.hasMany(Imagem, { foreignKey: 'amostraId', as: 'imagens' });
 Imagem.belongsTo(Amostra, { foreignKey: 'amostraId', as: 'amostra' });
-Amostra.hasMany(Imagem,   { foreignKey: 'amostraId', as: 'imagens' });
 
-Imagem.belongsTo(Coleta,  { foreignKey: 'coletaId',  as: 'coleta' });
-Coleta.hasMany(Imagem,    { foreignKey: 'coletaId',  as: 'imagens' });
+// Coleta <-> Imagem
+Coleta.hasMany(Imagem, { foreignKey: 'coletaId', as: 'imagens' });
+Imagem.belongsTo(Coleta, { foreignKey: 'coletaId', as: 'coleta' });
 
-// index.js
+// Auditoria <-> Usuário
 Auditoria.belongsTo(Usuario, { foreignKey: 'usuario_id', as: 'usuarioRef' });
 
-const throughProjUsers = { through: 'projeto_usuarios', foreignKey: 'projeto_id', otherKey: 'usuario_id' };
-//Projeto.belongsToMany(Usuario, { ...throughProjUsers, as: 'colaboradores' });
-Usuario.belongsToMany(Projeto, { ...throughProjUsers, as: 'projetosColaborador' });
+/* =======================
+   RELACIONAMENTOS N-N
+   ======================= */
 
-const throughProjTags = { through: 'projeto_palavras_chave', foreignKey: 'projeto_id', otherKey: 'palavra_id' };
-Projeto.belongsToMany(PalavraChave, { ...throughProjTags, as: 'palavras' });
-PalavraChave.belongsToMany(Projeto, { ...throughProjTags, as: 'projetos' });
-
-const throughProjFin = {
-  through: { tableName: 'projeto_financeiros' },
+// Projeto <-> Financiador
+Projeto.belongsToMany(Financiador, {
+  through: ProjetoFinanceiros,
   foreignKey: 'projeto_id',
-  otherKey: 'financiadores_id'
-};
-Projeto.belongsToMany(Financiador, { ...throughProjFin, as: 'financiadores' });
-Financiador.belongsToMany(Projeto, { ...throughProjFin, as: 'projetos' });
+  otherKey: 'financiadores_id',
+  as: 'financiadores'
+});
+Financiador.belongsToMany(Projeto, {
+  through: ProjetoFinanceiros,
+  foreignKey: 'financiadores_id',
+  otherKey: 'projeto_id',
+  as: 'projetos'
+});
 
+// Projeto <-> Usuário (colaboradores)
+Projeto.belongsToMany(Usuario, {
+  through: ProjetoUsuarios,
+  foreignKey: 'projeto_id',
+  otherKey: 'usuario_id',
+  as: 'colaboradores'
+});
+Usuario.belongsToMany(Projeto, {
+  through: ProjetoUsuarios,
+  foreignKey: 'usuario_id',
+  otherKey: 'projeto_id',
+  as: 'projetosColaborador'
+});
 
+// Projeto <-> PalavraChave
+Projeto.belongsToMany(PalavraChave, {
+  through: ProjetoPalavrasChave,
+  foreignKey: 'projeto_id',
+  otherKey: 'palavra_id',
+  as: 'palavras'
+});
+PalavraChave.belongsToMany(Projeto, {
+  through: ProjetoPalavrasChave,
+  foreignKey: 'palavra_id',
+  otherKey: 'projeto_id',
+  as: 'projetos'
+});
+
+/* =======================
+   EXPORTAÇÃO
+   ======================= */
 module.exports = {
   sequelize,
   Credencial,
@@ -69,4 +114,7 @@ module.exports = {
   Auditoria,
   Financiador,
   PalavraChave,
+  ProjetoFinanceiros,
+  ProjetoUsuarios,
+  ProjetoPalavrasChave
 };
