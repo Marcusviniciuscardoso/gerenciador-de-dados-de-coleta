@@ -1,18 +1,16 @@
-const { Projeto } = require('../models');
-// const { Auditoria } = require('../models'); // Comentado caso deseje desativar todas as auditorias
+const { Projeto, Financiador, PalavraChave, Usuario } = require('../models');
+// const { Auditoria } = require('../models'); // desativado por enquanto
 
 module.exports = {
   async listar(req, res) {
     try {
-      const projetos = await Projeto.findAll();
-
-      // AUDITORIA
-      /*
-      await Auditoria.create({
-        usuario: req.user?.email || 'desconhecido',
-        acao: 'Listou todos os projetos'
+      const projetos = await Projeto.findAll({
+        include: [
+          { model: Usuario, as: 'usuariosColaboradores', attributes: ['idUsuarios', 'nome'] },
+          { model: Financiador, as: 'financiadores', attributes: ['idFinanciadores', 'financiadorNome'] },
+          { model: PalavraChave, as: 'palavras', attributes: ['id', 'palavra'] }
+        ]
       });
-      */
 
       res.json(projetos);
     } catch (error) {
@@ -22,6 +20,7 @@ module.exports = {
   },
 
   async criar(req, res) {
+    const t = await Projeto.sequelize.transaction();
     try {
       const {
         nome,
@@ -29,9 +28,9 @@ module.exports = {
         objetivos,
         metodologia,
         resultadosEsperados,
-        palavrasChave,
-        colaboradores,
-        financiamento,
+        palavrasChave,       // pode vir como array de strings ou IDs
+        colaboradores,        // IDs de usuários
+        financiamento,        // IDs de financiadores
         orcamento,
         data_inicio,
         data_fim,
@@ -39,34 +38,63 @@ module.exports = {
         imageLink
       } = req.body;
 
+      // 1️⃣ Cria o projeto principal
       const projeto = await Projeto.create({
         nome,
         descricao,
         objetivos,
         metodologia,
         resultadosEsperados,
-        palavrasChave,
-        colaboradores,
-        financiamento,
         orcamento,
         data_inicio,
         data_fim,
         criado_por,
         imageLink
+      }, { transaction: t });
+
+      // 2️⃣ Associa colaboradores (usuários)
+      if (Array.isArray(colaboradores) && colaboradores.length > 0) {
+        await projeto.addUsuariosColaboradores(colaboradores, { transaction: t });
+      }
+
+      // 3️⃣ Associa financiadores
+      if (Array.isArray(financiamento) && financiamento.length > 0) {
+        await projeto.addFinanciadores(financiamento, { transaction: t });
+      }
+
+      // 4️⃣ Associa palavras-chave
+      if (Array.isArray(palavrasChave) && palavrasChave.length > 0) {
+        // Se vierem como strings, cria as palavras no BD se não existirem
+        const palavrasIds = [];
+        for (const palavra of palavrasChave) {
+          if (typeof palavra === 'string') {
+            const [registro] = await PalavraChave.findOrCreate({
+              where: { palavra },
+              transaction: t
+            });
+            palavrasIds.push(registro.id);
+          } else {
+            palavrasIds.push(palavra);
+          }
+        }
+        await projeto.addPalavras(palavrasIds, { transaction: t });
+      }
+
+      await t.commit();
+
+      const projetoCompleto = await Projeto.findByPk(projeto.idProjetos, {
+        include: [
+          { model: Usuario, as: 'usuariosColaboradores', attributes: ['idUsuarios', 'nome'] },
+          { model: Financiador, as: 'financiadores', attributes: ['idFinanciadores', 'financiadorNome'] },
+          { model: PalavraChave, as: 'palavras', attributes: ['id', 'palavra'] }
+        ]
       });
 
-      // AUDITORIA
-      /*
-      await Auditoria.create({
-        usuario: req.user?.email || 'desconhecido',
-        acao: `Criou o projeto ${nome}`
-      });
-      */
-
-      res.status(201).json(projeto);
+      res.status(201).json(projetoCompleto);
     } catch (error) {
+      await t.rollback();
       console.error('Erro ao criar projeto:', error);
-      res.status(500).json({ error: 'Erro ao criar projeto teste', detalhes: error.message });
+      res.status(500).json({ error: 'Erro ao criar projeto', detalhes: error.message });
     }
   },
 
@@ -77,14 +105,6 @@ module.exports = {
 
       await Projeto.update(dados, { where: { idProjetos: id } });
       const projetoAtualizado = await Projeto.findByPk(id);
-
-      // AUDITORIA
-      /*
-      await Auditoria.create({
-        usuario: req.user?.email || 'desconhecido',
-        acao: `Atualizou o projeto ID ${id}`
-      });
-      */
 
       res.json(projetoAtualizado);
     } catch (error) {
@@ -97,15 +117,6 @@ module.exports = {
     try {
       const { id } = req.params;
       await Projeto.destroy({ where: { idProjetos: id } });
-
-      // AUDITORIA
-      /*
-      await Auditoria.create({
-        usuario: req.user?.email || 'desconhecido',
-        acao: `Deletou o projeto ID ${id}`
-      });
-      */
-
       res.status(204).send();
     } catch (error) {
       console.error('Erro ao deletar projeto:', error);
@@ -118,16 +129,13 @@ module.exports = {
       const { usuarioId } = req.params;
 
       const projetos = await Projeto.findAll({
-        where: { criado_por: usuarioId }
+        where: { criado_por: usuarioId },
+        include: [
+          { model: Financiador, as: 'financiadores' },
+          { model: PalavraChave, as: 'palavras' },
+          { model: Usuario, as: 'usuariosColaboradores' }
+        ]
       });
-
-      // AUDITORIA
-      /*
-      await Auditoria.create({
-        usuario: req.user?.email || 'desconhecido',
-        acao: `Listou projetos do usuário ID ${usuarioId}`
-      });
-      */
 
       res.json(projetos);
     } catch (error) {
@@ -140,19 +148,17 @@ module.exports = {
     try {
       const { id } = req.params;
 
-      const projeto = await Projeto.findByPk(id);
+      const projeto = await Projeto.findByPk(id, {
+        include: [
+          { model: Usuario, as: 'usuariosColaboradores', attributes: ['idUsuarios', 'nome'] },
+          { model: Financiador, as: 'financiadores', attributes: ['idFinanciadores', 'financiadorNome'] },
+          { model: PalavraChave, as: 'palavras', attributes: ['id', 'palavra'] }
+        ]
+      });
 
       if (!projeto) {
         return res.status(404).json({ error: 'Projeto não encontrado' });
       }
-
-      // AUDITORIA
-      /*
-      await Auditoria.create({
-        usuario: req.user?.email || 'desconhecido',
-        acao: `Consultou o projeto ID ${id}`
-      });
-      */
 
       res.json(projeto);
     } catch (error) {
