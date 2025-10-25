@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { cadastrarUsuarioCompleto } from '../services/autenticacaoService'; // novo import
 import { criarUsuario } from '../services/usuarioService';
 import { criarCredencial } from '../services/credencialService';
 import * as Yup from 'yup';
@@ -55,49 +56,36 @@ const handleSubmit = async (e) => {
   e.preventDefault();
 
   try {
-    console.log("➡️ Iniciando validação do formulário...");
+    console.log("➡️ Validando formulário...");
     await schema.validate(form, { abortEarly: false });
-    console.log("✅ Validação concluída com sucesso:", form);
 
-    // 1. Criar credencial
-    console.log("➡️ Chamando criarCredencial...");
-    const credencialResponse = await criarCredencial({
-      email: form.email,
-      senha: form.senha
-    });
-    console.log("✅ Resposta criarCredencial:", credencialResponse);
-
-    const credencialId = credencialResponse.data.idCredenciais;
-    console.log("➡️ ID da credencial recebida:", credencialId);
-
-    // 2. Criar usuário
-    console.log("➡️ Chamando criarUsuario...");
-    const usuarioResponse = await criarUsuario({
+    console.log("✅ Validação OK, enviando dados...");
+    const response = await cadastrarUsuarioCompleto({
       nome: form.nome,
       telefone: form.telefone,
       instituicao: form.instituicao,
       biografia: form.biografia,
-      credencial_id: credencialId
+      email: form.email,
+      senha: form.senha
     });
-    console.log("✅ Resposta criarUsuario:", usuarioResponse);
 
+    console.log("✅ Cadastro completo:", response.data);
     alert('Usuário criado com sucesso!');
     navigate('/login');
 
   } catch (err) {
-    console.error("❌ Erro capturado no handleSubmit:", err);
+    console.error("❌ Erro ao cadastrar:", err);
 
     if (err.name === 'ValidationError') {
-      // Junta todas as mensagens
       const mensagem = err.errors.join('\n');
-      console.warn("⚠️ Erros de validação:", mensagem);
       alert(mensagem);
     } else {
-      console.error("❌ Erro inesperado ao criar usuário:", err.response?.data || err.message);
-      alert('Erro ao criar usuário. Veja o console para detalhes.');
+      const msg = err.response?.data?.error || err.message;
+      alert(`Erro ao criar usuário: ${msg}`);
     }
   }
 };
+
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-green-50 to-blue-50">
