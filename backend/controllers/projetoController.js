@@ -66,7 +66,7 @@ module.exports = {
       res.status(201).json(projeto);
     } catch (error) {
       console.error('Erro ao criar projeto:', error);
-      res.status(500).json({ error: 'Erro ao criar projeto', detalhes: error.message });
+      res.status(500).json({ error: 'Erro ao criar projeto teste', detalhes: error.message });
     }
   },
 

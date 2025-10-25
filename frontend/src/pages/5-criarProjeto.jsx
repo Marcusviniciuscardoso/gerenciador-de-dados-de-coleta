@@ -63,13 +63,15 @@ function CriarProjeto() {
         ),
         criado_por: usuario.idUsuarios,
       };
-
+      console.log("Dados do projeto a serem enviados:", projetoData);
       await criarProjeto(projetoData);
-
+      console.log("Projeto criado com sucesso");
       alert('Projeto criado com sucesso!');
       navigate('/projetos');
     } catch (error) {
       console.error('Erro ao criar projeto', error);
+      console.error('Erro ao criar projeto2:', error.message);
+      console.error('Stack:', error.stack);
       alert(error.response?.data?.error || 'Erro ao criar projeto');
     } finally {
       setLoading(false);
