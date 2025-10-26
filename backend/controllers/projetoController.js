@@ -20,85 +20,37 @@ module.exports = {
   },
 
   async criar(req, res) {
-    const t = await Projeto.sequelize.transaction();
-     try {
-        const {
+    try {
+      // id do token = id da CREDENCIAL
+      const credencialId = req.user?.id;
+      const usuario = await Usuario.findOne({ where: { credencial_id: credencialId } });
+      if (!usuario) {
+        return res.status(400).json({ error: 'Usuário não encontrado para a credencial do token' });
+      }
+
+      const {
         nome, descricao, objetivos, metodologia,
         resultadosEsperados, palavrasChave,
         colaboradores, financiamento, orcamento,
         data_inicio, data_fim, imageLink
       } = req.body;
 
-      // 1) Mapear credencial -> usuário
-      const credencialId = req.user?.id; // id da CREDENCIAL vindo do token
-      const usuario = await Usuario.findOne({ where: { credencial_id: credencialId } });
-      if (!usuario) {
-        await t.rollback();
-        return res.status(400).json({ error: 'Usuário não encontrado para a credencial do token' });
-      }
-
-        // 2) Criar usando o idUsuarios real
       const projeto = await Projeto.create({
         nome, descricao, objetivos, metodologia,
-        resultadosEsperados, palavrasChave, colaboradores,
-        financiamento, orcamento, data_inicio, data_fim,
-        imageLink,
-        criado_por: usuario.idUsuarios   // ✅ id do USUÁRIO
-      }, { transaction: t });
-
-      // 2️⃣ Associa colaboradores (usuários)
-      if (Array.isArray(colaboradores) && colaboradores.length > 0) {
-        await projeto.addUsuariosColaboradores(colaboradores, { transaction: t });
-      }
-
-      // 3️⃣ Associa financiadores
-      if (Array.isArray(financiamento) && financiamento.length > 0) {
-        await projeto.addFinanciadores(financiamento, { transaction: t });
-      }
-
-      // 4️⃣ Associa palavras-chave
-      if (Array.isArray(palavrasChave) && palavrasChave.length > 0) {
-        // Se vierem como strings, cria as palavras no BD se não existirem
-        const palavrasIds = [];
-        for (const palavra of palavrasChave) {
-          if (typeof palavra === 'string') {
-            const [registro] = await PalavraChave.findOrCreate({
-              where: { palavra },
-              transaction: t
-            });
-            palavrasIds.push(registro.id);
-          } else {
-            palavrasIds.push(palavra);
-          }
-        }
-        await projeto.addPalavras(palavrasIds, { transaction: t });
-      }
-
-      await t.commit();
-
-      const projetoCompleto = await Projeto.findByPk(projeto.idProjetos, {
-        include: [
-          { model: Usuario, as: 'usuariosColaboradores', attributes: ['idUsuarios', 'nome'] },
-          { model: Financiador, as: 'financiadores', attributes: ['idFinanciadores', 'financiadorNome'] },
-          { model: PalavraChave, as: 'palavras', attributes: ['id', 'palavra'] }
-        ]
+        resultadosEsperados, palavrasChave,
+        colaboradores, financiamento, orcamento,
+        data_inicio, data_fim, imageLink,
+        criado_por: usuario.idUsuarios
       });
 
-      res.status(201).json(projetoCompleto);
+      return res.status(201).json(projeto);
     } catch (error) {
-      await t.rollback();
       console.error('Erro ao criar projeto:', error);
-      console.error('SQL que falhou:', error?.original?.sql);
-      console.error('Parâmetros:', error?.original?.parameters); // às vezes vem
-      console.error('Campos:', error?.fields);                   // útil em notNull/unique
-      console.error('Stack:', error?.stack);
       return res.status(500).json({
         error: 'Erro ao criar projeto',
         detalhes: error?.message,
         sql: error?.original?.sql || null,
-        params: error?.original?.parameters || error?.original?.bind || null,
-        fields: error?.fields || null,
-        stack: error?.stack || null
+        params: error?.original?.parameters || error?.original?.bind || null
       });
     }
   },
