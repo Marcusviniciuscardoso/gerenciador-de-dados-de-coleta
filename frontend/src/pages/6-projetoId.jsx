@@ -96,9 +96,10 @@ function ProjetoIdMock() {
   useEffect(() => {
     const obterProjetoId = async () => {
       try {
+        console.log("Chegou aqui no useEffect do projetoId");
         const usuarioResponse = await obterUsuarioLogado();
         setUsuario(usuarioResponse.data);
-
+        console.log("Usuario response: ", usuarioResponse);
         const projetoResponse = await getProjetoById(id);
         console.log("projetoResponse com id aqui: ", projetoResponse.data);
 

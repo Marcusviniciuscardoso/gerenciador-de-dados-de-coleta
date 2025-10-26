@@ -106,13 +106,7 @@ module.exports = {
     try {
       const { id } = req.params;
 
-      const projeto = await Projeto.findByPk(id, {
-        include: [
-          { model: Usuario, as: 'usuariosColaboradores', attributes: ['idUsuarios', 'nome'] },
-          { model: Financiador, as: 'financiadores', attributes: ['idFinanciadores', 'financiadorNome'] },
-          { model: PalavraChave, as: 'palavras', attributes: ['id', 'palavra'] }
-        ]
-      });
+      const projeto = await Projeto.findByPk(id);
 
       if (!projeto) {
         return res.status(404).json({ error: 'Projeto não encontrado' });
@@ -121,7 +115,10 @@ module.exports = {
       res.json(projeto);
     } catch (error) {
       console.error('Erro ao obter projeto por ID:', error);
-      res.status(500).json({ error: 'Erro ao obter projeto', detalhes: error.message });
+      res.status(500).json({
+        error: 'Erro ao obter projeto',
+        detalhes: error.message
+      });
     }
   }
 };
