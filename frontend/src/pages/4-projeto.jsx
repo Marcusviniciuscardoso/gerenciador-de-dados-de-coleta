@@ -128,8 +128,10 @@ function ProjetoPageMock() {
     const obterProjetoId = async() =>{
       try{
         const usuarioResponse = await obterUsuarioLogado();
+        console.log("Obteve usuario: ", usuarioResponse);
         setUsuario(usuarioResponse.data);
         const projetoResponse = await getProjetosByUsuarioId(usuarioResponse.data.idUsuarios);
+        console.log("Olha o projeto response: ", projetoResponse);
         setProjetos(projetoResponse.data);
         //console.log("Olha o projeto response: ", projetoResponse);
       }catch(error){

@@ -85,21 +85,22 @@ module.exports = {
     try {
       const { usuarioId } = req.params;
 
+      // Busca apenas os projetos criados por esse usuário
       const projetos = await Projeto.findAll({
         where: { criado_por: usuarioId },
-        include: [
-          { model: Financiador, as: 'financiadores' },
-          { model: PalavraChave, as: 'palavras' },
-          { model: Usuario, as: 'usuariosColaboradores' }
-        ]
+        order: [['data_inicio', 'DESC']] // opcional, apenas para organizar
       });
 
       res.json(projetos);
     } catch (error) {
       console.error('Erro ao listar projetos do usuário:', error);
-      res.status(500).json({ error: 'Erro ao listar projetos do usuário', detalhes: error.message });
+      res.status(500).json({
+        error: 'Erro ao listar projetos do usuário',
+        detalhes: error.message
+      });
     }
   },
+
 
   async obterPorId(req, res) {
     try {
