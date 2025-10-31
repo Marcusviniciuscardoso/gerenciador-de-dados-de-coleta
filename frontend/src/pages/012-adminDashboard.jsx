@@ -9,7 +9,7 @@ import { CollectionsMap } from "../components/dashboard/collections-map";
 import { BreadcrumbNav } from "../components/dashboard/breadcrumb";
 import { SamplesOverview } from "../components/dashboard/samples-overview.tsx";
 import { ImagesGallery } from "../components/dashboard/images-gallery";
-import { AuditTimeline } from "../components/dashboard/audit-timeline";
+// import { AuditTimeline } from "../components/dashboard/audit-timeline"; // ❌ Comentado: aba de auditoria
 import { generateDashboardData } from "../lib/dashboard-data.ts"; 
 import { Button } from "../components/UI/button";
 import { RefreshCw, Download, Filter } from "lucide-react";
@@ -89,13 +89,13 @@ export default function AdminDashboardPage() {
 
       {/* Conteúdo Principal em Abas */}
       <Tabs defaultValue="projects" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="projects">🌱 Projetos</TabsTrigger>
           <TabsTrigger value="collections">🗺️ Coletas</TabsTrigger>
           <TabsTrigger value="samples">🧪 Amostras</TabsTrigger>
           <TabsTrigger value="images">📸 Imagens</TabsTrigger>
-          <TabsTrigger value="audit">🔐 Auditoria</TabsTrigger>
-          <TabsTrigger value="reports">📊 Relatórios</TabsTrigger>
+          {/* <TabsTrigger value="audit">🔐 Auditoria</TabsTrigger> */}
+          {/* <TabsTrigger value="reports">📊 Relatórios</TabsTrigger> */}
         </TabsList>
 
         <TabsContent value="projects" className="space-y-6">
@@ -114,11 +114,11 @@ export default function AdminDashboardPage() {
           <ImagesGallery data={dashboardData.images} />
         </TabsContent>
 
-        <TabsContent value="audit" className="space-y-6">
+        {/* <TabsContent value="audit" className="space-y-6">
           <AuditTimeline data={dashboardData.audit} />
-        </TabsContent>
+        </TabsContent> */}
 
-        <TabsContent value="reports" className="space-y-6">
+        {/* <TabsContent value="reports" className="space-y-6">
           <div className="grid gap-6 md:grid-cols-2">
             <div className="bg-gradient-to-br from-green-50 to-blue-50 rounded-lg p-8 text-center">
               <h3 className="text-xl font-semibold mb-4">Relatórios Personalizados</h3>
@@ -144,7 +144,7 @@ export default function AdminDashboardPage() {
               </Button>
             </div>
           </div>
-        </TabsContent>
+        </TabsContent> */}
       </Tabs>
     </div>
   );

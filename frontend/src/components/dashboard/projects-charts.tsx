@@ -12,33 +12,144 @@ import {
   Line,
   LineChart,
 } from "recharts";
-
+import {
+  getProjetosByUsuarioId,
+  atualizarProjeto,
+  deletarProjeto,
+} from "../../services/projetoService";
+import { obterUsuarioLogado } from "../../services/usuarioService";
 import type { DashboardStats } from "../../lib/dashboard-data";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface ProjectsChartsProps {
   data: DashboardStats["projects"];
 }
 
-export function ProjectsCharts({ data }: ProjectsChartsProps) {
-  const maxFunding = Math.max(...data.byFunding.map((f) => f.amount));
-  const totalFunding = data.byFunding.reduce((acc, f) => acc + f.amount, 0);
-  const maxKeyword = Math.max(...data.topKeywords.map((k) => k.count));
+export interface Projeto {
+  idProjeto: number;
+  nome: string;
+  descricao: string;
+  objetivos: string;
+  metodologia: string;
+  resultadosEsperados: string;
+  palavrasChave: string; // separado por vírgula
+  colaboradores: string; // separado por vírgula
+  financiamento: string;
+  orcamento: number;
+  data_inicio: string; // formato ISO: "2025-11-15"
+  data_fim: string; // formato ISO: "2026-06-30"
+  imageLink: string;
+  criado_por: number; // id do usuário criador
+  status?: number; // 0, 1, 2, 3
+}
 
-  const brl = (value: number) =>
+export interface Usuario {
+  idUsuarios: number;
+  nome: string;
+  email: string;
+  instituicao: string;
+  papel: string;
+  credencial_id: number;
+  criado_em?: string;
+  atualizado_em?: string;
+}
+
+export function ProjectsCharts({ data }: ProjectsChartsProps) {
+  const [projetos, setProjetos] = useState<Projeto[]>([]);
+  const [usuario, setUsuario] = useState<Usuario | null>(null);
+  const [statusData, setStatusData] = useState<
+  { name: string; count: number; color: string }[]
+  >([]);
+  const navigate = useNavigate();
+
+  const brl = (value) =>
     value.toLocaleString("pt-BR", {
       style: "currency",
       currency: "BRL",
       minimumFractionDigits: 0,
     });
 
+ useEffect(() => {
+  const carregarProjetos = async () => {
+    try {
+      const usuarioResponse = await obterUsuarioLogado();
+      setUsuario(usuarioResponse.data);
+
+      const projetoResponse = await getProjetosByUsuarioId(
+        usuarioResponse.data.idUsuarios
+      );
+      const projetosData = projetoResponse.data;
+      setProjetos(projetosData);
+
+      // === Definir status dinamicamente ===
+      const agora = new Date();
+
+      const statusContagem: Record<number, number> = {
+        0: 0, // Não iniciado
+        1: 0, // Em andamento
+        2: 0, // Concluído
+      };
+
+      projetosData.forEach((p: Projeto) => {
+        const dataInicio = new Date(p.data_inicio);
+        const dataFim = new Date(p.data_fim);
+
+        let status = 0; // default: não iniciado
+
+        if (isNaN(dataInicio.getTime()) || isNaN(dataFim.getTime())) {
+          // Caso datas inválidas
+          status = 0;
+        } else if (agora < dataInicio) {
+          status = 0; // ainda não começou
+        } else if (agora >= dataInicio && agora <= dataFim) {
+          status = 1; // em andamento
+        } else if (agora > dataFim) {
+          status = 2; // já terminou
+        }
+
+        // incrementa contagem
+        statusContagem[status] = (statusContagem[status] || 0) + 1;
+      });
+
+      // === Montar dados do gráfico ===
+      const statusArray = [
+        { name: "Não iniciado", color: "#22c55e", key: 0 },
+        { name: "Em andamento", color: "#3b82f6", key: 1 },
+        { name: "Concluído", color: "#f59e0b", key: 2 },
+      ];
+
+      const dadosPizza = statusArray.map((s) => ({
+        name: s.name,
+        color: s.color,
+        count: statusContagem[s.key] || 0,
+      }));
+
+      setStatusData(dadosPizza);
+      console.log("📊 statusData:", dadosPizza);
+    } catch (error) {
+      console.error("Erro na obtenção dos projetos: ", error);
+    }
+  };
+
+  carregarProjetos();
+}, []);
+
+  const maxFunding = Math.max(...data.byFunding.map((f) => f.amount));
+  const totalFunding = data.byFunding.reduce((acc, f) => acc + f.amount, 0);
+  const maxKeyword = Math.max(...data.topKeywords.map((k) => k.count));
+
   return (
     <div className="p-6 grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2">
-
-      {/* ========== Card: Status dos Projetos (Pizza) ========== */}
-      <div className="w-[35rem] p-10 rounded-3xl text-slate-600 bg-gradient-to-bl from-slate-200 to-slate-50
+      {/* ========== Card: Status dos Projetos (Pizza Dinâmica) ========== */}
+      <div
+        className="w-[35rem] p-10 rounded-3xl text-slate-600 bg-gradient-to-bl from-slate-200 to-slate-50
                      grid grid-cols-[1fr_auto] gap-6
-                     [box-shadow:inset_-2px_2px_0_rgba(255,255,255,1),_-20px_20px_40px_rgba(0,0,0,.25)]">
-        <h3 className="text-2xl font-medium uppercase tracking-wide self-end">Programming</h3>
+                     [box-shadow:inset_-2px_2px_0_rgba(255,255,255,1),_-20px_20px_40px_rgba(0,0,0,.25)]"
+      >
+        <h3 className="text-2xl font-medium uppercase tracking-wide self-end">
+          Programming
+        </h3>
         <div className="text-5xl leading-none">
           <i className="fa-solid fa-laptop-code bg-gradient-to-r from-rose-500 to-indigo-500 bg-clip-text text-transparent"></i>
         </div>
@@ -49,7 +160,7 @@ export function ProjectsCharts({ data }: ProjectsChartsProps) {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={data.byStatus}
+                  data={statusData}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
@@ -60,11 +171,13 @@ export function ProjectsCharts({ data }: ProjectsChartsProps) {
                   fill="#8884d8"
                   dataKey="count"
                 >
-                  {data.byStatus.map((entry, index) => (
+                  {statusData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip
+                  formatter={(value, name) => [`${value} projetos`, name]}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -74,10 +187,14 @@ export function ProjectsCharts({ data }: ProjectsChartsProps) {
       </div>
 
       {/* ========== Card: Projetos por Instituição (Barras) ========== */}
-      <div className="w-[41rem] p-10 rounded-3xl text-slate-600 bg-gradient-to-bl from-slate-200 to-slate-50
+      <div
+        className="w-[41rem] p-10 rounded-3xl text-slate-600 bg-gradient-to-bl from-slate-200 to-slate-50
                      grid grid-cols-[1fr_auto] gap-6
-                     [box-shadow:inset_-2px_2px_0_rgba(255,255,255,1),_-20px_20px_40px_rgba(0,0,0,.25)]">
-        <h3 className="text-2xl font-medium uppercase tracking-wide self-end">Programming</h3>
+                     [box-shadow:inset_-2px_2px_0_rgba(255,255,255,1),_-20px_20px_40px_rgba(0,0,0,.25)]"
+      >
+        <h3 className="text-2xl font-medium uppercase tracking-wide self-end">
+          Programming
+        </h3>
         <div className="text-5xl leading-none">
           <i className="fa-solid fa-laptop-code bg-gradient-to-r from-rose-500 to-indigo-500 bg-clip-text text-transparent"></i>
         </div>
@@ -99,6 +216,7 @@ export function ProjectsCharts({ data }: ProjectsChartsProps) {
 
         <div className="col-span-2 h-[2px] bg-gradient-to-r from-rose-500 to-indigo-500"></div>
       </div>
+
 
       {/* ========== Card: Fontes de Financiamento ========== */}
       <div className="rounded-3xl border bg-white/70 backdrop-blur p-6 md:p-8 shadow-sm">

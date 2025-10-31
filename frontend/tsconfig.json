@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    /* ====== CONFIGURAÇÕES BÁSICAS ====== */
+    "target": "ESNext",                    // Usa os recursos mais novos do JS
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],  // Inclui APIs do navegador e ES moderno
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "allowJs": true,                       // Permite JS e JSX junto com TS
+    "checkJs": false,                      // Não checa erros em arquivos JS
+    "jsx": "react-jsx",                    // Habilita JSX moderno (React 17+)
+    "esModuleInterop": true,               // Suporte para import/export padrão
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,                  // Ignora verificações de tipo em libs
+    "strict": true,                        // Ativa modo estrito de tipagem
+    "resolveJsonModule": true,             // Permite importar arquivos JSON
+
+    /* ====== OPÇÕES DE SAÍDA ====== */
+    "outDir": "./dist",                    // Pasta de saída opcional
+    "noEmit": true                         // Não gerar JS (usado com bundlers tipo Vite/Webpack)
+  },
+  "include": ["src"],                      // Inclui a pasta do seu código React
+  "exclude": ["node_modules", "dist"]      // Ignora dependências e builds
+}

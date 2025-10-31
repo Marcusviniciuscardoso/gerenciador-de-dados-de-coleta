@@ -22,13 +22,15 @@ function AppRouter() {
         {/* ROTAS PÚBLICAS */}
         <Route path="/cadastro" element={<CadastroUsuario />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-        <Route path="/admin/users" element={<AdminUsers />} />
 
         {/* ROTAS PRIVADAS */}
         <Route element={<PrivateRoute />}>
           <Route path="/" element={<Projeto />} />
+
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
+          
           <Route path="/usuario" element={<Usuario />} />
 
           <Route path="/projetos" element={<Projeto />} />
