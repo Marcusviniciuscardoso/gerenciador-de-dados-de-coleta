@@ -1,4 +1,4 @@
-import {
+/*import {
   BarChart,
   Bar,
   XAxis,
@@ -27,13 +27,13 @@ export function SamplesOverview({ data }: ProjectsChartsProps) {
 
   return (
     <div className="p-4 space-y-8">
-      {/* Título */}
+      {/* Título *//*}
       <h2 className="text-red-600 text-2xl font-semibold flex items-center gap-2">
         <i className="fa-solid fa-triangle-exclamation text-red-600"></i>
         Amostras Próximas ao Vencimento
       </h2>
 
-      {/* Cards de amostras */}
+      {/* Cards de amostras *//*}
       <div className="space-y-4">
         <div className="p-4 rounded-lg bg-red-100 text-red-800 shadow">
           <div className="flex justify-between items-center">
@@ -63,9 +63,9 @@ export function SamplesOverview({ data }: ProjectsChartsProps) {
         </div>
       </div>
 
-      {/* Status dos projetos + Histograma */}
+      {/* Status dos projetos + Histograma *//*}
       <div className="space-y-10">
-        {/* Pizza */}
+        {/* Pizza *//*}
         <div className="w-full max-w-3xl mx-auto p-10 rounded-3xl bg-gradient-to-bl from-slate-200 to-slate-50 shadow-md grid gap-6">
           <h3 className="text-2xl font-medium uppercase tracking-wide">Programming</h3>
 
@@ -85,7 +85,7 @@ export function SamplesOverview({ data }: ProjectsChartsProps) {
                   fill="#8884d8"
                   dataKey="count"
                 >
-                  {data.byStatus.map((entry, index) => (
+                  {data.byStatus.map((entry:any, index:any) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
@@ -95,7 +95,7 @@ export function SamplesOverview({ data }: ProjectsChartsProps) {
           </div>
         </div>
 
-        {/* Histograma */}
+        {/* Histograma *//*}
         <div className="p-6 rounded-3xl bg-white shadow-md">
           <h3 className="text-2xl font-semibold text-gray-900 mb-2">
             Distribuição de Amostras por Faixa de Dias para Vencimento
@@ -118,9 +118,9 @@ export function SamplesOverview({ data }: ProjectsChartsProps) {
         </div>
       </div>
 
-      {/* Métodos de Preservação e Produtividade */}
+      {/* Métodos de Preservação e Produtividade *//*}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Métodos de Preservação */}
+        {/* Métodos de Preservação *//*}
         <div className="rounded-xl border bg-white shadow-sm p-6">
           <h3 className="text-xl font-semibold flex items-center gap-2 mb-4">
             🧊 Métodos de Preservação
@@ -145,7 +145,7 @@ export function SamplesOverview({ data }: ProjectsChartsProps) {
           </div>
         </div>
 
-        {/* Produtividade */}
+        {/* Produtividade *//*}
         <div className="rounded-xl border bg-white shadow-sm p-6">
           <h3 className="text-xl font-semibold flex items-center gap-2 mb-4">
             📊 Produtividade por Projeto
@@ -191,7 +191,7 @@ export function SamplesOverview({ data }: ProjectsChartsProps) {
         </div>
       </div>
 
-      {/* Resumo Estatístico */}
+      {/* Resumo Estatístico *//*}
       <div className="rounded-lg border bg-white shadow-sm p-6">
         <h3 className="text-xl font-semibold flex items-center gap-2 mb-6">
           <i className="fa-solid fa-square-poll-horizontal text-red-500"></i>
@@ -218,4 +218,4 @@ export function SamplesOverview({ data }: ProjectsChartsProps) {
       </div>
     </div>
   );
-}
+}*/

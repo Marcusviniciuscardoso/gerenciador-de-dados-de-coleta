@@ -1,5 +1,5 @@
-import { mockUsers } from "./mock-users.ts"
-import { mockProjects, mockCollections, mockSamples } from "./mock-data.ts"
+import { mockUsers } from "./mock-users"
+import { mockProjects, mockCollections, mockSamples } from "./mock-data"
 
 // Dados expandidos para o dashboard
 export interface DashboardStats {

@@ -55,15 +55,21 @@ export interface Usuario {
   atualizado_em?: string;
 }
 
+export interface financimentoInterface {
+  instituicao: string;
+  count: number;
+}
+
 export function ProjectsCharts({ data }: ProjectsChartsProps) {
   const [projetos, setProjetos] = useState<Projeto[]>([]);
+  const [financiamentos, setFinanciamentos] = useState<financimentoInterface[]>([]);
   const [usuario, setUsuario] = useState<Usuario | null>(null);
   const [statusData, setStatusData] = useState<
   { name: string; count: number; color: string }[]
   >([]);
   const navigate = useNavigate();
 
-  const brl = (value) =>
+  const brl = (value:any) =>
     value.toLocaleString("pt-BR", {
       style: "currency",
       currency: "BRL",
@@ -95,6 +101,21 @@ export function ProjectsCharts({ data }: ProjectsChartsProps) {
         const dataInicio = new Date(p.data_inicio);
         const dataFim = new Date(p.data_fim);
 
+        const financiamento: financimentoInterface = {
+          instituicao: p.financiamento,
+          count: +1,
+        };
+        
+        setFinanciamentos(prev => {
+          const index = prev.findIndex(f => f.instituicao === financiamento.instituicao);
+          if (index !== -1) {
+            const updated = [...prev];
+            updated[index] = { ...updated[index], count: updated[index].count + 1 }; // ✅
+            return updated;
+          }
+          return [...prev, financiamento];
+        });
+        
         let status = 0; // default: não iniciado
 
         if (isNaN(dataInicio.getTime()) || isNaN(dataFim.getTime())) {
@@ -126,6 +147,9 @@ export function ProjectsCharts({ data }: ProjectsChartsProps) {
       }));
 
       setStatusData(dadosPizza);
+
+      //Gráfico de barras - projetos por instituição
+
       console.log("📊 statusData:", dadosPizza);
     } catch (error) {
       console.error("Erro na obtenção dos projetos: ", error);
@@ -135,9 +159,9 @@ export function ProjectsCharts({ data }: ProjectsChartsProps) {
   carregarProjetos();
 }, []);
 
-  const maxFunding = Math.max(...data.byFunding.map((f) => f.amount));
-  const totalFunding = data.byFunding.reduce((acc, f) => acc + f.amount, 0);
-  const maxKeyword = Math.max(...data.topKeywords.map((k) => k.count));
+  const maxFunding = Math.max(...data.byFunding.map((f:any)  => f.amount));
+  const totalFunding = data.byFunding.reduce((acc:any, f:any) => acc + f.amount, 0);
+  const maxKeyword = Math.max(...data.topKeywords.map((k:any) => k.count));
 
   return (
     <div className="p-6 grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2">
@@ -165,7 +189,7 @@ export function ProjectsCharts({ data }: ProjectsChartsProps) {
                   cy="50%"
                   labelLine={false}
                   label={({ name, percent }) =>
-                    `${name} ${(percent * 100).toFixed(0)}%`
+                    `${name} ${(Number(percent) * 100).toFixed(0)}%`
                   }
                   outerRadius={80}
                   fill="#8884d8"
@@ -203,12 +227,12 @@ export function ProjectsCharts({ data }: ProjectsChartsProps) {
           <h4 className="text-lg font-semibold mb-2">Projetos por Instituição</h4>
           <div className="h-[300px] w-[600px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data.byInstitution} layout="horizontal">
+              <BarChart data={financiamentos} layout="horizontal">
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis type="number" />
-                <YAxis dataKey="institution" type="category" width={120} />
+                <YAxis dataKey="instituicao" type="category" width={120} />
                 <Tooltip />
-                <Bar dataKey="count" fill="#10b981" />
+               <Bar dataKey="count" fill="#10b981" label={{ position: "right", fill: "#374151", fontSize: 14 }} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -224,7 +248,7 @@ export function ProjectsCharts({ data }: ProjectsChartsProps) {
         <p className="text-sm text-gray-500">Agências e valores investidos</p>
 
         <div className="mt-6 space-y-5">
-          {data.byFunding.map((f) => {
+          {data.byFunding.map((f:any) => {
             const pct = (f.amount / maxFunding) * 100;
             return (
               <div key={f.source} className="space-y-2">
@@ -262,7 +286,7 @@ export function ProjectsCharts({ data }: ProjectsChartsProps) {
         <p className="text-sm text-gray-500">Palavras-chave mais recorrentes</p>
 
         <div className="mt-6 space-y-5">
-          {data.topKeywords.map((k) => {
+          {data.topKeywords.map((k:any) => {
             const pct = (k.count / maxKeyword) * 100;
             return (
               <div key={k.keyword} className="flex items-center gap-4">
