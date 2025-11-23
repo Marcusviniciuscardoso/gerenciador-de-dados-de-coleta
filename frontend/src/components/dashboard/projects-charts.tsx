@@ -163,6 +163,12 @@ export function ProjectsCharts({ data }: ProjectsChartsProps) {
   const totalFunding = data.byFunding.reduce((acc:any, f:any) => acc + f.amount, 0);
   const maxKeyword = Math.max(...data.topKeywords.map((k:any) => k.count));
 
+  const maxOrcamento = Math.max(...projetos.map((p) => p.orcamento || 0));
+  const totalOrcamento = projetos.reduce((acc, p) => acc + (p.orcamento || 0), 0);
+  const maxPalavrasChave = Math.max(
+    ...projetos.map((p) => p.palavrasChave.split(",").length)
+  );
+
   return (
     <div className="p-6 grid gap-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2">
       {/* ========== Card: Status dos Projetos (Pizza Dinâmica) ========== */}
@@ -243,6 +249,7 @@ export function ProjectsCharts({ data }: ProjectsChartsProps) {
 
 
       {/* ========== Card: Fontes de Financiamento ========== */}
+      {/*
       <div className="rounded-3xl border bg-white/70 backdrop-blur p-6 md:p-8 shadow-sm">
         <h3 className="text-2xl font-semibold text-gray-900">Fontes de Financiamento</h3>
         <p className="text-sm text-gray-500">Agências e valores investidos</p>
@@ -274,11 +281,51 @@ export function ProjectsCharts({ data }: ProjectsChartsProps) {
           })}
         </div>
 
+
         <div className="mt-6 flex items-center justify-between text-sm text-gray-500">
           <span>Total investido</span>
           <span className="font-medium text-gray-800">{brl(totalFunding)}</span>
         </div>
+      </div>*/}
+
+        {/* ========== Card: Fontes de Financiamento 2========== */}
+      <div className="rounded-3xl border bg-white/70 backdrop-blur p-6 md:p-8 shadow-sm">
+        <h3 className="text-2xl font-semibold text-gray-900">Fontes de Financiamento</h3>
+        <p className="text-sm text-gray-500">Agências e valores investidos</p>
+
+        <div className="mt-6 space-y-5">
+          {projetos.map((f:any) => {
+            const pct = (f.orcamento / maxOrcamento) * 100;
+            return (
+              <div key={f.id} className="space-y-2">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="font-medium text-gray-800">{f.nome}</div>
+                  <div className="flex items-center gap-3">
+                    <span className="inline-flex items-center rounded-full bg-gray-100 text-gray-700 text-xs px-2.5 py-1">
+                      {f.palavrasChave.split(",").length} projeto{f.palavrasChave.split(",").length > 1 ? "s" : ""}
+                    </span>
+                    <span className="text-sm font-medium text-gray-800">{brl(f.orcamento)}</span>
+                  </div>
+                </div>
+
+                <div className="h-2 rounded-full bg-gray-200 overflow-hidden">
+                  <div
+                    className="h-full bg-gray-900 rounded-full"
+                    style={{ width: `${pct}%` }}
+                    aria-label={`${f.id} ${pct.toFixed(0)}%`}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="mt-6 flex items-center justify-between text-sm text-gray-500">
+          <span>Total investido</span>
+          <span className="font-medium text-gray-800">{brl(totalOrcamento)}</span>
+        </div>
       </div>
+
 
       {/* ========== Card: Temas de Pesquisa ========== */}
       <div className="rounded-3xl border bg-white/70 backdrop-blur p-6 md:p-8 shadow-sm">
