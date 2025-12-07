@@ -67,6 +67,9 @@ export function ProjectsCharts({ data }: ProjectsChartsProps) {
   const [statusData, setStatusData] = useState<
   { name: string; count: number; color: string }[]
   >([]);
+
+  //Temas de pesquisa
+  const [temasPesquisa, setTemasPesquisa] = useState<{ keyword: string; count: number }[]>([]);
   const navigate = useNavigate();
 
   const brl = (value:any) =>
@@ -150,6 +153,45 @@ export function ProjectsCharts({ data }: ProjectsChartsProps) {
 
       //Gráfico de barras - projetos por instituição
 
+      //Gráfico de temas de pesquisa
+      /*const temasContagem: Record<string, number> = {};
+      projetosData.forEach((p: Projeto) => {
+        const palavras = p.palavrasChave.split(",").map((kw) => kw.trim());
+        palavras.forEach((kw) => {
+          if (kw) {
+            temasContagem[kw] = (temasContagem[kw] || 0) + 1;
+          }
+        });
+      });
+      const temasArray = Object.entries(temasContagem).map(([keyword, count]) => ({ keyword, count }));
+      temasArray.sort((a, b) => b.count - a.count);
+      setTemasPesquisa(temasArray.slice(0, 10)); // top 10*/
+
+      projetosData.forEach((p: Projeto) => {
+        const palavras = p.palavrasChave.split(",").map((kw) => kw.trim());
+        palavras.forEach((kw) =>{
+          if (!kw) return;
+
+          setTemasPesquisa((prev) => {
+            const index = prev.findIndex((item) => item.keyword === kw);
+
+            // Se já existe, incrementa
+            if (index !== -1) {
+              const clone = [...prev];
+              clone[index] = {
+                ...clone[index],
+                count: clone[index].count + 1,
+              };
+              return clone;
+            }
+
+            // Se não existe, cria com count = 1
+            return [...prev, { keyword: kw, count: 1 }];
+          })    // <- fecha só o callback, falta o ';'
+        })      // <- fecha o forEach(kw)
+      })
+
+
       console.log("📊 statusData:", dadosPizza);
     } catch (error) {
       console.error("Erro na obtenção dos projetos: ", error);
@@ -161,7 +203,7 @@ export function ProjectsCharts({ data }: ProjectsChartsProps) {
 
   const maxFunding = Math.max(...data.byFunding.map((f:any)  => f.amount));
   const totalFunding = data.byFunding.reduce((acc:any, f:any) => acc + f.amount, 0);
-  const maxKeyword = Math.max(...data.topKeywords.map((k:any) => k.count));
+  //const maxKeyword = Math.max(...data.topKeywords.map((k:any) => k.count));
 
   const maxOrcamento = Math.max(...projetos.map((p) => p.orcamento || 0));
   const totalOrcamento = projetos.reduce((acc, p) => acc + (p.orcamento || 0), 0);
@@ -333,8 +375,8 @@ export function ProjectsCharts({ data }: ProjectsChartsProps) {
         <p className="text-sm text-gray-500">Palavras-chave mais recorrentes</p>
 
         <div className="mt-6 space-y-5">
-          {data.topKeywords.map((k:any) => {
-            const pct = (k.count / maxKeyword) * 100;
+          {temasPesquisa.map((k:any) => {
+            const pct = (k.count / 10) * 100;
             return (
               <div key={k.keyword} className="flex items-center gap-4">
                 <div className="min-w-0 flex-1">
