@@ -408,7 +408,7 @@ export function ProjectsCharts({ data }: ProjectsChartsProps) {
           <i className="fa-solid fa-laptop-code bg-gradient-to-r from-rose-500 to-indigo-500 bg-clip-text text-transparent"></i>
         </div>
 
-        <div className="col-span-2">
+        {/*<div className="col-span-2">
           <h4 className="text-lg font-semibold mb-2">Evolução dos projetos</h4>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -422,7 +422,7 @@ export function ProjectsCharts({ data }: ProjectsChartsProps) {
               </LineChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </div>*/}
 
         <div className="col-span-2 h-[2px] bg-gradient-to-r from-rose-500 to-indigo-500"></div>
       </div>
