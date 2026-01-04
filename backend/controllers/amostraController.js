@@ -21,31 +21,60 @@ module.exports = {
   },
 
   async obterPorId(req, res) {
+    console.log("[obterPorId] >>> INÍCIO");
+    console.log("[obterPorId] req.params =", req.params);
+
     try {
       const { id } = req.params;
+      console.log("[obterPorId] id extraído =", id, "| tipo:", typeof id);
 
+      // Se você espera número, ajuda a ver se vem "undefined" ou string estranha
+      const coletaId = Number(id);
+      console.log("[obterPorId] coletaId (Number) =", coletaId, "| isNaN:", Number.isNaN(coletaId));
+
+      console.log("[obterPorId] Antes do findAll - buscando amostras por coletaId...");
       const amostra = await Amostra.findAll({
-        where: { coletaId: id }
+        where: { coletaId: id }, // ou coletaId, se seu campo for numérico
       });
 
-      if (!amostra) {
-        return res.status(404).json({ error: 'Amostra não encontrada' });
+      console.log("[obterPorId] Depois do findAll");
+      console.log("[obterPorId] Resultado bruto:", amostra);
+      console.log("[obterPorId] Array?", Array.isArray(amostra), "| length:", Array.isArray(amostra) ? amostra.length : "N/A");
+
+      // ⚠️ findAll SEMPRE retorna array. Se não encontrar, vem [] (truthy).
+      // Então o seu "if (!amostra)" nunca vai disparar.
+      if (!amostra || (Array.isArray(amostra) && amostra.length === 0)) {
+        console.log("[obterPorId] Nenhuma amostra encontrada para coletaId =", id);
+        return res.status(404).json({ error: "Amostra não encontrada" });
       }
 
-      // REGISTRO DE AUDITORIA
+      console.log("[obterPorId] Respondendo com JSON. Quantidade:", amostra.length);
+      // REGISTRO DE AUDITORIA (comentado)
       /*
+      console.log("[obterPorId] Auditoria: criando registro...");
       await Auditoria.create({
         usuario: req.user?.email || 'desconhecido',
         acao: `Consultou a amostra ID ${id}`
       });
+      console.log("[obterPorId] Auditoria: registro criado!");
       */
 
       res.json(amostra);
+      console.log("[obterPorId] <<< FIM (sucesso)");
     } catch (error) {
-      console.error('Erro ao obter amostra por ID:', error);
-      res.status(500).json({ error: 'Erro ao obter amostra', detalhes: error.message });
+      console.error("[obterPorId] !!! ERRO no try/catch");
+      console.error("[obterPorId] error =", error);
+      console.error("[obterPorId] error.message =", error?.message);
+
+      res.status(500).json({
+        error: "Erro ao obter amostra",
+        detalhes: error?.message,
+      });
+
+      console.log("[obterPorId] <<< FIM (erro 500)");
     }
   },
+
 
   async criar(req, res) {
     try {
