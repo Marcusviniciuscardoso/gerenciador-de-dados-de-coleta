@@ -7,7 +7,7 @@ import { OverviewCards } from "../components/dashboard/overview-cards";
 import { ProjectsCharts } from "../components/dashboard/projects-charts.tsx";
 import { CollectionsMap } from "../components/dashboard/collections-map";
 import { BreadcrumbNav } from "../components/dashboard/breadcrumb";
-import { SamplesOverview } from "../components/dashboard/samples-overview.tsx";
+import SamplesOverview from "../components/dashboard/samples-overview";
 import { ImagesGallery } from "../components/dashboard/images-gallery";
 // import { AuditTimeline } from "../components/dashboard/audit-timeline"; // ❌ Comentado: aba de auditoria
 import { generateDashboardData } from "../lib/dashboard-data.ts"; 

@@ -1,4 +1,22 @@
+import React, { useEffect, useState } from "react";
+import { getColetaById } from "../../services/coletaService";
+import { getAmostraById } from "../../services/amostraService";
+import { obterUsuarioLogado } from "../../services/usuarioService";
+
+export interface Usuario {
+  idUsuarios: number;
+  nome: string;
+  email: string;
+  instituicao: string;
+  papel: string;
+  credencial_id: number;
+  criado_em?: string;
+  atualizado_em?: string;
+}
+
 export function CollectionsMap() {
+  const [usuario, setUsuario] = useState<Usuario | null>(null);
+
   const locais = [
     {
       nome: "Reserva Ducke",
@@ -20,6 +38,29 @@ export function CollectionsMap() {
       especies: ["Dipteryx odorata", "Hymenaea courbaril"],
     },
   ];
+
+  useEffect(() => {
+    console.log("Oi")
+    const carregarColetas = async () =>{
+      try{
+        console.log("Chegou qui")
+        const usuarioResponse = await obterUsuarioLogado();
+        setUsuario(usuarioResponse.data);
+
+        const ColetaResponse = await getColetaById(
+              usuarioResponse.data.idUsuarios
+        );
+        console.log("Resposta do coletaResponse: ", ColetaResponse)
+
+        const amostraResponse = await getAmostraById(
+              ColetaResponse.data.idColetas
+        );
+      }catch(error){
+        console.error("Erro na obtenção das coletas: ", error);
+      }
+    }
+    carregarColetas();
+  }, []);
 
   return (
     <div>
