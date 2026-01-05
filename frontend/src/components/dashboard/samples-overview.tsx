@@ -13,6 +13,8 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import type { DashboardStats } from "../../lib/dashboard-data";
 import { obterUsuarioLogado } from "../../services/usuarioService";
+import { getProjetosByUsuarioId } from "../../services/projetoService";
+import { getColetaById } from "../../services/coletaService";
 import { getAmostraById } from "../../services/amostraService";
 
 interface ProjectsChartsProps {
@@ -28,6 +30,37 @@ export interface Usuario {
   credencial_id: number;
   criado_em?: string;
   atualizado_em?: string;
+}
+
+export interface Projeto {
+  idProjetos: number;
+  nome: string;
+  descricao: string;
+  objetivos: string;
+  metodologia: string;
+  resultadosEsperados: string;
+  palavrasChave: string;
+  colaboradores: string;
+  financiamento: string;
+  orcamento: number;
+  data_inicio: string;
+  data_fim: string;
+  imageLink: string;
+  criado_por: number;
+  status?: number;
+}
+
+export interface Coleta {
+  idColetas: number;
+  projetoId: number;
+  local: string;
+  latitude: number;
+  longitude: number;
+  dataColeta: number;
+  hora_inicio: number;
+  hora_fim: number;
+  observacoes: string;
+  coletado_por: number;
 }
 
 export interface Amostra {
@@ -133,17 +166,61 @@ export default function SamplesOverview({ data }: ProjectsChartsProps) {
         const usuarioResponse = await obterUsuarioLogado();
         const usuarioData: Usuario = usuarioResponse.data;
 
-        // OBS: aqui você está usando idUsuarios para buscar amostras.
-        // Ajuste se seu backend esperar outro ID (ex: projetoId/coletaId).
-        const amostraResponse = await getAmostraById(usuarioData.idUsuarios);
+        // ✅ projetosResponse.data vem ARRAY
+        const projetosResponse = await getProjetosByUsuarioId(
+          usuarioData.idUsuarios
+        );
+        const projetosData: Projeto[] = Array.isArray(projetosResponse.data)
+          ? projetosResponse.data
+          : [];
 
-        const amostraData = amostraResponse.data;
-        const lista: Amostra[] = Array.isArray(amostraData)
-          ? amostraData
-          : [amostraData];
+        console.log("Olha os projetosData (array): ", projetosData);
 
-        setAmostras(lista);
-        console.log("Olha as amostras: ", lista)
+        if (projetosData.length === 0) {
+          console.warn("Usuário não tem projetos. Parando fluxo.");
+          setAmostras([]);
+          return;
+        }
+
+        // ✅ Escolha do projeto: pega o primeiro (ou o mais recente, se quiser ordenar)
+        const projetoSelecionado = projetosData[0];
+        console.log(
+          "Projeto selecionado:",
+          projetoSelecionado,
+          "idProjetos:",
+          projetoSelecionado.idProjetos
+        );
+
+        // ✅ coletaResponse.data vem ARRAY
+        const coletaResponse = await getColetaById(projetoSelecionado.idProjetos);
+        const coletasData: Coleta[] = Array.isArray(coletaResponse.data)
+          ? coletaResponse.data
+          : [];
+
+        console.log("Olha as coletasData (array): ", coletasData);
+
+        if (coletasData.length === 0) {
+          console.warn("Projeto não tem coletas. Parando fluxo.");
+          setAmostras([]);
+          return;
+        }
+
+        // ✅ Agora vem a parte importante:
+        // Você pode buscar amostras de TODAS as coletas e juntar tudo num array só.
+        const coletasIds = coletasData.map((c) => c.idColetas);
+        console.log("IDs das coletas:", coletasIds);
+
+        const respostasAmostras = await Promise.all(
+          coletasIds.map((coletaId) => getAmostraById(coletaId))
+        );
+
+        const amostrasFlatten: Amostra[] = respostasAmostras.flatMap((resp) =>
+          Array.isArray(resp.data) ? resp.data : resp.data ? [resp.data] : []
+        );
+
+        console.log("Olha as amostras (flatten): ", amostrasFlatten);
+
+        setAmostras(amostrasFlatten);
       } catch (error) {
         console.error("Erro na obtenção das amostras: ", error);
       }
@@ -198,9 +275,7 @@ export default function SamplesOverview({ data }: ProjectsChartsProps) {
     );
 
     const metodos = new Set(
-      amostras
-        .map((a) => normalizeText(a.metodoPreservacao, ""))
-        .filter(Boolean)
+      amostras.map((a) => normalizeText(a.metodoPreservacao, "")).filter(Boolean)
     );
 
     return {
@@ -216,13 +291,11 @@ export default function SamplesOverview({ data }: ProjectsChartsProps) {
 
   return (
     <div className="p-4 space-y-8">
-      {/* Título */}
       <h2 className="text-red-600 text-2xl font-semibold flex items-center gap-2">
         <i className="fa-solid fa-triangle-exclamation text-red-600"></i>
         Amostras Próximas ao Vencimento (ou vencidas)
       </h2>
 
-      {/* Cards de amostras (DINÂMICOS e filtrados) */}
       <div className="space-y-4">
         {amostrasCriticas.length === 0 ? (
           <p className="text-sm text-gray-500">
@@ -259,9 +332,7 @@ export default function SamplesOverview({ data }: ProjectsChartsProps) {
         )}
       </div>
 
-      {/* Status dos projetos + Histograma */}
       <div className="space-y-10">
-        {/* Pizza */}
         <div className="w-full max-w-3xl mx-auto p-10 rounded-3xl bg-gradient-to-bl from-slate-200 to-slate-50 shadow-md grid gap-6">
           <h3 className="text-2xl font-medium uppercase tracking-wide">
             Programming
@@ -294,7 +365,6 @@ export default function SamplesOverview({ data }: ProjectsChartsProps) {
           </div>
         </div>
 
-        {/* Histograma / métodos de preservação (DINÂMICO) */}
         <div className="p-6 rounded-3xl bg-white shadow-md">
           <h3 className="text-2xl font-semibold text-gray-900 mb-2">
             Distribuição de Amostras por Método de Preservação
@@ -317,9 +387,7 @@ export default function SamplesOverview({ data }: ProjectsChartsProps) {
         </div>
       </div>
 
-      {/* Métodos de Preservação e Produtividade (DINÂMICOS) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Métodos de Preservação */}
         <div className="rounded-xl border bg-white shadow-sm p-6">
           <h3 className="text-xl font-semibold flex items-center gap-2 mb-4">
             🧊 Métodos de Preservação
@@ -346,7 +414,6 @@ export default function SamplesOverview({ data }: ProjectsChartsProps) {
           )}
         </div>
 
-        {/* Produtividade por Coleta (baseada em amostras) */}
         <div className="rounded-xl border bg-white shadow-sm p-6">
           <h3 className="text-xl font-semibold flex items-center gap-2 mb-4">
             📊 Produtividade por Coleta
@@ -379,7 +446,6 @@ export default function SamplesOverview({ data }: ProjectsChartsProps) {
         </div>
       </div>
 
-      {/* Resumo Estatístico (DINÂMICO) */}
       <div className="rounded-lg border bg-white shadow-sm p-6">
         <h3 className="text-xl font-semibold flex items-center gap-2 mb-6">
           <i className="fa-solid fa-square-poll-horizontal text-red-500"></i>
