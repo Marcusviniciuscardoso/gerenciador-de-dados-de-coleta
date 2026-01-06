@@ -28,6 +28,8 @@ const usuarioRoutes = require('./routes/usuarioRoutes');
 const coletaRoutes = require('./routes/coletaRoutes');
 const amostraRoutes = require('./routes/amostraRoutes');
 const cadastroRoute = require('./routes/cadastroRoutes');
+const uploadRoutes = require("./routes/uploadRoutes");
+
 // const imagemRoutes = require('./routes/imagemRoutes');
 
 app.use('/credenciais', credencialRoutes);
@@ -36,6 +38,7 @@ app.use('/usuarios', usuarioRoutes);
 app.use('/cadastro', cadastroRoute);
 app.use('/coletas', coletaRoutes);
 app.use('/amostras', amostraRoutes);
+app.use("/uploads", uploadRoutes);
 // app.use('/imagens', imagemRoutes);
 
 // 🚀 Inicializa servidor HTTP (Railway fornece HTTPS externamente)
