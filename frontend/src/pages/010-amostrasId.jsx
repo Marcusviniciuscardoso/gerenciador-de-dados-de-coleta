@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Copy, Edit, Trash, Save } from 'lucide-react';
 import { getAmostraById, deletarAmostra, atualizarAmostra } from '../services/amostraService';
+import { getPresignedGetUrl } from '../services/uploadService'; // ✅ ADD
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
-
 
 function AmostraDetalhes() {
   const { projetoId, coletaId, amostraId } = useParams();
@@ -12,6 +12,11 @@ function AmostraDetalhes() {
 
   const [amostra, setAmostra] = useState(null);
   const [modoEdicao, setModoEdicao] = useState(false);
+
+  // ✅ TESTE R2 GET (sem vínculo com amostra)
+  const TEST_KEY = "amostras/12/b4807f54-c4a4-47cb-8080-955d050aebd9.jpg"; // <-- troque pela sua key real
+  const [testImgUrl, setTestImgUrl] = useState(null);
+  const [testImgErr, setTestImgErr] = useState(null);
 
   const exportarAmostraParaXLSX = () => {
     if (!amostra) {
@@ -46,12 +51,10 @@ function AmostraDetalhes() {
     });
 
     const blob = new Blob([excelBuffer], {
-      type:
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     });
     saveAs(blob, `Amostra_${amostra.codigo || 'dados'}.xlsx`);
   };
-
 
   useEffect(() => {
     const fetchAmostra = async () => {
@@ -84,6 +87,30 @@ function AmostraDetalhes() {
 
     fetchAmostra();
   }, [coletaId, amostraId]);
+
+  // ✅ carrega a imagem de teste via presigned GET
+  useEffect(() => {
+    const carregarImagemTeste = async () => {
+      try {
+        setTestImgErr(null);
+        setTestImgUrl(null);
+
+        const resp = await getPresignedGetUrl(TEST_KEY);
+        console.log("Presigned GET URL (teste):", resp?.data);
+
+        // aceite "url" ou "downloadUrl" dependendo do que seu backend retornar
+        const url = resp?.data?.url || resp?.data?.downloadUrl;
+        if (!url) throw new Error("Backend não retornou 'url' no presign-get");
+
+        setTestImgUrl(url);
+      } catch (e) {
+        console.error("Erro ao gerar presigned GET (teste):", e);
+        setTestImgErr(e?.response?.data || e.message);
+      }
+    };
+
+    carregarImagemTeste();
+  }, []);
 
   const handleDelete = async () => {
     if (window.confirm('Deseja realmente excluir esta amostra?')) {
@@ -216,8 +243,41 @@ function AmostraDetalhes() {
         {renderCampo('Observações', 'observacoes', 'textarea')}
       </div>
 
+      {/* ✅ TESTE R2 GET (sem vínculo com amostra) */}
       <div className="mb-8">
-        <h2 className="text-xl font-bold mb-4">Documentação Fotográfica</h2>
+        <h2 className="text-xl font-bold mb-4">Documentação Fotográfica (TESTE R2 GET)</h2>
+
+        {testImgErr && (
+          <pre className="text-xs bg-red-50 text-red-700 p-3 rounded border border-red-200 mb-3 overflow-auto">
+            {JSON.stringify(testImgErr, null, 2)}
+          </pre>
+        )}
+
+        <div className="flex gap-4 items-center">
+          {testImgUrl ? (
+            <img
+              src={testImgUrl}
+              alt="Imagem teste R2"
+              className="w-48 h-48 object-cover rounded border"
+              onError={(e) => {
+                console.error("Falha ao carregar IMG no browser", e);
+              }}
+            />
+          ) : (
+            <div className="w-48 h-48 rounded bg-gray-100 flex items-center justify-center text-gray-400 text-sm border">
+              Carregando imagem...
+            </div>
+          )}
+        </div>
+
+        <p className="text-xs text-gray-500 mt-2 break-all">
+          key: {TEST_KEY}
+        </p>
+      </div>
+
+      {/* ✅ SEÇÃO ORIGINAL (imageLink) */}
+      <div className="mb-8">
+        <h2 className="text-xl font-bold mb-4">Documentação Fotográfica (campo da amostra)</h2>
         <div className="flex gap-4">
           {modoEdicao ? (
             <input
@@ -239,27 +299,6 @@ function AmostraDetalhes() {
           )}
         </div>
       </div>
-      {/*
-      <div className="mb-8">
-      <h2 className="text-xl font-bold mb-4">Documentação Fotográfica</h2>
-      <div className="flex gap-4">
-        <img
-          src="https://upload.wikimedia.org/wikipedia/commons/2/24/Coccinella_septempunctata_Kaldari.jpg"
-          alt="Imagem 1"
-          className="w-32 h-32 object-cover rounded"
-        />
-        <img
-          src="https://media.istockphoto.com/id/175531668/pt/foto/joaninha.jpg?s=612x612&w=0&k=20&c=5-FpE3PGJrY6Oi9qA_wfiScSbQcfJ0MZnkriUpYodAk="
-          alt="Imagem 2"
-          className="w-32 h-32 object-cover rounded"
-        />
-        <img
-          src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Lady_beetle_taking_flight_right_bright.jpg/250px-Lady_beetle_taking_flight_right_bright.jpg"
-          alt="Imagem 3"
-          className="w-32 h-32 object-cover rounded"
-        />
-      </div>
-    </div>*/}
     </div>
   );
 }
