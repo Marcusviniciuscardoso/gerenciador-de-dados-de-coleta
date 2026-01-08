@@ -141,6 +141,7 @@ function ProjetoPageMock() {
         const pairs = await Promise.all(
           projs.map(async (p) => {
             const key = p.imageKey || p.imageLink; // ajuste aqui pro seu campo
+            console.log("Olha a keY: ", key)
             if (!key) return [p.idProjetos, null];
 
             try {
