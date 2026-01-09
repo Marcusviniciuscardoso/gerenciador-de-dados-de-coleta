@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Copy, Edit, Trash, Save } from 'lucide-react';
 import { getAmostraById, deletarAmostra, atualizarAmostra } from '../services/amostraService';
-import { getPresignedGetUrl } from '../services/uploadService'; // ✅ ADD
+import { getPresignedGetUrl } from '../services/uploadService'
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 

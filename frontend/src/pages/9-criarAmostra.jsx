@@ -1,48 +1,111 @@
-import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Plus, ArrowLeft } from 'lucide-react';
-import { criarAmostra } from '../services/amostraService';
+import React, { useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { Plus, ArrowLeft, Image as ImageIcon } from "lucide-react";
+import { criarAmostra } from "../services/amostraService";
+import { presignUpload } from "../services/uploadService"; // <-- NOVO
 
 function NovaAmostra() {
   const { projetoId, coletaId } = useParams();
   const navigate = useNavigate();
+  const fileInputRef = useRef(null);
 
   const [form, setForm] = useState({
-    descricao: '',
-    codigo: '',
-    tipoAmostra: '',
-    recipiente: '',
-    metodoPreservacao: '',
-    quantidade: '',
-    validade: '',
-    identificacao_final: '',
-    observacoes: '',
-    imagens: [], // vai ficar vazio se não estiver enviando arquivos
+    descricao: "",
+    codigo: "",
+    tipoAmostra: "",
+    recipiente: "",
+    metodoPreservacao: "",
+    quantidade: "",
+    validade: "",
+    identificacao_final: "",
+    observacoes: "",
+    imagens: [], // Files selecionados no upload
   });
 
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+  const [uploadedKeys, setUploadedKeys] = useState([]);
+
   const handleImagem = (e) => {
-    const files = Array.from(e.target.files);
-    setForm({ ...form, imagens: files });
+    const files = Array.from(e.target.files || []);
+    setForm((prev) => ({ ...prev, imagens: files }));
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Faz o upload das imagens usando o formato da função presignUpload
+  const uploadImagens = async (amostraId) => {
+    if (!form.imagens.length) return;
+
+    setUploading(true);
+    setUploadError("");
+    const keys = [];
+
+    try {
+      for (const file of form.imagens) {
+        // 1) pede a URL assinada
+        const { data } = await presignUpload({
+          filename: file.name,
+          contentType: file.type,
+          amostraId, // segue o formato { filename, contentType, amostraId }
+        });
+
+        const { uploadUrl, key } = data; // ajuste se o backend devolver outros nomes
+
+        // 2) faz o upload direto pro R2/S3
+        await fetch(uploadUrl, {
+          method: "PUT",
+          headers: {
+            "Content-Type": file.type,
+          },
+          body: file,
+        });
+
+        keys.push(key);
+      }
+
+      setUploadedKeys(keys);
+    } catch (err) {
+      console.error("Erro no upload das imagens:", err);
+      setUploadError("Erro ao enviar as imagens.");
+      throw err;
+    } finally {
+      setUploading(false);
+    }
   };
 
   const salvarAmostra = async () => {
     try {
       const payload = {
         ...form,
+        imagens: undefined, // as imagens vão pelo R2, não no payload JSON
         coletaId,
       };
 
-      await criarAmostra(payload);
-      alert('Amostra registrada com sucesso!');
+      // cria amostra no backend
+      const response = await criarAmostra(payload);
+
+      // ajuste o campo de ID conforme o que seu backend retorna
+      const amostraCriada = response.data || response;
+      const amostraId = amostraCriada.id || amostraCriada.idAmostra;
+
+      if (!amostraId) {
+        console.warn("ID da amostra não encontrado na resposta:", amostraCriada);
+      }
+
+      // se tiver imagens, faz o upload usando o presignUpload
+      if (amostraId && form.imagens.length) {
+        await uploadImagens(amostraId);
+      }
+
+      alert("Amostra registrada com sucesso!");
       navigate(`/projetos/${projetoId}/coletas/${coletaId}`);
     } catch (error) {
-      console.error('Erro ao salvar amostra:', error);
-      alert('Erro ao salvar amostra');
+      console.error("Erro ao salvar amostra:", error);
+      alert("Erro ao salvar amostra");
     }
   };
 
@@ -67,7 +130,9 @@ function NovaAmostra() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Identificação */}
         <div>
-          <h2 className="text-lg font-semibold mb-3">Identificação da Amostra</h2>
+          <h2 className="text-lg font-semibold mb-3">
+            Identificação da Amostra
+          </h2>
           <div className="flex flex-col gap-3">
             <input
               name="descricao"
@@ -154,17 +219,47 @@ function NovaAmostra() {
           />
         </div>
 
-        {/* Imagens */}
+        {/* Área de upload de Imagens */}
         <div className="col-span-2">
-          <h2 className="text-lg font-semibold mb-3">Documentação Fotográfica</h2>
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            onChange={handleImagem}
-            className="border rounded px-3 py-2"
-          />
-          <p className="text-sm text-gray-500 mt-1">Máximo 10 imagens</p>
+          <h2 className="text-lg font-semibold mb-3">
+            Documentação Fotográfica
+          </h2>
+
+          <div
+            className="border-2 border-dashed rounded-lg px-6 py-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={handleImagem}
+              className="hidden"
+            />
+            <ImageIcon className="w-8 h-8 mb-2" />
+            <p className="font-medium">Clique ou arraste as imagens aqui</p>
+            <p className="text-sm text-gray-500">
+              PNG, JPG • Máximo 10 imagens
+            </p>
+          </div>
+
+          {form.imagens.length > 0 && (
+            <ul className="mt-3 text-sm text-gray-700 list-disc list-inside">
+              {form.imagens.map((file, index) => (
+                <li key={index}>{file.name}</li>
+              ))}
+            </ul>
+          )}
+
+          {uploading && (
+            <p className="text-sm text-blue-600 mt-2">
+              Enviando imagens, aguarde...
+            </p>
+          )}
+          {uploadError && (
+            <p className="text-sm text-red-600 mt-2">{uploadError}</p>
+          )}
         </div>
       </div>
 
@@ -178,10 +273,11 @@ function NovaAmostra() {
         </button>
         <button
           onClick={salvarAmostra}
-          className="flex items-center bg-black text-white px-4 py-2 rounded hover:bg-gray-800"
+          disabled={uploading}
+          className="flex items-center bg-black text-white px-4 py-2 rounded hover:bg-gray-800 disabled:opacity-60"
         >
           <Plus className="w-4 h-4 mr-2" />
-          Registrar Amostra
+          {uploading ? "Salvando..." : "Registrar Amostra"}
         </button>
       </div>
     </div>
