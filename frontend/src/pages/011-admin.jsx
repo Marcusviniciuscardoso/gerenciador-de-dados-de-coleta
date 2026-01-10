@@ -164,7 +164,7 @@ const dataMock = {
     usuarios: { total: 5, ativos: 4 },
     projetos: { total: 3, ativos: 3 },
     coletas:  { total: 45 },
-    armazenamento: { usedGB: 2.4 }
+    //armazenamento: { usedGB: 2.4 }
   },
   atividades: [
     { id: 1, acao: 'Novo usuário cadastrado', usuario: 'Ana Costa',     dataHora: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString() }, // 2h atrás
@@ -215,16 +215,17 @@ export default function Admin() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card icon={Users}  title="Total de Usuários"     value={cards.usuarios.total}  subtitle={`${cards.usuarios.ativos ?? 0} ativos`} />
+        {/*<Card icon={Users}  title="Total de Usuários"     value={cards.usuarios.total}  subtitle={`${cards.usuarios.ativos ?? 0} ativos`} />*/}
         <Card icon={Folder} title="Projetos Ativos"       value={cards.projetos.ativos} subtitle={`${cards.projetos.total} no sistema`} />
         <Card icon={FlaskConical} title="Coletas Realizadas" value={cards.coletas.total} subtitle="Total de coletas" />
-        <Card icon={HardDrive} title="Armazenamento"      value={formatGB(cards.armazenamento.usedGB)} subtitle="Espaço utilizado" />
+        {/*<Card icon={HardDrive} title="Armazenamento"      value={formatGB(cards.armazenamento.usedGB)} subtitle="Espaço utilizado" />*/}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="rounded-xl border p-5 bg-white">
           <div className="flex items-center justify-between">
             <div>
+              <h1 className="text-xl font-bold text-red-600">Em Breve</h1>
               <h3 className="text-lg font-semibold">Gerenciar Usuários</h3>
               <p className="text-gray-500 text-sm">Visualize, edite e gerencie contas</p>
             </div>
@@ -239,6 +240,7 @@ export default function Admin() {
         <div className="rounded-xl border p-5 bg-white">
           <div className="flex items-center justify-between">
             <div>
+              <h1 className="text-xl font-bold text-red-600">Em Breve</h1>
               <h3 className="text-lg font-semibold">Permissões e Roles</h3>
               <p className="text-gray-500 text-sm">Configure níveis de acesso</p>
             </div>
@@ -258,7 +260,7 @@ export default function Admin() {
             </div>
             <LineChart className="w-5 h-5 text-gray-500" />
           </div>
-          <button onClick={() => (window.location.href = '/relatorios')}
+          <button onClick={() => (window.location.href = '/admin/dashboard')}
                   className="mt-4 inline-flex items-center px-4 py-2 rounded-lg border hover:bg-gray-50">
             Ver Relatórios
           </button>
@@ -267,6 +269,7 @@ export default function Admin() {
         <div className="rounded-xl border p-5 bg-white">
           <div className="flex items-center justify-between">
             <div>
+              <h1 className="text-xl font-bold text-red-600">Em Breve</h1>
               <h3 className="text-lg font-semibold">Configurações do Sistema</h3>
               <p className="text-gray-500 text-sm">Parâmetros globais</p>
             </div>
@@ -281,6 +284,7 @@ export default function Admin() {
         <div className="rounded-xl border p-5 bg-white">
           <div className="flex items-center justify-between">
             <div>
+              <h1 className="text-xl font-bold text-red-600">Em Breve</h1>
               <h3 className="text-lg font-semibold">Backup e Dados</h3>
               <p className="text-gray-500 text-sm">Gerencie backups e exportação</p>
             </div>
@@ -295,6 +299,7 @@ export default function Admin() {
         <div className="rounded-xl border p-5 bg-white">
           <div className="flex items-center justify-between">
             <div>
+              <h1 className="text-xl font-bold text-red-600">Em Breve</h1>
               <h3 className="text-lg font-semibold">Monitoramento</h3>
               <p className="text-gray-500 text-sm">Logs e performance</p>
             </div>
@@ -308,6 +313,7 @@ export default function Admin() {
       </div>
 
       <div className="rounded-xl border p-5 bg-white">
+        <h1 className="text-xl font-bold text-red-600">Em Breve</h1>
         <h3 className="text-lg font-semibold mb-3">Atividade Recente</h3>
         <ul className="space-y-2">
           {atividades.map(item => (
