@@ -1,8 +1,8 @@
 import React, { useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Plus, ArrowLeft, Image as ImageIcon } from "lucide-react";
-import { criarAmostra } from "../services/amostraService";
-import { presignUpload } from "../services/uploadService"; // <-- NOVO
+import { criarAmostra, atualizarAmostra } from "../services/amostraService";
+import { presignUpload } from "../services/uploadService";
 
 function NovaAmostra() {
   const { projetoId, coletaId } = useParams();
@@ -19,7 +19,8 @@ function NovaAmostra() {
     validade: "",
     identificacao_final: "",
     observacoes: "",
-    imagens: [], // Files selecionados no upload
+    imagens: [],      // <== Files selecionados no upload (só no frontend)
+    imageLink: "",    // <== campo que vai pro banco (key do R2)
   });
 
   const [uploading, setUploading] = useState(false);
@@ -38,7 +39,7 @@ function NovaAmostra() {
 
   // Faz o upload das imagens usando o formato da função presignUpload
   const uploadImagens = async (amostraId) => {
-    if (!form.imagens.length) return;
+    if (!form.imagens.length) return [];
 
     setUploading(true);
     setUploadError("");
@@ -52,11 +53,12 @@ function NovaAmostra() {
           contentType: file.type,
           amostraId, // segue o formato { filename, contentType, amostraId }
         });
+        console.log("O retorno de data: ", data);
 
-        const { uploadUrl, key } = data; // ajuste se o backend devolver outros nomes
+        const { uploadUrl, key } = data;
 
         // 2) faz o upload direto pro R2/S3
-        await fetch(uploadUrl, {
+        const resp = await fetch(uploadUrl, {
           method: "PUT",
           headers: {
             "Content-Type": file.type,
@@ -64,10 +66,15 @@ function NovaAmostra() {
           body: file,
         });
 
+        if (!resp.ok) {
+          throw new Error(`Falha no PUT do arquivo ${file.name}: ${resp.status}`);
+        }
+
         keys.push(key);
       }
 
       setUploadedKeys(keys);
+      return keys;
     } catch (err) {
       console.error("Erro no upload das imagens:", err);
       setUploadError("Erro ao enviar as imagens.");
@@ -79,26 +86,36 @@ function NovaAmostra() {
 
   const salvarAmostra = async () => {
     try {
+      // 1) cria a amostra sem mandar os Files nem o imageLink
       const payload = {
         ...form,
-        imagens: undefined, // as imagens vão pelo R2, não no payload JSON
+        imagens: undefined,   // não vai no JSON
+        imageLink: undefined, // vamos preencher depois com a key real
         coletaId,
       };
 
-      // cria amostra no backend
       const response = await criarAmostra(payload);
 
-      // ajuste o campo de ID conforme o que seu backend retorna
       const amostraCriada = response.data || response;
-      const amostraId = amostraCriada.id || amostraCriada.idAmostra;
+      console.log("Olha a amostra criada: ", amostraCriada);
 
+      const amostraId = amostraCriada.idAmostras || amostraCriada.id;
       if (!amostraId) {
         console.warn("ID da amostra não encontrado na resposta:", amostraCriada);
       }
 
-      // se tiver imagens, faz o upload usando o presignUpload
+      // 2) se tiver imagens, faz upload e salva a key da principal em imageLink
       if (amostraId && form.imagens.length) {
-        await uploadImagens(amostraId);
+        const keys = await uploadImagens(amostraId);
+
+        if (keys.length > 0) {
+          const principalKey = keys[0]; // por enquanto usa só a primeira
+          console.log("Key principal para salvar no banco:", principalKey);
+
+          await atualizarAmostra(amostraId, {
+            imageLink: principalKey,
+          });
+        }
       }
 
       alert("Amostra registrada com sucesso!");

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Copy, Edit, Trash, Save } from 'lucide-react';
 import { getAmostraById, deletarAmostra, atualizarAmostra } from '../services/amostraService';
-import { getPresignedGetUrl } from '../services/uploadService'
+import { getPresignedGetUrl } from '../services/uploadService';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 
@@ -13,10 +13,9 @@ function AmostraDetalhes() {
   const [amostra, setAmostra] = useState(null);
   const [modoEdicao, setModoEdicao] = useState(false);
 
-  // ✅ TESTE R2 GET (sem vínculo com amostra)
-  const TEST_KEY = "amostras/12/b4807f54-c4a4-47cb-8080-955d050aebd9.jpg"; // <-- troque pela sua key real
-  const [testImgUrl, setTestImgUrl] = useState(null);
-  const [testImgErr, setTestImgErr] = useState(null);
+  // 🔗 estado para imagem vinculada à amostra
+  const [imgUrl, setImgUrl] = useState(null);
+  const [imgErr, setImgErr] = useState(null);
 
   const exportarAmostraParaXLSX = () => {
     if (!amostra) {
@@ -56,61 +55,82 @@ function AmostraDetalhes() {
     saveAs(blob, `Amostra_${amostra.codigo || 'dados'}.xlsx`);
   };
 
+  // 🔗 carrega a imagem vinculada à amostra (via imageLink)
+  const carregarImagemDaAmostra = async (amostraData) => {
+    try {
+      setImgErr(null);
+      setImgUrl(null);
+
+      if (!amostraData) {
+        console.log('[carregarImagemDaAmostra] amostraData vazio');
+        return;
+      }
+
+      const keyOuUrl = amostraData.imageLink;
+      console.log('[carregarImagemDaAmostra] valor de imageLink:', keyOuUrl);
+
+      if (!keyOuUrl) {
+        console.log('[carregarImagemDaAmostra] amostra sem imagem vinculada');
+        return;
+      }
+
+      // se já for URL completa, usa direto (compatibilidade com registros antigos)
+      if (keyOuUrl.startsWith('http')) {
+        console.log('[carregarImagemDaAmostra] imageLink já é URL, usando direto');
+        setImgUrl(keyOuUrl);
+        return;
+      }
+
+      // caso contrário, trata como KEY do R2 e chama o presign-get
+      console.log('[carregarImagemDaAmostra] tratando imageLink como KEY do R2');
+      const resp = await getPresignedGetUrl(keyOuUrl);
+      console.log('[carregarImagemDaAmostra] resposta do presign-get:', resp?.data);
+
+      const url = resp?.data?.url || resp?.data?.downloadUrl;
+      if (!url) {
+        throw new Error("Backend não retornou 'url' nem 'downloadUrl' no presign-get");
+      }
+
+      setImgUrl(url);
+    } catch (e) {
+      console.error('[carregarImagemDaAmostra] Erro ao gerar presigned GET:', e);
+      setImgErr(e?.response?.data || e.message);
+    }
+  };
+
   useEffect(() => {
     const fetchAmostra = async () => {
       try {
         const response = await getAmostraById(coletaId);
-        console.log("Olha o response: ", response);
+        console.log('Olha o response: ', response);
+
+        let encontrada = null;
 
         if (Array.isArray(response.data)) {
-          const encontrada = response.data.find(
+          encontrada = response.data.find(
             (a) => String(a.idAmostras) === String(amostraId)
           );
-
-          if (!encontrada) {
-            alert("Amostra não encontrada!");
-          } else {
-            setAmostra(encontrada);
-          }
-        } else {
+        } else if (response.data) {
           if (String(response.data.idAmostras) === String(amostraId)) {
-            setAmostra(response.data);
-          } else {
-            alert("Amostra não encontrada!");
+            encontrada = response.data;
           }
         }
+
+        if (!encontrada) {
+          alert('Amostra não encontrada!');
+        } else {
+          setAmostra(encontrada);
+          // 🔗 assim que a amostra é carregada, buscamos a imagem vinculada
+          carregarImagemDaAmostra(encontrada);
+        }
       } catch (error) {
-        console.error("Erro ao buscar amostra:", error);
-        alert("Erro ao carregar a amostra.");
+        console.error('Erro ao buscar amostra:', error);
+        alert('Erro ao carregar a amostra.');
       }
     };
 
     fetchAmostra();
   }, [coletaId, amostraId]);
-
-  // ✅ carrega a imagem de teste via presigned GET
-  useEffect(() => {
-    const carregarImagemTeste = async () => {
-      try {
-        setTestImgErr(null);
-        setTestImgUrl(null);
-
-        const resp = await getPresignedGetUrl(TEST_KEY);
-        console.log("Presigned GET URL (teste):", resp?.data);
-
-        // aceite "url" ou "downloadUrl" dependendo do que seu backend retornar
-        const url = resp?.data?.url || resp?.data?.downloadUrl;
-        if (!url) throw new Error("Backend não retornou 'url' no presign-get");
-
-        setTestImgUrl(url);
-      } catch (e) {
-        console.error("Erro ao gerar presigned GET (teste):", e);
-        setTestImgErr(e?.response?.data || e.message);
-      }
-    };
-
-    carregarImagemTeste();
-  }, []);
 
   const handleDelete = async () => {
     if (window.confirm('Deseja realmente excluir esta amostra?')) {
@@ -137,6 +157,8 @@ function AmostraDetalhes() {
       await atualizarAmostra(amostraId, amostra);
       alert('Amostra atualizada com sucesso!');
       setModoEdicao(false);
+      // recarrega a imagem caso o imageLink tenha mudado na edição
+      carregarImagemDaAmostra(amostra);
     } catch (error) {
       console.error('Erro ao atualizar amostra:', error);
       alert('Erro ao atualizar a amostra.');
@@ -243,61 +265,52 @@ function AmostraDetalhes() {
         {renderCampo('Observações', 'observacoes', 'textarea')}
       </div>
 
-      {/* ✅ TESTE R2 GET (sem vínculo com amostra) */}
+      {/* 📷 Documentação Fotográfica vinculada à amostra */}
       <div className="mb-8">
-        <h2 className="text-xl font-bold mb-4">Documentação Fotográfica (TESTE R2 GET)</h2>
+        <h2 className="text-xl font-bold mb-4">Documentação Fotográfica</h2>
 
-        {testImgErr && (
+        {imgErr && (
           <pre className="text-xs bg-red-50 text-red-700 p-3 rounded border border-red-200 mb-3 overflow-auto">
-            {JSON.stringify(testImgErr, null, 2)}
+            {JSON.stringify(imgErr, null, 2)}
           </pre>
         )}
 
         <div className="flex gap-4 items-center">
-          {testImgUrl ? (
+          {imgUrl ? (
             <img
-              src={testImgUrl}
-              alt="Imagem teste R2"
+              src={imgUrl}
+              alt="Imagem da amostra"
               className="w-48 h-48 object-cover rounded border"
               onError={(e) => {
-                console.error("Falha ao carregar IMG no browser", e);
+                console.error('Falha ao carregar IMG no browser', e);
               }}
             />
           ) : (
             <div className="w-48 h-48 rounded bg-gray-100 flex items-center justify-center text-gray-400 text-sm border">
-              Carregando imagem...
+              {amostra.imageLink ? 'Gerando link de download...' : 'Nenhuma imagem vinculada'}
             </div>
           )}
         </div>
 
         <p className="text-xs text-gray-500 mt-2 break-all">
-          key: {TEST_KEY}
+          imageLink armazenado na amostra: {amostra.imageLink || '—'}
         </p>
-      </div>
 
-      {/* ✅ SEÇÃO ORIGINAL (imageLink) */}
-      <div className="mb-8">
-        <h2 className="text-xl font-bold mb-4">Documentação Fotográfica (campo da amostra)</h2>
-        <div className="flex gap-4">
-          {modoEdicao ? (
+        {modoEdicao && (
+          <div className="mt-3">
+            <label className="text-sm font-semibold block mb-1">
+              imageLink (key do R2 ou URL completa)
+            </label>
             <input
               type="text"
               name="imageLink"
               value={amostra.imageLink || ''}
               onChange={handleChange}
               className="border px-2 py-1 rounded w-full"
-              placeholder="Link da Imagem"
+              placeholder="amostras/123/arquivo.jpg ou https://..."
             />
-          ) : (
-            amostra.imageLink && (
-              <img
-                src={amostra.imageLink}
-                alt="Imagem"
-                className="w-32 h-32 object-cover rounded"
-              />
-            )
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
