@@ -204,6 +204,12 @@ function ProjetoPageMock() {
           <Plus className="w-4 h-4 mr-2" />
           Novo Projeto
         </button>
+        <button
+          onClick={() => navigate('/admin')}
+          className="flex items-center bg-black text-white px-4 py-2 rounded hover:bg-gray-800"
+        >
+          Área do administrador
+        </button>
       </div>
 
       <div className="flex items-center gap-2 mb-6">

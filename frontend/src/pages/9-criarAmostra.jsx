@@ -5,7 +5,7 @@ import { criarAmostra, atualizarAmostra } from "../services/amostraService";
 import { presignUpload } from "../services/uploadService";
 
 function NovaAmostra() {
-  const { projetoId, coletaId } = useParams();
+  const { id, coletaId } = useParams();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
 
@@ -117,9 +117,10 @@ function NovaAmostra() {
           });
         }
       }
-
+      console.log("Olha o projetoId: ", id);
+      console.log("Olha o coletaId: ", coletaId)
       alert("Amostra registrada com sucesso!");
-      navigate(`/projetos/${projetoId}/coletas/${coletaId}`);
+      navigate(`/projetos/${id}/coletas/${coletaId}`);
     } catch (error) {
       console.error("Erro ao salvar amostra:", error);
       alert("Erro ao salvar amostra");
