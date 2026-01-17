@@ -11,6 +11,7 @@ import {
   Cell,
   Line,
   LineChart,
+  Legend
 } from "recharts";
 import {
   getProjetosByUsuarioId,
@@ -72,13 +73,18 @@ export function ProjectsCharts({ data }: ProjectsChartsProps) {
   const [temasPesquisa, setTemasPesquisa] = useState<{ keyword: string; count: number }[]>([]);
   const navigate = useNavigate();
 
+  const countByName = React.useMemo(() => {
+    return Object.fromEntries(statusData.map((s) => [s.name, s.count]));
+  }, [statusData]);
+
+
   const brl = (value:any) =>
     value.toLocaleString("pt-BR", {
       style: "currency",
       currency: "BRL",
       minimumFractionDigits: 0,
     });
-
+//TODO: Resolver problema de agrupamento de financiamentos
  useEffect(() => {
   const carregarProjetos = async () => {
     try {
@@ -206,7 +212,7 @@ export function ProjectsCharts({ data }: ProjectsChartsProps) {
   //const maxKeyword = Math.max(...data.topKeywords.map((k:any) => k.count));
 
   const maxOrcamento = Math.max(...projetos.map((p) => p.orcamento || 0));
-  const totalOrcamento = projetos.reduce((acc, p) => acc + (p.orcamento || 0), 0);
+  const totalOrcamento = projetos.reduce((acc, p) => Number(acc) + (Number(p.orcamento) || 0), 0)
   const maxPalavrasChave = Math.max(
     ...projetos.map((p) => p.palavrasChave.split(",").length)
   );
@@ -220,14 +226,14 @@ export function ProjectsCharts({ data }: ProjectsChartsProps) {
                      [box-shadow:inset_-2px_2px_0_rgba(255,255,255,1),_-20px_20px_40px_rgba(0,0,0,.25)]"
       >
         <h3 className="text-2xl font-medium uppercase tracking-wide self-end">
-          Programming
+          Status dos projetos
         </h3>
         <div className="text-5xl leading-none">
           <i className="fa-solid fa-laptop-code bg-gradient-to-r from-rose-500 to-indigo-500 bg-clip-text text-transparent"></i>
         </div>
 
         <div className="col-span-2">
-          <h4 className="text-lg font-semibold mb-2">Status dos projetos</h4>
+          <h4 className="text-lg font-semibold mb-2"></h4>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -236,21 +242,30 @@ export function ProjectsCharts({ data }: ProjectsChartsProps) {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) =>
-                    `${name} ${(Number(percent) * 100).toFixed(0)}%`
-                  }
                   outerRadius={80}
-                  fill="#8884d8"
                   dataKey="count"
                 >
                   {statusData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
+
+                <Legend
+                  layout="vertical"
+                  verticalAlign="top"
+                  align="right"
+                  formatter={(value) => (
+                    <span className="text-sm">
+                      {String(value)} ({countByName[String(value)] ?? 0})
+                    </span>
+                  )}
+                />
+
                 <Tooltip
                   formatter={(value, name) => [`${value} projetos`, name]}
                 />
               </PieChart>
+
             </ResponsiveContainer>
           </div>
         </div>
@@ -265,22 +280,26 @@ export function ProjectsCharts({ data }: ProjectsChartsProps) {
                      [box-shadow:inset_-2px_2px_0_rgba(255,255,255,1),_-20px_20px_40px_rgba(0,0,0,.25)]"
       >
         <h3 className="text-2xl font-medium uppercase tracking-wide self-end">
-          Programming
+          Projetos por Instituição
         </h3>
         <div className="text-5xl leading-none">
           <i className="fa-solid fa-laptop-code bg-gradient-to-r from-rose-500 to-indigo-500 bg-clip-text text-transparent"></i>
         </div>
 
         <div className="col-span-2">
-          <h4 className="text-lg font-semibold mb-2">Projetos por Instituição</h4>
+          <h4 className="text-lg font-semibold mb-2"></h4>
           <div className="h-[300px] w-[600px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={financiamentos} layout="horizontal">
+              <BarChart data={financiamentos} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="number" />
-                <YAxis dataKey="instituicao" type="category" width={120} />
+                <XAxis type="number" allowDecimals={false} domain={[0, "dataMax"]} />
+                <YAxis dataKey="instituicao" type="category" width={190} />
                 <Tooltip />
-               <Bar dataKey="count" fill="#10b981" label={{ position: "right", fill: "#374151", fontSize: 14 }} />
+                <Bar
+                  dataKey="count"
+                  fill="#10b981"
+                  label={{ position: "right", fill: "#374151", fontSize: 14 }}
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -346,7 +365,7 @@ export function ProjectsCharts({ data }: ProjectsChartsProps) {
                     <span className="inline-flex items-center rounded-full bg-gray-100 text-gray-700 text-xs px-2.5 py-1">
                       {f.palavrasChave.split(",").length} projeto{f.palavrasChave.split(",").length > 1 ? "s" : ""}
                     </span>
-                    <span className="text-sm font-medium text-gray-800">{brl(f.orcamento)}</span>
+                    <span className="text-sm font-medium text-gray-800">{`R$${brl(f.orcamento)}`}</span>
                   </div>
                 </div>
 
