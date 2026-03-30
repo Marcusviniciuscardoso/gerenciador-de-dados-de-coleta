@@ -32,3 +32,6 @@ yarn.lock
 # HTTPS
 cert.pem
 key.pem
+
+# Claude Code
+.claude/
