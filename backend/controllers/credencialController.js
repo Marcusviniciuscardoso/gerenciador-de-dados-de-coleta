@@ -56,7 +56,7 @@ module.exports = {
             const token = jwt.sign(
                 { id: credencial.idCredenciais, email: credencial.email },
                 SECRET,
-                { expiresIn: '7d' }
+                { expiresIn: '1h' }
             );
 
             res.cookie('token', token, {
