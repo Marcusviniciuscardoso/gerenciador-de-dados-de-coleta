@@ -101,6 +101,7 @@ export const CornerOrnament = ({ position = 'top-left', className = '' }) => {
 
 export const Logo = ({ size = 40, className = '' }) => (
   <div className={`inline-flex items-center justify-center rounded-full border border-olive/30 bg-paper-light ${className}`} style={{ width: size, height: size }}>
-    <ButterflyIcon size={size * 0.65} />
+    {/*<ButterflyIcon size={size * 0.65} />*/}
+    <img src="/LogoSistema.png" alt='Logo do sistema' style={{borderRadius: '10%', objectFit: 'cover'}}></img>
   </div>
 );

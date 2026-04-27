@@ -44,16 +44,16 @@ export function Header() {
     <header className="bg-paper border-b border-tan/60">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         <Link to="/projetos" className="flex items-center gap-3">
-          <Logo size={44} />
+          <Logo size={80} />
           <div className="leading-tight">
-            <div className="font-serif text-xl text-olive-dark font-semibold">Lepidoptera</div>
+            <div className="font-serif text-xl text-olive-dark font-semibold">Gerenciador de dados de coleta</div>
             <div className="font-script text-sage-600 text-sm -mt-1">caderno de coleta científica</div>
           </div>
         </Link>
 
         <nav className="flex items-center gap-8">
           <NavItem to="/projetos">Projetos</NavItem>
-          <NavItem to="/perfil">Perfil</NavItem>
+          {/* <NavItem to="/perfil">Perfil</NavItem> */}
           <NavItem to="/admin">Admin</NavItem>
           <button
             onClick={handleLogout}

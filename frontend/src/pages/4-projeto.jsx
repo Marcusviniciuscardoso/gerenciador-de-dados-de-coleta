@@ -99,7 +99,7 @@ function ProjetoPageMock() {
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {projetosFiltrados.map((projeto, i) => {
           const Icon = ICONS[i % ICONS.length];
-          const taxon = TAXA[i % TAXA.length];
+          {/*const taxon = TAXA[i % TAXA.length];*/}
           return (
             <div
               key={projeto.idProjetos}
@@ -109,15 +109,16 @@ function ProjetoPageMock() {
               {/* Header decorativo do card */}
               <div className="bg-sage-100 px-5 pt-4 pb-6 relative border-b border-tan/40">
                 <div className="flex items-start justify-between mb-2">
-                  <span className="text-[10px] tracking-widest font-semibold uppercase text-olive border border-olive/40 rounded-full px-2.5 py-1 bg-paper-light">
+                  {/*<span className="text-[10px] tracking-widest font-semibold uppercase text-olive border border-olive/40 rounded-full px-2.5 py-1 bg-paper-light">
                     {taxon}
-                  </span>
+                  </span>*/}
                   <span className="font-script text-sage-600 text-base">nº {pad(i + 1)}</span>
                 </div>
                 <div className="flex justify-center py-2 relative">
-                  <Icon size={64} />
-                  <FernIcon size={20} className="absolute right-2 bottom-0 opacity-40" />
-                  <LeafIcon size={20} className="absolute left-2 top-0 opacity-30" />
+                  {/*<Icon size={64} />
+                  <FernIcon size={30} className="absolute right-2 bottom-0 opacity-40" />
+                  <LeafIcon size={30} className="absolute left-2 top-0 opacity-30" />*/}
+                  <img src="/ProjetoPasta.png" alt="imagem de pasta de projeto"></img>
                 </div>
               </div>
 

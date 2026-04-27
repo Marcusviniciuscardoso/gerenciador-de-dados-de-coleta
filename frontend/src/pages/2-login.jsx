@@ -40,10 +40,10 @@ function Login() {
         {/* Painel esquerdo — sage */}
         <div className="bg-sage-200 p-10 flex flex-col justify-between relative min-h-[520px]">
           <div className="flex items-center gap-3">
-            <Logo size={44} />
+            <Logo size={80} />
             <div className="leading-tight">
-              <div className="font-serif text-xl text-olive-dark font-semibold">Lepidoptera</div>
-              <div className="font-script text-sage-600 text-sm -mt-1">caderno de campo</div>
+              <div className="font-serif text-xl text-olive-dark font-semibold" style={{fontSize: '30px'}}>Gerenciador de dados de coleta</div>
+              <div className="font-script text-sage-600 text-sm -mt-1" style={{fontSize: '20px'}}>caderno de campo</div>
             </div>
           </div>
 

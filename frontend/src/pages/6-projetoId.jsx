@@ -153,12 +153,12 @@ function ProjetoIdMock() {
           <div className="flex items-center justify-center py-6">
             <ButterflyIcon size={120} />
           </div>
-          <div className="text-center font-script text-sage-600 mt-2">LEPIDOPTERA</div>
+          <div className="text-center font-script text-sage-600 mt-2">Gerenciador de dados de coleta</div>
         </div>
 
         <div className="md:col-span-2">
           <span className="inline-block text-[10px] tracking-widest font-semibold uppercase text-olive border border-olive/40 rounded-full px-2.5 py-1 bg-paper-light mb-3">
-            LEPIDOPTERA
+            Gerenciador de dados de coleta
           </span>
           <h1 className="heading-serif text-4xl mb-2">
             {modoEdicao ? (
