@@ -2,41 +2,31 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { obterUsuarioLogado } from '../services/usuarioService';
 import { criarProjeto } from '../services/projetoService';
+import PageShell, { PageHeader, SectionHeading } from '../components/layout/PageShell';
+import { MothIcon } from '../components/decor/Illustrations';
 
 function CriarProjeto() {
   const navigate = useNavigate();
-
   const [usuario, setUsuario] = useState(null);
   const [loading, setLoading] = useState(false);
-
   const [form, setForm] = useState({
-    nome: '',
-    descricao: '',
-    objetivos: '',
-    metodologia: '',
-    resultadosEsperados: '',
-    palavrasChave: '',
-    colaboradores: '',
-    financiamento: '',
-    orcamento: '',
-    data_inicio: '',
-    data_fim: '',
-    imageLink: ''
+    nome: '', descricao: '', objetivos: '', metodologia: '', resultadosEsperados: '',
+    palavrasChave: '', colaboradores: '', financiamento: '', orcamento: '',
+    data_inicio: '', data_fim: '', imageLink: '',
   });
 
   useEffect(() => {
-    const buscarUsuario = async () => {
+    const buscar = async () => {
       try {
         const resp = await obterUsuarioLogado();
         setUsuario(resp.data);
       } catch (err) {
-        console.error("Erro ao buscar usuário logado", err);
-        alert("Erro ao obter usuário logado.");
+        console.error('Erro ao buscar usuário logado', err);
+        alert('Erro ao obter usuário logado.');
         navigate('/login');
       }
     };
-
-    buscarUsuario();
+    buscar();
   }, [navigate]);
 
   const handleInputChange = (e) => {
@@ -46,32 +36,23 @@ function CriarProjeto() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!usuario?.idUsuarios) {
-      alert("Usuário não autenticado!");
+      alert('Usuário não autenticado!');
       return;
     }
-
     setLoading(true);
-
     try {
       const projetoData = {
         ...Object.fromEntries(
-          Object.entries(form).map(([key, value]) =>
-            value === '' ? [key, null] : [key, value]
-          )
+          Object.entries(form).map(([key, value]) => (value === '' ? [key, null] : [key, value]))
         ),
         criado_por: usuario.idUsuarios,
       };
-      console.log("Dados do projeto a serem enviados:", projetoData);
       await criarProjeto(projetoData);
-      console.log("Projeto criado com sucesso");
       alert('Projeto criado com sucesso!');
       navigate('/projetos');
     } catch (error) {
       console.error('Erro ao criar projeto', error);
-      console.error('Erro ao criar projeto2:', error.message);
-      console.error('Stack:', error.stack);
       alert(error.response?.data?.error || 'Erro ao criar projeto');
     } finally {
       setLoading(false);
@@ -79,190 +60,96 @@ function CriarProjeto() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-4">Criar Novo Projeto</h1>
-      <p className="text-gray-600 mb-6">
-        Preencha as informações detalhadas do seu projeto de pesquisa científica.
-      </p>
+    <PageShell badge={{ number: '04', label: 'Novo Projeto' }}>
+      <PageHeader
+        overline="nova investigação"
+        title="Cadastrar projeto"
+        onBack={() => navigate(-1)}
+        actions={
+          <>
+            <button type="button" onClick={() => navigate(-1)} disabled={loading} className="btn-secondary">Cancelar</button>
+            <button type="submit" form="form-projeto" disabled={loading} className="btn-primary">
+              {loading ? 'Salvando...' : 'Salvar projeto'}
+            </button>
+          </>
+        }
+      />
 
-      {loading && (
-        <div className="flex justify-center items-center mb-4">
-          <svg
-            className="animate-spin h-5 w-5 mr-3 text-blue-600"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-              fill="none"
-            />
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8v8z"
-            />
-          </svg>
-          <span className="text-blue-600 font-semibold">Salvando projeto...</span>
-        </div>
-      )}
+      <form id="form-projeto" onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-6">
+        {/* Coluna principal */}
+        <div className="lg:col-span-2 card-notebook space-y-5">
+          <SectionHeading overline="dados gerais" title="Identificação" />
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block font-semibold">Nome do Projeto *</label>
-          <input
-            type="text"
-            name="nome"
-            value={form.nome}
-            onChange={handleInputChange}
-            className="w-full border rounded px-3 py-2"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block font-semibold">Descrição</label>
-          <textarea
-            name="descricao"
-            value={form.descricao}
-            onChange={handleInputChange}
-            className="w-full border rounded px-3 py-2"
-          />
-        </div>
-
-        <div>
-          <label className="block font-semibold">Objetivos</label>
-          <textarea
-            name="objetivos"
-            value={form.objetivos}
-            onChange={handleInputChange}
-            className="w-full border rounded px-3 py-2"
-          />
-        </div>
-
-        <div>
-          <label className="block font-semibold">Metodologia</label>
-          <textarea
-            name="metodologia"
-            value={form.metodologia}
-            onChange={handleInputChange}
-            className="w-full border rounded px-3 py-2"
-          />
-        </div>
-
-        <div>
-          <label className="block font-semibold">Resultados Esperados</label>
-          <textarea
-            name="resultadosEsperados"
-            value={form.resultadosEsperados}
-            onChange={handleInputChange}
-            className="w-full border rounded px-3 py-2"
-          />
-        </div>
-
-        <div>
-          <label className="block font-semibold">Palavras-chave</label>
-          <input
-            type="text"
-            name="palavrasChave"
-            value={form.palavrasChave}
-            onChange={handleInputChange}
-            className="w-full border rounded px-3 py-2"
-          />
-        </div>
-
-        <div>
-          <label className="block font-semibold">Colaboradores *</label>
-          <input
-            type="text"
-            name="colaboradores"
-            value={form.colaboradores}
-            onChange={handleInputChange}
-            className="w-full border rounded px-3 py-2"
-            required
-          />
-        </div>
-
-        <div>
-          <label className="block font-semibold">Financiamento</label>
-          <input
-            type="text"
-            name="financiamento"
-            value={form.financiamento}
-            onChange={handleInputChange}
-            className="w-full border rounded px-3 py-2"
-          />
-        </div>
-
-        <div>
-          <label className="block font-semibold">Orçamento (R$)</label>
-          <input
-            type="number"
-            name="orcamento"
-            value={form.orcamento}
-            onChange={handleInputChange}
-            className="w-full border rounded px-3 py-2"
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block font-semibold">Data de Início *</label>
-            <input
-              type="date"
-              name="data_inicio"
-              value={form.data_inicio}
-              onChange={handleInputChange}
-              className="w-full border rounded px-3 py-2"
-              required
-            />
+            <label className="label-notebook">Nome do projeto *</label>
+            <input type="text" name="nome" placeholder="Ex: Mariposas da Mata Atlântica" value={form.nome} onChange={handleInputChange} required className="input-notebook" />
           </div>
-
           <div>
-            <label className="block font-semibold">Data de Término</label>
-            <input
-              type="date"
-              name="data_fim"
-              value={form.data_fim}
-              onChange={handleInputChange}
-              className="w-full border rounded px-3 py-2"
-            />
+            <label className="label-notebook">Descrição</label>
+            <textarea name="descricao" rows={3} placeholder="Resumo curto do projeto..." value={form.descricao} onChange={handleInputChange} className="input-notebook" />
+          </div>
+          <div>
+            <label className="label-notebook">Objetivos</label>
+            <textarea name="objetivos" rows={3} placeholder="O que se pretende investigar?" value={form.objetivos} onChange={handleInputChange} className="input-notebook" />
+          </div>
+          <div>
+            <label className="label-notebook">Metodologia</label>
+            <textarea name="metodologia" rows={3} placeholder="Como serão feitas as coletas?" value={form.metodologia} onChange={handleInputChange} className="input-notebook" />
+          </div>
+          <div>
+            <label className="label-notebook">Resultados esperados</label>
+            <textarea name="resultadosEsperados" rows={2} value={form.resultadosEsperados} onChange={handleInputChange} className="input-notebook" />
+          </div>
+          <div>
+            <label className="label-notebook">Palavras-chave</label>
+            <input type="text" name="palavrasChave" placeholder="lepidoptera, mata atlântica, biodiversidade" value={form.palavrasChave} onChange={handleInputChange} className="input-notebook" />
+            <p className="font-script text-sage-600 text-sm mt-1">separadas por vírgula</p>
+          </div>
+          <div>
+            <label className="label-notebook">Link da imagem</label>
+            <input type="text" name="imageLink" value={form.imageLink} onChange={handleInputChange} className="input-notebook" />
           </div>
         </div>
 
-        <div>
-          <label className="block font-semibold">Link da Imagem</label>
-          <input
-            type="text"
-            name="imageLink"
-            value={form.imageLink}
-            onChange={handleInputChange}
-            className="w-full border rounded px-3 py-2"
-          />
-        </div>
+        {/* Coluna lateral */}
+        <div className="space-y-6">
+          <div className="card-notebook space-y-4">
+            <SectionHeading overline="cronograma" title="Datas" />
+            <div>
+              <label className="label-notebook">Início *</label>
+              <input type="date" name="data_inicio" value={form.data_inicio} onChange={handleInputChange} required className="input-notebook" />
+            </div>
+            <div>
+              <label className="label-notebook">Fim previsto</label>
+              <input type="date" name="data_fim" value={form.data_fim} onChange={handleInputChange} className="input-notebook" />
+            </div>
+          </div>
 
-        <div className="flex justify-end gap-4 mt-6">
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="px-4 py-2 border rounded hover:bg-gray-100"
-            disabled={loading}
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            className="px-6 py-2 bg-black text-white rounded hover:bg-gray-800"
-            disabled={loading}
-          >
-            {loading ? "Salvando..." : "Criar Projeto"}
-          </button>
+          <div className="card-notebook space-y-4">
+            <SectionHeading overline="equipe" title="Colaboradores" />
+            <div>
+              <label className="label-notebook">Pesquisadores *</label>
+              <input type="text" name="colaboradores" placeholder="Nomes separados por vírgula" value={form.colaboradores} onChange={handleInputChange} required className="input-notebook" />
+            </div>
+            <div>
+              <label className="label-notebook">Financiamento</label>
+              <input type="text" name="financiamento" placeholder="CNPq, FAPESP..." value={form.financiamento} onChange={handleInputChange} className="input-notebook" />
+            </div>
+            <div>
+              <label className="label-notebook">Orçamento (R$)</label>
+              <input type="number" name="orcamento" value={form.orcamento} onChange={handleInputChange} className="input-notebook" />
+            </div>
+          </div>
+
+          <div className="bg-paper-light border-2 border-dashed border-tan rounded-lg p-5 relative">
+            <MothIcon size={42} className="absolute top-3 right-3 opacity-60" />
+            <p className="font-script text-sage-600 text-base leading-snug pr-12">
+              dica: você poderá adicionar coletas e amostras a este projeto depois de criá-lo.
+            </p>
+          </div>
         </div>
       </form>
-    </div>
+    </PageShell>
   );
 }
 

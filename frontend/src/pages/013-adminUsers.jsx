@@ -1,219 +1,98 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Menu } from "@headlessui/react";
+import PageShell, { PageHeader } from "../components/layout/PageShell";
+
+function getInitials(nome) {
+  if (!nome) return '??';
+  const parts = nome.replace(/^(Dr\.?a?\.?|Prof\.?)\s+/i, '').trim().split(/\s+/);
+  return ((parts[0]?.[0] || '') + (parts[1]?.[0] || '')).toUpperCase();
+}
 
 export default function UserManagement() {
-  // Mock de dados (futuramente pode vir do backend)
+  const navigate = useNavigate();
+  const [busca, setBusca] = useState('');
+
   const usuarios = [
-    {
-      id: 1,
-      nome: "Prof. João Santos",
-      email: "joao.santos@instituto.gov.br",
-      funcao: "Professor",
-      instituicao: "Instituto de Pesquisas",
-      status: "Ativo",
-      projetos: 2,
-      coletas: 8,
-      ultimoAcesso: "20/01/2024",
-    },
-    {
-      id: 2,
-      nome: "Ana Costa",
-      email: "ana.costa@estudante.edu.br",
-      funcao: "Estudante",
-      instituicao: "Universidade Estadual",
-      status: "Ativo",
-      projetos: 1,
-      coletas: 5,
-      ultimoAcesso: "21/01/2024",
-    },
-    {
-      id: 3,
-      nome: "Carlos Oliveira",
-      email: "carlos.oliveira@lab.com",
-      funcao: "Técnico",
-      instituicao: "Laboratório de Análises",
-      status: "Inativo",
-      projetos: 0,
-      coletas: 0,
-      ultimoAcesso: "17/01/2024",
-    },
-    {
-      id: 4,
-      nome: "Dra. Fernanda Lima",
-      email: "fernanda.lima@pesquisa.org",
-      funcao: "Administrador",
-      instituicao: "Centro de Pesquisas",
-      status: "Ativo",
-      projetos: 5,
-      coletas: 25,
-      ultimoAcesso: "21/01/2024",
-    },
+    { id: 1, nome: 'Maria Silva', email: 'maria@usp.br', funcao: 'Doutoranda', instituicao: 'USP', status: 'Ativo', projetos: 6 },
+    { id: 2, nome: 'João Costa', email: 'joao@unicamp.br', funcao: 'Pesquisador', instituicao: 'Unicamp', status: 'Ativo', projetos: 3 },
+    { id: 3, nome: 'Ana Lima', email: 'ana@ufmg.br', funcao: 'Professora', instituicao: 'UFMG', status: 'Ativo', projetos: 4 },
+    { id: 4, nome: 'Pedro Souza', email: 'pedro@inpa.gov.br', funcao: 'Técnico', instituicao: 'INPA', status: 'Pendente', projetos: 2 },
+    { id: 5, nome: 'Carla Mendes', email: 'carla@ufrj.br', funcao: 'Pós-doc', instituicao: 'UFRJ', status: 'Ativo', projetos: 8 },
   ];
 
+  const filtrados = usuarios.filter(u =>
+    u.nome.toLowerCase().includes(busca.toLowerCase()) ||
+    u.email.toLowerCase().includes(busca.toLowerCase())
+  );
+
   return (
-    <div className="p-8">
-      {/* Cabeçalho */}
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-800">Gerenciar Usuários</h1>
-          <p className="text-gray-500 text-sm">
-            Administre contas de usuário e permissões
-          </p>
-        </div>
-        <button className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition">
-          + Novo Usuário
-        </button>
+    <PageShell badge={{ number: '13', label: 'Usuários' }}>
+      <PageHeader
+        overline="pesquisadores"
+        title="Usuários"
+        onBack={() => navigate('/admin')}
+        backLabel="Admin"
+        actions={
+          <button className="btn-primary">+ Convidar pesquisador</button>
+        }
+      />
+
+      <div className="mb-5">
+        <input
+          type="text"
+          placeholder="Buscar por nome ou email..."
+          value={busca}
+          onChange={(e) => setBusca(e.target.value)}
+          className="input-notebook italic font-script text-lg max-w-md"
+        />
       </div>
 
-      {/* Estatísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white border rounded-lg p-6 shadow-sm text-center">
-          <h3 className="text-2xl font-bold text-gray-800">5</h3>
-          <p className="text-sm text-gray-600">Total de Usuários</p>
-        </div>
-        <div className="bg-white border rounded-lg p-6 shadow-sm text-center">
-          <h3 className="text-2xl font-bold text-gray-800">4</h3>
-          <p className="text-sm text-gray-600">Usuários Ativos</p>
-        </div>
-        <div className="bg-white border rounded-lg p-6 shadow-sm text-center">
-          <h3 className="text-2xl font-bold text-gray-800">11</h3>
-          <p className="text-sm text-gray-600">Projetos Criados</p>
-        </div>
-        <div className="bg-white border rounded-lg p-6 shadow-sm text-center">
-          <h3 className="text-2xl font-bold text-gray-800">53</h3>
-          <p className="text-sm text-gray-600">Coletas Realizadas</p>
-        </div>
-      </div>
-
-      {/* Filtros */}
-      <div className="bg-white border rounded-lg p-6 shadow-sm mb-8">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Filtros</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <input
-            type="text"
-            placeholder="Buscar por nome, email..."
-            className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <select className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option>Todos os Status</option>
-            <option>Ativo</option>
-            <option>Inativo</option>
-          </select>
-          <select className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option>Todas as Funções</option>
-            <option>Administrador</option>
-            <option>Professor</option>
-            <option>Estudante</option>
-            <option>Técnico</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Lista de Usuários */}
-      <div className="bg-white border rounded-lg shadow-sm">
-        <div className="p-6 border-b">
-          <h3 className="text-xl font-semibold text-gray-800">
-            Usuários ({usuarios.length})
-          </h3>
-          <p className="text-sm text-gray-500">
-            Lista de todos os usuários cadastrados no sistema
-          </p>
-        </div>
-        <table className="min-w-full divide-y divide-gray-200 text-sm">
-          <thead className="bg-gray-50">
+      <div className="card-notebook overflow-hidden p-0">
+        <table className="w-full">
+          <thead className="bg-sage-100 border-b border-tan">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Nome
-              </th>
-              <th className="px-6 py-3">Função</th>
-              <th className="px-6 py-3">Instituição</th>
-              <th className="px-6 py-3">Status</th>
-              <th className="px-6 py-3">Projetos</th>
-              <th className="px-6 py-3">Último Acesso</th>
-              <th className="px-6 py-3">Ações</th>
+              <Th>Pesquisador</Th>
+              <Th>Email</Th>
+              <Th>Instituição</Th>
+              <Th>Projetos</Th>
+              <Th>Status</Th>
+              <Th></Th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
-            {usuarios.map((u) => (
-              <tr key={u.id}>
+          <tbody>
+            {filtrados.map((u) => (
+              <tr key={u.id} className="border-b border-dashed border-tan last:border-b-0 hover:bg-paper transition">
                 <td className="px-6 py-4">
-                  <div className="font-medium text-gray-800">{u.nome}</div>
-                  <div className="text-gray-500">{u.email}</div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-sage-200 border border-olive/30 flex items-center justify-center text-olive-dark font-semibold text-xs">
+                      {getInitials(u.nome)}
+                    </div>
+                    <span className="font-medium text-olive-dark">{u.nome}</span>
+                  </div>
                 </td>
+                <td className="px-6 py-4 text-olive-light/90 text-sm">{u.email}</td>
+                <td className="px-6 py-4 text-olive-light/90 text-sm">{u.instituicao}</td>
+                <td className="px-6 py-4 heading-serif text-base">{u.projetos}</td>
                 <td className="px-6 py-4">
-                  <span className="px-2 py-1 rounded-full bg-gray-100 text-gray-700 text-xs font-medium">
-                    {u.funcao}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-gray-700">{u.instituicao}</td>
-                <td className="px-6 py-4">
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      u.status === "Ativo"
-                        ? "bg-black text-white"
-                        : "bg-gray-200 text-gray-600"
-                    }`}
-                  >
+                  <span className={`text-[10px] tracking-widest font-semibold uppercase rounded-full px-2.5 py-1 border ${
+                    u.status === 'Ativo'
+                      ? 'border-sage-600 text-sage-600 bg-paper'
+                      : 'border-rust text-rust bg-paper'
+                  }`}>
                     {u.status}
                   </span>
                 </td>
-                <td className="px-6 py-4 text-gray-700">
-                  {u.projetos} projetos
-                  <br />
-                  {u.coletas} coletas
-                </td>
-                <td className="px-6 py-4 text-gray-700">{u.ultimoAcesso}</td>
                 <td className="px-6 py-4 text-right">
-                  {/* Menu de ações */}
                   <Menu as="div" className="relative inline-block text-left">
-                    <Menu.Button className="px-2 py-1 rounded hover:bg-gray-100">
-                      ⋮
+                    <Menu.Button className="font-script text-sage-600 text-sm hover:text-olive">
+                      editar →
                     </Menu.Button>
-                    <Menu.Items className="absolute right-0 mt-2 w-40 bg-white border rounded-lg shadow-lg z-10">
-                      <Menu.Item>
-                        {({ active }) => (
-                          <button
-                            className={`w-full text-left px-4 py-2 text-sm ${
-                              active ? "bg-gray-100" : ""
-                            }`}
-                          >
-                            ✏️ Editar
-                          </button>
-                        )}
-                      </Menu.Item>
-                      <Menu.Item>
-                        {({ active }) => (
-                          <button
-                            className={`w-full text-left px-4 py-2 text-sm ${
-                              active ? "bg-gray-100" : ""
-                            }`}
-                          >
-                            📧 Enviar Email
-                          </button>
-                        )}
-                      </Menu.Item>
-                      <Menu.Item>
-                        {({ active }) => (
-                          <button
-                            className={`w-full text-left px-4 py-2 text-sm ${
-                              active ? "bg-gray-100" : ""
-                            }`}
-                          >
-                            🚫 Desativar
-                          </button>
-                        )}
-                      </Menu.Item>
-                      <Menu.Item>
-                        {({ active }) => (
-                          <button
-                            className={`w-full text-left px-4 py-2 text-sm text-red-600 ${
-                              active ? "bg-red-50" : ""
-                            }`}
-                          >
-                            🗑️ Excluir
-                          </button>
-                        )}
-                      </Menu.Item>
+                    <Menu.Items className="absolute right-0 mt-2 w-44 bg-paper-light border border-tan rounded-md shadow-notebook z-10 overflow-hidden">
+                      <MenuItem label="Editar" />
+                      <MenuItem label="Enviar email" />
+                      <MenuItem label="Desativar" />
+                      <MenuItem label="Excluir" danger />
                     </Menu.Items>
                   </Menu>
                 </td>
@@ -222,6 +101,28 @@ export default function UserManagement() {
           </tbody>
         </table>
       </div>
-    </div>
+    </PageShell>
+  );
+}
+
+function Th({ children }) {
+  return (
+    <th className="px-6 py-3 text-left text-[10px] tracking-widest font-semibold uppercase text-olive">
+      {children}
+    </th>
+  );
+}
+
+function MenuItem({ label, danger }) {
+  return (
+    <Menu.Item>
+      {({ active }) => (
+        <button className={`w-full text-left px-4 py-2 text-sm ${
+          danger ? 'text-rust' : 'text-olive-dark'
+        } ${active ? 'bg-sage-100' : ''}`}>
+          {label}
+        </button>
+      )}
+    </Menu.Item>
   );
 }

@@ -1,8 +1,9 @@
-import React, { useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { Plus, ArrowLeft, Image as ImageIcon } from "lucide-react";
-import { criarAmostra, atualizarAmostra } from "../services/amostraService";
-import { presignUpload } from "../services/uploadService";
+import React, { useRef, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { criarAmostra, atualizarAmostra } from '../services/amostraService';
+import { presignUpload } from '../services/uploadService';
+import PageShell, { PageHeader, SectionHeading } from '../components/layout/PageShell';
+import { ButterflyIcon } from '../components/decor/Illustrations';
 
 function NovaAmostra() {
   const { id, coletaId } = useParams();
@@ -10,22 +11,12 @@ function NovaAmostra() {
   const fileInputRef = useRef(null);
 
   const [form, setForm] = useState({
-    descricao: "",
-    codigo: "",
-    tipoAmostra: "",
-    recipiente: "",
-    metodoPreservacao: "",
-    quantidade: "",
-    validade: "",
-    identificacao_final: "",
-    observacoes: "",
-    imagens: [],      // <== Files selecionados no upload (só no frontend)
-    imageLink: "",    // <== campo que vai pro banco (key do R2)
+    descricao: '', codigo: '', tipoAmostra: '', recipiente: '', metodoPreservacao: '',
+    quantidade: '', validade: '', identificacao_final: '', observacoes: '',
+    imagens: [], imageLink: '',
   });
-
   const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState("");
-  const [uploadedKeys, setUploadedKeys] = useState([]);
+  const [uploadError, setUploadError] = useState('');
 
   const handleImagem = (e) => {
     const files = Array.from(e.target.files || []);
@@ -37,268 +28,140 @@ function NovaAmostra() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Faz o upload das imagens usando o formato da função presignUpload
   const uploadImagens = async (amostraId) => {
     if (!form.imagens.length) return [];
-
     setUploading(true);
-    setUploadError("");
+    setUploadError('');
     const keys = [];
-
     try {
       for (const file of form.imagens) {
-        // 1) pede a URL assinada
-        const { data } = await presignUpload({
-          filename: file.name,
-          contentType: file.type,
-          amostraId, // segue o formato { filename, contentType, amostraId }
-        });
-        console.log("O retorno de data: ", data);
-
+        const { data } = await presignUpload({ filename: file.name, contentType: file.type, amostraId });
         const { uploadUrl, key } = data;
-
-        // 2) faz o upload direto pro R2/S3
-        const resp = await fetch(uploadUrl, {
-          method: "PUT",
-          headers: {
-            "Content-Type": file.type,
-          },
-          body: file,
-        });
-
-        if (!resp.ok) {
-          throw new Error(`Falha no PUT do arquivo ${file.name}: ${resp.status}`);
-        }
-
+        const resp = await fetch(uploadUrl, { method: 'PUT', headers: { 'Content-Type': file.type }, body: file });
+        if (!resp.ok) throw new Error(`Falha no PUT do arquivo ${file.name}: ${resp.status}`);
         keys.push(key);
       }
-
-      setUploadedKeys(keys);
       return keys;
     } catch (err) {
-      console.error("Erro no upload das imagens:", err);
-      setUploadError("Erro ao enviar as imagens.");
+      console.error('Erro no upload das imagens:', err);
+      setUploadError('Erro ao enviar as imagens.');
       throw err;
     } finally {
       setUploading(false);
     }
   };
 
-  const salvarAmostra = async () => {
+  const salvarAmostra = async (e) => {
+    e?.preventDefault();
     try {
-      // 1) cria a amostra sem mandar os Files nem o imageLink
-      const payload = {
-        ...form,
-        imagens: undefined,   // não vai no JSON
-        imageLink: undefined, // vamos preencher depois com a key real
-        coletaId,
-      };
-
+      const payload = { ...form, imagens: undefined, imageLink: undefined, coletaId };
       const response = await criarAmostra(payload);
-
       const amostraCriada = response.data || response;
-      console.log("Olha a amostra criada: ", amostraCriada);
-
       const amostraId = amostraCriada.idAmostras || amostraCriada.id;
-      if (!amostraId) {
-        console.warn("ID da amostra não encontrado na resposta:", amostraCriada);
-      }
-
-      // 2) se tiver imagens, faz upload e salva a key da principal em imageLink
       if (amostraId && form.imagens.length) {
         const keys = await uploadImagens(amostraId);
-
-        if (keys.length > 0) {
-          const principalKey = keys[0]; // por enquanto usa só a primeira
-          console.log("Key principal para salvar no banco:", principalKey);
-
-          await atualizarAmostra(amostraId, {
-            imageLink: principalKey,
-          });
-        }
+        if (keys.length > 0) await atualizarAmostra(amostraId, { imageLink: keys[0] });
       }
-      console.log("Olha o projetoId: ", id);
-      console.log("Olha o coletaId: ", coletaId)
-      alert("Amostra registrada com sucesso!");
+      alert('Amostra registrada com sucesso!');
       navigate(`/projetos/${id}/coletas/${coletaId}`);
     } catch (error) {
-      console.error("Erro ao salvar amostra:", error);
-      alert("Erro ao salvar amostra");
+      console.error('Erro ao salvar amostra:', error);
+      alert('Erro ao salvar amostra');
     }
   };
 
   return (
-    <div className="p-8">
-      {/* Cabeçalho */}
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold">Registrar Nova Amostra</h1>
-          <p className="text-gray-600">Coleta: {coletaId}</p>
-        </div>
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center px-4 py-2 rounded border hover:bg-gray-100"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Voltar
-        </button>
-      </div>
+    <PageShell badge={{ number: '09', label: 'Nova Amostra' }}>
+      <PageHeader
+        overline="novo espécime"
+        title="Registrar amostra"
+        subtitle={`Coleta nº ${coletaId}`}
+        onBack={() => navigate(-1)}
+      />
 
-      {/* Formulário */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Identificação */}
-        <div>
-          <h2 className="text-lg font-semibold mb-3">
-            Identificação da Amostra
-          </h2>
-          <div className="flex flex-col gap-3">
-            <input
-              name="descricao"
-              value={form.descricao}
-              onChange={handleChange}
-              placeholder="Descrição da Amostra *"
-              className="border rounded px-3 py-2"
-            />
-            <input
-              name="codigo"
-              value={form.codigo}
-              onChange={handleChange}
-              placeholder="Código de Identificação *"
-              className="border rounded px-3 py-2"
-            />
-            <input
-              name="tipoAmostra"
-              value={form.tipoAmostra}
-              onChange={handleChange}
-              placeholder="Tipo de Amostra (Ex: Folha, Solo)"
-              className="border rounded px-3 py-2"
-            />
-            <input
-              name="identificacao_final"
-              value={form.identificacao_final}
-              onChange={handleChange}
-              placeholder="Identificação Final"
-              className="border rounded px-3 py-2"
-            />
+      <form onSubmit={salvarAmostra} className="space-y-6">
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="card-notebook space-y-4">
+            <SectionHeading overline="quem é" title="Identificação" />
+
+            <div>
+              <label className="label-notebook">Código *</label>
+              <input name="codigo" placeholder="Ex: MAR-2025-010" value={form.codigo} onChange={handleChange} required className="input-notebook" />
+            </div>
+            <div>
+              <label className="label-notebook">Descrição *</label>
+              <textarea name="descricao" rows={3} placeholder="Padrão das asas, cor, tamanho aproximado..." value={form.descricao} onChange={handleChange} required className="input-notebook" />
+            </div>
+            <div>
+              <label className="label-notebook">Tipo de amostra</label>
+              <input name="tipoAmostra" placeholder="Ex: Adulto, Larva, Pupa" value={form.tipoAmostra} onChange={handleChange} className="input-notebook" />
+            </div>
+            <div>
+              <label className="label-notebook">Identificação final</label>
+              <input name="identificacao_final" placeholder="Gênero/espécie quando confirmada" value={form.identificacao_final} onChange={handleChange} className="input-notebook" />
+              <p className="font-script text-sage-600 text-sm mt-1">pode ser preenchida depois</p>
+            </div>
+          </div>
+
+          <div className="card-notebook space-y-4">
+            <SectionHeading overline="conservação" title="Armazenamento" />
+
+            <div>
+              <label className="label-notebook">Recipiente *</label>
+              <input name="recipiente" placeholder="Envelope, frasco, caixa..." value={form.recipiente} onChange={handleChange} required className="input-notebook" />
+            </div>
+            <div>
+              <label className="label-notebook">Método de preservação *</label>
+              <input name="metodoPreservacao" placeholder="Álcool 70%, alfinetada..." value={form.metodoPreservacao} onChange={handleChange} required className="input-notebook" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="label-notebook">Quantidade *</label>
+                <input name="quantidade" placeholder="Ex: 1 indivíduo" value={form.quantidade} onChange={handleChange} required className="input-notebook" />
+              </div>
+              <div>
+                <label className="label-notebook">Validade</label>
+                <input type="date" name="validade" value={form.validade} onChange={handleChange} className="input-notebook" />
+              </div>
+            </div>
+            <div>
+              <label className="label-notebook">Observações</label>
+              <textarea name="observacoes" rows={3} placeholder="Comportamento, planta hospedeira..." value={form.observacoes} onChange={handleChange} className="input-notebook" />
+            </div>
           </div>
         </div>
 
-        {/* Armazenamento */}
-        <div>
-          <h2 className="text-lg font-semibold mb-3">Armazenamento</h2>
-          <div className="flex flex-col gap-3">
-            <input
-              name="recipiente"
-              value={form.recipiente}
-              onChange={handleChange}
-              placeholder="Tipo de Recipiente *"
-              className="border rounded px-3 py-2"
-            />
-            <input
-              name="metodoPreservacao"
-              value={form.metodoPreservacao}
-              onChange={handleChange}
-              placeholder="Método de Preservação *"
-              className="border rounded px-3 py-2"
-            />
-          </div>
-        </div>
-
-        {/* Quantificação */}
-        <div>
-          <h2 className="text-lg font-semibold mb-3">Quantificação</h2>
-          <div className="flex flex-col gap-3">
-            <input
-              name="quantidade"
-              value={form.quantidade}
-              onChange={handleChange}
-              placeholder="Quantidade *"
-              className="border rounded px-3 py-2"
-            />
-            <input
-              name="validade"
-              type="date"
-              value={form.validade}
-              onChange={handleChange}
-              className="border rounded px-3 py-2"
-            />
-          </div>
-        </div>
-
-        {/* Observações */}
-        <div>
-          <h2 className="text-lg font-semibold mb-3">Observações</h2>
-          <textarea
-            name="observacoes"
-            value={form.observacoes}
-            onChange={handleChange}
-            placeholder="Observações gerais"
-            className="border rounded px-3 py-2"
-          />
-        </div>
-
-        {/* Área de upload de Imagens */}
-        <div className="col-span-2">
-          <h2 className="text-lg font-semibold mb-3">
-            Documentação Fotográfica
-          </h2>
+        <div className="card-notebook">
+          <SectionHeading overline="fotografia" title="Documentação fotográfica" className="mb-5" />
 
           <div
-            className="border-2 border-dashed rounded-lg px-6 py-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-50"
+            className="border-2 border-dashed border-tan rounded-lg p-10 text-center cursor-pointer hover:bg-paper transition"
             onClick={() => fileInputRef.current?.click()}
           >
-            <input
-              ref={fileInputRef}
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleImagem}
-              className="hidden"
-            />
-            <ImageIcon className="w-8 h-8 mb-2" />
-            <p className="font-medium">Clique ou arraste as imagens aqui</p>
-            <p className="text-sm text-gray-500">
-              PNG, JPG • Máximo 10 imagens
-            </p>
+            <input ref={fileInputRef} type="file" multiple accept="image/*" onChange={handleImagem} className="hidden" />
+            <div className="flex justify-center mb-3"><ButterflyIcon size={50} /></div>
+            <p className="heading-serif text-lg">Clique ou arraste imagens aqui</p>
+            <p className="font-script text-sage-600 text-base mt-1">registre o espécime de vários ângulos</p>
+            <p className="text-xs text-tan-dark tracking-widest uppercase mt-3">PNG ou JPG · até 10 imagens</p>
           </div>
 
           {form.imagens.length > 0 && (
-            <ul className="mt-3 text-sm text-gray-700 list-disc list-inside">
-              {form.imagens.map((file, index) => (
-                <li key={index}>{file.name}</li>
-              ))}
+            <ul className="mt-4 text-sm text-olive list-disc list-inside">
+              {form.imagens.map((file, i) => <li key={i}>{file.name}</li>)}
             </ul>
           )}
-
-          {uploading && (
-            <p className="text-sm text-blue-600 mt-2">
-              Enviando imagens, aguarde...
-            </p>
-          )}
-          {uploadError && (
-            <p className="text-sm text-red-600 mt-2">{uploadError}</p>
-          )}
+          {uploading && <p className="text-sm text-sage-600 mt-3">Enviando imagens, aguarde...</p>}
+          {uploadError && <p className="text-sm text-rust mt-3">{uploadError}</p>}
         </div>
-      </div>
 
-      {/* Ações */}
-      <div className="flex justify-end gap-4 mt-8">
-        <button
-          onClick={() => navigate(-1)}
-          className="px-4 py-2 border rounded hover:bg-gray-100"
-        >
-          Cancelar
-        </button>
-        <button
-          onClick={salvarAmostra}
-          disabled={uploading}
-          className="flex items-center bg-black text-white px-4 py-2 rounded hover:bg-gray-800 disabled:opacity-60"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          {uploading ? "Salvando..." : "Registrar Amostra"}
-        </button>
-      </div>
-    </div>
+        <div className="flex justify-end gap-3">
+          <button type="button" onClick={() => navigate(-1)} className="btn-secondary">Cancelar</button>
+          <button type="submit" disabled={uploading} className="btn-primary">
+            {uploading ? 'Salvando...' : 'Registrar amostra'}
+          </button>
+        </div>
+      </form>
+    </PageShell>
   );
 }
 

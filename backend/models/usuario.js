@@ -22,6 +22,7 @@ module.exports = (sequelize) => {
     credencial_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      unique: true,
       references: {
         model: 'credenciais',
         key: 'idCredenciais'

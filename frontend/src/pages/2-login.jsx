@@ -2,39 +2,29 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { login } from '../services/credencialService';
 import * as Yup from 'yup';
-
+import { PageBadge } from '../components/layout/PageShell';
+import { ButterflyIcon, MothIcon, FernIcon, FlowerIcon, LeafIcon, Logo } from '../components/decor/Illustrations';
 
 function Login() {
-
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [lembrar, setLembrar] = useState(false);
   const [erro, setErro] = useState('');
-  
-  const schema = Yup.object().shape({
-    email: Yup.string()
-      .email('Digite um email válido')
-      .required('O campo email é obrigatório'),
-    senha: Yup.string()
-      .min(6, 'A senha deve ter no mínimo 6 caracteres')
-      .required('O campo senha é obrigatório'),
-  });
 
+  const schema = Yup.object().shape({
+    email: Yup.string().email('Digite um email válido').required('O campo email é obrigatório'),
+    senha: Yup.string().min(6, 'A senha deve ter no mínimo 6 caracteres').required('O campo senha é obrigatório'),
+  });
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setErro('');
-
     try {
-
       await schema.validate({ email, senha }, { abortEarly: false });
-      console.log("✅ Validação do formulário bem-sucedida:", { email, senha });
-      const response = await login({ email, senha }); // ✅ usando o service
-      console.log("✅ Login bem-sucedido:", response.data);
+      const response = await login({ email, senha });
       const { token } = response.data;
       localStorage.setItem('token', token);
-
       navigate('/projetos');
     } catch (error) {
       console.error(error);
@@ -43,144 +33,98 @@ function Login() {
   };
 
   return (
-    // ... (mantém exatamente o restante do seu código como já está)
-    <div style={styles.container}>
-      <div style={styles.box}>
-        <div style={styles.logoArea}>
-          <div style={styles.logo}>🧪</div>
-          <h2>Sistema de Coleta Científica</h2>
-          <p>Faça login para acessar sua conta</p>
-        </div>
+    <div className="min-h-screen bg-notebook flex items-center justify-center p-6">
+      <PageBadge number="01" label="Login" />
 
-        <form onSubmit={handleLogin}>
-          <label>Email</label>
-          <input
-            type="email"
-            placeholder="seu@email.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={styles.input}
-          />
-
-          <label>Senha</label>
-          <input
-            type="password"
-            placeholder="Digite sua senha"
-            value={senha}
-            onChange={(e) => setSenha(e.target.value)}
-            required
-            style={styles.input}
-          />
-
-          <div style={styles.options}>
-            <label>
-              <input
-                type="checkbox"
-                checked={lembrar}
-                onChange={() => setLembrar(!lembrar)}
-              />
-              Lembrar de mim
-            </label>
-            <Link to="#" style={styles.link}>
-              Esqueceu a senha?
-            </Link>
+      <div className="w-full max-w-5xl bg-paper-light rounded-2xl shadow-notebook overflow-hidden grid md:grid-cols-2 border border-tan/60">
+        {/* Painel esquerdo — sage */}
+        <div className="bg-sage-200 p-10 flex flex-col justify-between relative min-h-[520px]">
+          <div className="flex items-center gap-3">
+            <Logo size={44} />
+            <div className="leading-tight">
+              <div className="font-serif text-xl text-olive-dark font-semibold">Lepidoptera</div>
+              <div className="font-script text-sage-600 text-sm -mt-1">caderno de campo</div>
+            </div>
           </div>
 
-          {erro && <p style={styles.error}>{erro}</p>}
+          <div className="flex-1 flex items-center justify-center relative">
+            <div className="absolute left-4 top-4"><ButterflyIcon size={90} /></div>
+            <div className="absolute right-4 top-20"><MothIcon size={70} /></div>
+            <div className="absolute left-2 bottom-12"><FernIcon size={32} /></div>
+            <div className="absolute left-20 bottom-16"><LeafIcon size={28} /></div>
+            <div className="absolute right-16 bottom-8"><FlowerIcon size={36} /></div>
+          </div>
 
-          <button type="submit" style={styles.button}>
-            Entrar
-          </button>
+          <blockquote className="font-script text-olive-light text-xl leading-snug max-w-xs">
+            "Cada espécime é uma página do livro da natureza."
+            <footer className="mt-2 text-xs tracking-widest uppercase text-sage-600 font-sans not-italic">
+              — Maria Sibylla Merian, 1705
+            </footer>
+          </blockquote>
+        </div>
 
-          <p className='mt-4'>
-            Não tem uma conta?{' '}
-            <Link to="/cadastro" style={styles.cadastroLink}>
-              Cadastre-se
-            </Link>
-          </p>
-        </form>
+        {/* Painel direito — formulário */}
+        <div className="p-10 md:p-12">
+          <p className="font-script text-sage-600 text-lg">bem-vindo de volta</p>
+          <h1 className="heading-serif text-4xl mb-8 leading-tight">
+            Acesse seu<br />caderno de coleta
+          </h1>
+
+          <form onSubmit={handleLogin} className="space-y-5">
+            <div>
+              <label className="label-notebook">Email</label>
+              <input
+                type="email"
+                placeholder="seu@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="input-notebook"
+              />
+            </div>
+
+            <div>
+              <label className="label-notebook">Senha</label>
+              <input
+                type="password"
+                placeholder="••••••"
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+                required
+                className="input-notebook"
+              />
+            </div>
+
+            <div className="flex items-center justify-between text-sm">
+              <label className="flex items-center gap-2 text-olive">
+                <input
+                  type="checkbox"
+                  checked={lembrar}
+                  onChange={() => setLembrar(!lembrar)}
+                  className="w-4 h-4 accent-olive"
+                />
+                Lembrar de mim
+              </label>
+              <Link to="#" className="font-script text-sage-600 hover:text-olive">Esqueceu a senha?</Link>
+            </div>
+
+            {erro && <p className="text-rust text-sm">{erro}</p>}
+
+            <button type="submit" className="btn-primary w-full">Entrar no caderno</button>
+
+            <div className="divider-decorative pt-2"><span className="text-tan-dark">·</span></div>
+
+            <p className="text-center text-sm text-olive-light">
+              Ainda não tem conta?{' '}
+              <Link to="/cadastro" className="font-semibold text-olive underline underline-offset-2 hover:text-olive-dark">
+                Cadastre-se
+              </Link>
+            </p>
+          </form>
+        </div>
       </div>
     </div>
   );
 }
 
 export default Login;
-
-
-// 🎨 Estilos Inline
-const styles = {
-  container: {
-    backgroundColor: '#f6fbf9',
-    height: '100vh',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  box: {
-    background: 'white',
-    padding: '40px',
-    borderRadius: '10px',
-    boxShadow: '0 0 15px rgba(0,0,0,0.1)',
-    width: '100%',
-    maxWidth: '400px',
-  },
-  logoArea: {
-    textAlign: 'center',
-    marginBottom: '20px',
-  },
-  logo: {
-    background: '#2ecc71',
-    color: 'white',
-    borderRadius: '50%',
-    width: '50px',
-    height: '50px',
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '24px',
-    marginBottom: '10px',
-  },
-  input: {
-    width: '100%',
-    padding: '10px',
-    marginTop: '5px',
-    marginBottom: '15px',
-    borderRadius: '6px',
-    border: '1px solid #ccc',
-  },
-  options: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    marginBottom: '15px',
-    fontSize: '14px',
-  },
-  link: {
-    color: '#27ae60',
-    textDecoration: 'none',
-  },
-  button: {
-    backgroundColor: '#000',
-    color: 'white',
-    width: '100%',
-    padding: '10px',
-    borderRadius: '6px',
-    border: 'none',
-    cursor: 'pointer',
-  },
-  divider: {
-    display: 'flex',
-    alignItems: 'center',
-    textAlign: 'center',
-    margin: '20px 0',
-  },
-  error: {
-    color: 'red',
-    marginBottom: '10px',
-    fontSize: '14px',
-  },
-  cadastroLink: {
-    color: '#27ae60',
-    textDecoration: 'none',
-  },
-};

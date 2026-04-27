@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Plus, ArrowLeft } from 'lucide-react';
 import { obterUsuarioLogado } from '../services/usuarioService';
 import { getProjetoById } from '../services/projetoService';
 import { criarColeta } from '../services/coletaService';
+import PageShell, { PageHeader, SectionHeading } from '../components/layout/PageShell';
+import { FernIcon } from '../components/decor/Illustrations';
 
 function NovaColeta() {
   const { id } = useParams();
@@ -12,32 +13,24 @@ function NovaColeta() {
   const [usuario, setUsuario] = useState(null);
   const [projeto, setProjeto] = useState({});
   const [form, setForm] = useState({
-    local: '',
-    latitude: '',
-    longitude: '',
-    dataColeta: '',
-    hora_inicio: '',
-    hora_fim: '',
-    observacoes: '',
+    local: '', latitude: '', longitude: '', dataColeta: '',
+    hora_inicio: '', hora_fim: '', observacoes: '',
   });
 
   useEffect(() => {
-    const carregarDados = async () => {
+    const carregar = async () => {
       try {
         const usuarioResp = await obterUsuarioLogado();
         setUsuario(usuarioResp.data);
-
         const projetoResp = await getProjetoById(id);
-        const projetoData = Array.isArray(projetoResp.data)
-          ? projetoResp.data[0]
-          : projetoResp.data;
+        const projetoData = Array.isArray(projetoResp.data) ? projetoResp.data[0] : projetoResp.data;
         setProjeto(projetoData);
       } catch (err) {
         console.error(err);
-        alert("Erro ao buscar dados.");
+        alert('Erro ao buscar dados.');
       }
     };
-    carregarDados();
+    carregar();
   }, [id]);
 
   const handleChange = (e) => {
@@ -45,7 +38,8 @@ function NovaColeta() {
     setForm({ ...form, [name]: value });
   };
 
-  const salvarColeta = async () => {
+  const salvarColeta = async (e) => {
+    e?.preventDefault();
     try {
       const payload = {
         ...form,
@@ -54,9 +48,6 @@ function NovaColeta() {
         projetoId: id,
         coletado_por: usuario?.idUsuarios,
       };
-
-      console.log("Payload final:", payload);
-
       await criarColeta(payload);
       alert('Coleta registrada com sucesso!');
       navigate(`/projetos/${id}`);
@@ -67,116 +58,73 @@ function NovaColeta() {
   };
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold">Registrar Nova Coleta</h1>
-          <p className="text-gray-600">
-            Projeto: {projeto.nome || 'Carregando...'}
-          </p>
-        </div>
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center px-4 py-2 rounded border hover:bg-gray-100"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Voltar
-        </button>
-      </div>
+    <PageShell badge={{ number: '08', label: 'Nova Coleta' }}>
+      <PageHeader
+        overline="nova saída"
+        title="Registrar coleta"
+        subtitle={projeto.nome ? `Projeto: ${projeto.nome}` : 'Carregando...'}
+        onBack={() => navigate(-1)}
+      />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-sm mb-1">Local *</label>
-          <input
-            name="local"
-            value={form.local}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2"
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-sm mb-1">Latitude *</label>
-          <input
-            type="number"
-            name="latitude"
-            value={form.latitude}
-            onChange={handleChange}
-            step="0.000001"
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-sm mb-1">Longitude *</label>
-          <input
-            type="number"
-            name="longitude"
-            value={form.longitude}
-            onChange={handleChange}
-            step="0.000001"
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-sm mb-1">Data da Coleta *</label>
-          <input
-            type="date"
-            name="dataColeta"
-            value={form.dataColeta}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2"
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-sm mb-1">Hora Início *</label>
-          <input
-            type="time"
-            name="hora_inicio"
-            value={form.hora_inicio}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2"
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-sm mb-1">Hora Fim *</label>
-          <input
-            type="time"
-            name="hora_fim"
-            value={form.hora_fim}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2"
-            required
-          />
-        </div>
-        <div className="md:col-span-2">
-          <label className="block text-sm mb-1">Observações</label>
-          <textarea
-            name="observacoes"
-            value={form.observacoes}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2"
-          />
-        </div>
-      </div>
+      <form onSubmit={salvarColeta} className="grid lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 card-notebook space-y-5">
+          <SectionHeading overline="local & tempo" title="Onde e quando" />
 
-      <div className="flex justify-end gap-4 mt-8">
-        <button
-          onClick={() => navigate(-1)}
-          className="px-4 py-2 border rounded hover:bg-gray-100"
-        >
-          Cancelar
-        </button>
-        <button
-          onClick={salvarColeta}
-          className="flex items-center bg-black text-white px-4 py-2 rounded hover:bg-gray-800"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Registrar Coleta
-        </button>
-      </div>
-    </div>
+          <div>
+            <label className="label-notebook">Local *</label>
+            <input name="local" placeholder="Ex: PE Serra do Mar — Cunha/SP" value={form.local} onChange={handleChange} required className="input-notebook" />
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-4">
+            <div>
+              <label className="label-notebook">Data *</label>
+              <input type="date" name="dataColeta" value={form.dataColeta} onChange={handleChange} required className="input-notebook" />
+            </div>
+            <div>
+              <label className="label-notebook">Hora início *</label>
+              <input type="time" name="hora_inicio" value={form.hora_inicio} onChange={handleChange} required className="input-notebook" />
+            </div>
+            <div>
+              <label className="label-notebook">Hora fim *</label>
+              <input type="time" name="hora_fim" value={form.hora_fim} onChange={handleChange} required className="input-notebook" />
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <label className="label-notebook">Latitude *</label>
+              <input type="number" name="latitude" step="0.000001" placeholder="-23.0712" value={form.latitude} onChange={handleChange} required className="input-notebook" />
+            </div>
+            <div>
+              <label className="label-notebook">Longitude *</label>
+              <input type="number" name="longitude" step="0.000001" placeholder="-44.9354" value={form.longitude} onChange={handleChange} required className="input-notebook" />
+            </div>
+          </div>
+
+          <div>
+            <label className="label-notebook">Observações</label>
+            <textarea name="observacoes" rows={3} placeholder="Condições climáticas, método empregado, particularidades..." value={form.observacoes} onChange={handleChange} className="input-notebook" />
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="card-notebook relative">
+            <FernIcon size={28} className="absolute top-3 right-3 opacity-50" />
+            <SectionHeading overline="dica" title="Boas práticas" />
+            <ul className="mt-4 space-y-2 text-sm text-olive-light/90">
+              <li className="flex gap-2"><span className="text-sage-600">·</span> Use coordenadas em graus decimais (WGS84).</li>
+              <li className="flex gap-2"><span className="text-sage-600">·</span> Registre a hora local de início e fim da atividade.</li>
+              <li className="flex gap-2"><span className="text-sage-600">·</span> Anote condições do tempo nas observações.</li>
+            </ul>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <button type="submit" className="btn-primary">Salvar coleta</button>
+            <button type="button" onClick={() => navigate(-1)} className="btn-secondary">Cancelar</button>
+          </div>
+        </div>
+      </form>
+    </PageShell>
   );
 }
 

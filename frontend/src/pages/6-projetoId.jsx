@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Plus, Pencil, Trash, ArrowLeft } from 'lucide-react';
+import { Plus, Pencil, Trash } from 'lucide-react';
 import { obterUsuarioLogado } from '../services/usuarioService';
 import { getProjetoById, deletarProjeto, atualizarProjeto } from '../services/projetoService';
 import { getColetaById } from '../services/coletaService';
 import { getAmostraById } from '../services/amostraService';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import PageShell, { PageHeader, SectionHeading } from '../components/layout/PageShell';
+import { ButterflyIcon, FernIcon, LeafIcon, FlowerIcon } from '../components/decor/Illustrations';
+
+const MESES_ABREV = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
 
 function ProjetoIdMock() {
   const { id } = useParams();
@@ -16,149 +20,75 @@ function ProjetoIdMock() {
   const [projeto, setProjetos] = useState({});
   const [coletas, setColetas] = useState([]);
   const [amostras, setAmostras] = useState([]);
-  const [usuario, setUsuario] = useState([]);
+  const [, setUsuario] = useState([]);
 
   const exportarProjetoParaXLSX = () => {
-    // Aba Projeto
-    const projetoSheet = [
-      {
-        idProjetos: projeto.idProjetos,
-        nome: projeto.nome,
-        descricao: projeto.descricao,
-        objetivos: projeto.objetivos,
-        metodologia: projeto.metodologia,
-        resultadosEsperados: projeto.resultadosEsperados,
-        palavrasChave: projeto.palavrasChave,
-        colaboradores: projeto.colaboradores,
-        financiamento: projeto.financiamento,
-        orcamento: projeto.orcamento,
-        data_inicio: projeto.data_inicio,
-        data_fim: projeto.data_fim,
-        imageLink: projeto.imageLink,
-      }
-    ];
-
-    // Aba Coletas
+    const projetoSheet = [{
+      idProjetos: projeto.idProjetos, nome: projeto.nome, descricao: projeto.descricao,
+      objetivos: projeto.objetivos, metodologia: projeto.metodologia,
+      resultadosEsperados: projeto.resultadosEsperados, palavrasChave: projeto.palavrasChave,
+      colaboradores: projeto.colaboradores, financiamento: projeto.financiamento,
+      orcamento: projeto.orcamento, data_inicio: projeto.data_inicio,
+      data_fim: projeto.data_fim, imageLink: projeto.imageLink,
+    }];
     const coletasSheet = coletas.map((c) => ({
-      idColetas: c.idColetas,
-      projetoId: c.projetoId,
-      local: c.local,
-      data: c.data,
-      hora_inicio: c.hora_inicio,
-      hora_fim: c.hora_fim,
-      latitude: c.latitude,
-      longitude: c.longitude,
-      observacoes: c.observacoes,
+      idColetas: c.idColetas, projetoId: c.projetoId, local: c.local, data: c.data,
+      hora_inicio: c.hora_inicio, hora_fim: c.hora_fim, latitude: c.latitude,
+      longitude: c.longitude, observacoes: c.observacoes,
     }));
-
-    // Aba Amostras
     const amostrasSheet = amostras.map((a) => ({
-      idAmostras: a.idAmostras,
-      coletaId: a.coletaId,
-      codigo: a.codigo,
-      descricao: a.descricao,
-      tipoAmostra: a.tipoAmostra,
-      quantidade: a.quantidade,
-      recipiente: a.recipiente,
-      metodoPreservacao: a.metodoPreservacao,
-      validade: a.validade,
-      identificacao_final: a.identificacao_final,
-      observacoes: a.observacoes,
-      imageLink: a.imageLink,
+      idAmostras: a.idAmostras, coletaId: a.coletaId, codigo: a.codigo,
+      descricao: a.descricao, tipoAmostra: a.tipoAmostra, quantidade: a.quantidade,
+      recipiente: a.recipiente, metodoPreservacao: a.metodoPreservacao,
+      validade: a.validade, identificacao_final: a.identificacao_final,
+      observacoes: a.observacoes, imageLink: a.imageLink,
     }));
-
-    // Cria workbook
     const wb = XLSX.utils.book_new();
-
-    const wsProjeto = XLSX.utils.json_to_sheet(projetoSheet);
-    XLSX.utils.book_append_sheet(wb, wsProjeto, 'Projeto');
-
-    const wsColetas = XLSX.utils.json_to_sheet(coletasSheet);
-    XLSX.utils.book_append_sheet(wb, wsColetas, 'Coletas');
-
-    const wsAmostras = XLSX.utils.json_to_sheet(amostrasSheet);
-    XLSX.utils.book_append_sheet(wb, wsAmostras, 'Amostras');
-
-    // Gera arquivo em memória
-    const excelBuffer = XLSX.write(wb, {
-      bookType: 'xlsx',
-      type: 'array',
-    });
-
-    // Faz download
-    const blob = new Blob([excelBuffer], {
-      type:
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(projetoSheet), 'Projeto');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(coletasSheet), 'Coletas');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(amostrasSheet), 'Amostras');
+    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
     saveAs(blob, `Projeto_${projeto.nome || 'dados'}.xlsx`);
   };
 
   useEffect(() => {
-    const obterProjetoId = async () => {
+    const obter = async () => {
       try {
-        console.log("Chegou aqui no useEffect do projetoId");
         const usuarioResponse = await obterUsuarioLogado();
         setUsuario(usuarioResponse.data);
-        console.log("Usuario response: ", usuarioResponse);
         const projetoResponse = await getProjetoById(id);
-        console.log("projetoResponse com id aqui: ", projetoResponse.data);
-
-        const projetoData = Array.isArray(projetoResponse.data)
-          ? projetoResponse.data[0]
-          : projetoResponse.data;
-
-        console.log("ID do projeto:", projetoData?.idProjetos);
-
+        const projetoData = Array.isArray(projetoResponse.data) ? projetoResponse.data[0] : projetoResponse.data;
         setProjetos(projetoData);
-
-        // BUSCA COLETAS
         const coletaResponse = await getColetaById(projetoData.idProjetos);
-        const coletasArray = Array.isArray(coletaResponse.data)
-          ? coletaResponse.data
-          : [];
-
+        const coletasArray = Array.isArray(coletaResponse.data) ? coletaResponse.data : [];
         setColetas(coletasArray);
 
-        // BUSCA AMOSTRAS DE TODAS AS COLETAS
         const amostrasTotais = [];
-
         for (const coleta of coletasArray) {
           const amostraResponse = await getAmostraById(coleta.idColetas);
-          if (Array.isArray(amostraResponse.data)) {
-            amostrasTotais.push(...amostraResponse.data);
-          } else if (amostraResponse.data) {
-            amostrasTotais.push(amostraResponse.data);
-          }
+          if (Array.isArray(amostraResponse.data)) amostrasTotais.push(...amostraResponse.data);
+          else if (amostraResponse.data) amostrasTotais.push(amostraResponse.data);
         }
-
         setAmostras(amostrasTotais);
-
-        console.log("Olha o id: ", id);
-        console.log("Usuario response: ", usuarioResponse);
-        console.log("Projeto Response: ", projetoResponse);
-        console.log("Coleta response: ", coletaResponse);
-        console.log("Amostra response: ", amostrasTotais);
       } catch (error) {
-        console.error("Erro na obtenção dos projetos, ", error);
+        console.error('Erro na obtenção dos projetos, ', error);
       }
     };
-
-    obterProjetoId();
+    obter();
   }, [id]);
 
-  const contarAmostrasPorColeta = (coletaId) => {
-    return amostras.filter((a) => a.coletaId === coletaId).length;
-  };
+  const contarAmostrasPorColeta = (coletaId) => amostras.filter((a) => a.coletaId === coletaId).length;
 
   const obterDataMaisRecente = () => {
     const datas = coletas.map((c) => new Date(c.data));
-    if (datas.length === 0) return 'Sem coletas';
+    if (datas.length === 0) return '—';
     const maisRecente = new Date(Math.max(...datas));
     const agora = new Date();
     const diff = Math.floor((agora - maisRecente) / (1000 * 60 * 60 * 24));
     if (diff === 0) return 'Hoje';
     if (diff === 1) return 'Ontem';
-    return `${diff} dias atrás`;
+    return `${diff} dias`;
   };
 
   const salvarEdicao = async () => {
@@ -179,192 +109,175 @@ function ProjetoIdMock() {
         alert('Projeto excluído com sucesso!');
         navigate('/projetos');
       } catch (error) {
-        console.error("Erro ao excluir projeto:", error);
+        console.error('Erro ao excluir projeto:', error);
         alert('Erro ao excluir o projeto. Tente novamente.');
       }
     }
   };
 
-  const handleChange = (e) => {
-    setProjetos({
-      ...projeto,
-      [e.target.name]: e.target.value
-    });
-  };
+  const handleChange = (e) => setProjetos({ ...projeto, [e.target.name]: e.target.value });
 
-  const renderCampo = (label, nome, tipo = 'text') => {
-    return (
-      <div>
-        <span className="font-semibold">{label}:</span>{' '}
-        {modoEdicao ? (
-          tipo === 'textarea' ? (
-            <textarea
-              name={nome}
-              value={projeto[nome] || ''}
-              onChange={handleChange}
-              className="border px-2 py-1 rounded w-full mt-1"
-            />
-          ) : (
-            <input
-              type={tipo}
-              name={nome}
-              value={projeto[nome] || ''}
-              onChange={handleChange}
-              className="border px-2 py-1 rounded w-full mt-1"
-            />
-          )
-        ) : (
-          <span>{projeto[nome] || '—'}</span>
-        )}
-      </div>
-    );
+  const formatarData = (d) => {
+    if (!d) return '';
+    const data = new Date(d);
+    return { dia: data.getDate(), mes: MESES_ABREV[data.getMonth()] };
   };
 
   return (
-    <div className="p-8">
-      <div className="flex justify-between items-center mb-6">
-        <div className="w-full">
-          <h1 className="text-3xl font-bold mb-2">
+    <PageShell badge={{ number: '05', label: 'Detalhe do Projeto' }}>
+      <PageHeader
+        title=""
+        onBack={() => navigate('/projetos')}
+        backLabel="Projetos"
+        actions={
+          <>
             {modoEdicao ? (
-              <input
-                type="text"
-                name="nome"
-                value={projeto.nome || ''}
-                onChange={handleChange}
-                className="border px-2 py-1 rounded w-full"
-              />
+              <>
+                <button onClick={() => setModoEdicao(false)} className="btn-secondary">Cancelar</button>
+                <button onClick={salvarEdicao} className="btn-primary">Salvar</button>
+              </>
+            ) : (
+              <button onClick={() => setModoEdicao(true)} className="btn-secondary"><Pencil className="w-4 h-4" /> Editar</button>
+            )}
+            <button onClick={exportarProjetoParaXLSX} className="btn-secondary">Exportar planilha</button>
+            <button onClick={excluirProjeto} className="btn-danger"><Trash className="w-4 h-4" /> Excluir</button>
+          </>
+        }
+      />
+
+      {/* Bloco hero do projeto */}
+      <div className="grid md:grid-cols-3 gap-6 mb-8">
+        <div className="md:col-span-1 bg-paper-light border border-tan/60 rounded-lg p-6 relative shadow-card">
+          <LeafIcon size={36} className="absolute top-3 left-3 opacity-40" />
+          <FlowerIcon size={28} className="absolute top-4 right-3 opacity-40" />
+          <div className="flex items-center justify-center py-6">
+            <ButterflyIcon size={120} />
+          </div>
+          <div className="text-center font-script text-sage-600 mt-2">LEPIDOPTERA</div>
+        </div>
+
+        <div className="md:col-span-2">
+          <span className="inline-block text-[10px] tracking-widest font-semibold uppercase text-olive border border-olive/40 rounded-full px-2.5 py-1 bg-paper-light mb-3">
+            LEPIDOPTERA
+          </span>
+          <h1 className="heading-serif text-4xl mb-2">
+            {modoEdicao ? (
+              <input type="text" name="nome" value={projeto.nome || ''} onChange={handleChange} className="input-notebook text-3xl" />
             ) : (
               projeto.nome
             )}
           </h1>
-          <div className="mb-4">
-            {modoEdicao ? (
-              <textarea
-                name="descricao"
-                value={projeto.descricao || ''}
-                onChange={handleChange}
-                className="border px-2 py-1 rounded w-full"
-              />
-            ) : (
-              <p className="text-gray-600">{projeto.descricao}</p>
-            )}
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
-            {renderCampo('Objetivos', 'objetivos', 'textarea')}
-            {renderCampo('Metodologia', 'metodologia', 'textarea')}
-            {renderCampo('Resultados Esperados', 'resultadosEsperados', 'textarea')}
-            {renderCampo('Palavras-chave', 'palavrasChave')}
-            {renderCampo('Colaboradores', 'colaboradores')}
-            {renderCampo('Financiamento', 'financiamento')}
-            {renderCampo('Orçamento', 'orcamento')}
-            {renderCampo('Data de Início', 'data_inicio', 'date')}
-            {renderCampo('Data de Fim', 'data_fim', 'date')}
-            {renderCampo('Link da Imagem', 'imageLink')}
-          </div>
-          {projeto.imageLink && !modoEdicao && (
-            <div className="mt-4">
-              <img
-                src={projeto.imageLink}
-                alt="Imagem do Projeto"
-                className="max-w-xs rounded shadow"
-              />
-            </div>
+          {modoEdicao ? (
+            <textarea name="descricao" value={projeto.descricao || ''} onChange={handleChange} className="input-notebook mb-4" />
+          ) : (
+            <p className="text-olive-light/80 mb-6">{projeto.descricao}</p>
           )}
-        </div>
-        <div className="flex flex-col gap-2 ml-4">
-          <button onClick={() => navigate(-1)} className="flex items-center px-4 py-2 rounded border">
-            <ArrowLeft className="w-4 h-4 mr-2" /> Voltar
-          </button>
-          <button
-            onClick={() => setModoEdicao(!modoEdicao)}
-            className="flex items-center border rounded px-3 py-1 hover:bg-gray-100"
-          >
-            <Pencil className="w-4 h-4 mr-1" />
-            {modoEdicao ? 'Cancelar' : 'Editar'}
-          </button>
-          {modoEdicao && (
-            <button
-              onClick={salvarEdicao}
-              className="flex items-center bg-black text-white px-4 py-2 rounded hover:bg-gray-800"
-            >
-              Salvar
-            </button>
-          )}
-          <button
-            onClick={excluirProjeto}
-            className="flex items-center border rounded px-3 py-1 hover:bg-red-100 text-red-500"
-          >
-            <Trash className="w-4 h-4 mr-1" />
-            Excluir
-          </button>
-          <button
-            onClick={exportarProjetoParaXLSX}
-            className="flex items-center border rounded px-3 py-1 hover:bg-gray-100"
-          >
-            Exportar Planilha
-          </button>
-        </div>
-      </div>
 
-      {/* Cards de resumo */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="border rounded-lg p-4">
-          <h3 className="text-sm text-gray-500">Coletas Realizadas</h3>
-          <p className="text-2xl">{coletas.length}</p>
-        </div>
-        <div className="border rounded-lg p-4">
-          <h3 className="text-sm text-gray-500">Amostras Coletadas</h3>
-          <p className="text-2xl">{amostras.length}</p>
-        </div>
-        <div className="border rounded-lg p-4">
-          <h3 className="text-sm text-gray-500">Última Coleta</h3>
-          <p className="text-2xl">{obterDataMaisRecente()}</p>
-        </div>
-      </div>
-
-      {/* Cabeçalho de Coletas */}
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">Coletas Recentes</h2>
-        <button
-          onClick={() => navigate(`coletas/novo/`)}
-          className="flex items-center bg-black text-white px-4 py-2 rounded hover:bg-gray-800"
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Nova Coleta
-        </button>
-      </div>
-
-      {/* Lista de coletas */}
-      <div className="space-y-4">
-        {coletas.length === 0 && (
-          <p className="text-gray-500">Nenhuma coleta registrada.</p>
-        )}
-        {coletas.map((coleta) => (
-          <div
-            key={coleta.idColetas}
-            className="border rounded-lg p-4 flex flex-col md:flex-row justify-between"
-          >
+          <div className="grid grid-cols-3 gap-4">
             <div>
-              <h3 className="text-gray-600">{coleta.local}</h3>
-              <p className="text-sm text-gray-500">
-                {coleta.data} às {coleta.hora_inicio}
-              </p>
-              <span className="bg-gray-100 px-2 py-1 rounded-full text-xs">
-                {contarAmostrasPorColeta(coleta.idColetas)} amostras
-              </span>
+              <div className="heading-serif text-3xl">{coletas.length}</div>
+              <div className="text-[11px] tracking-widest uppercase text-olive-light/70">Coletas realizadas</div>
             </div>
-            <div className="flex items-center gap-2 mt-2 md:mt-0">
-              <button
-                onClick={() => navigate(`/projetos/${id}/coletas/${coleta.idColetas}`)}
-                className="border px-3 py-1 rounded hover:bg-gray-100"
-              >
-                Ver Detalhes
-              </button>
+            <div>
+              <div className="heading-serif text-3xl">{amostras.length}</div>
+              <div className="text-[11px] tracking-widest uppercase text-olive-light/70">Amostras catalogadas</div>
+            </div>
+            <div>
+              <div className="heading-serif text-3xl">{obterDataMaisRecente()}</div>
+              <div className="text-[11px] tracking-widest uppercase text-olive-light/70">Última saída</div>
             </div>
           </div>
-        ))}
+        </div>
       </div>
-    </div>
+
+      {/* Objetivos / Metodologia */}
+      <div className="grid md:grid-cols-2 gap-6 mb-10">
+        <div className="card-notebook">
+          <SectionHeading overline="propósito" title="Objetivos" className="mb-4" />
+          {modoEdicao ? (
+            <textarea name="objetivos" value={projeto.objetivos || ''} onChange={handleChange} className="input-notebook" rows={4} />
+          ) : (
+            <p className="text-olive-light/90 leading-relaxed">{projeto.objetivos || '—'}</p>
+          )}
+        </div>
+        <div className="card-notebook">
+          <SectionHeading overline="como" title="Metodologia" className="mb-4" />
+          {modoEdicao ? (
+            <textarea name="metodologia" value={projeto.metodologia || ''} onChange={handleChange} className="input-notebook" rows={4} />
+          ) : (
+            <p className="text-olive-light/90 leading-relaxed">{projeto.metodologia || '—'}</p>
+          )}
+        </div>
+      </div>
+
+      {modoEdicao && (
+        <div className="card-notebook mb-10 space-y-4">
+          <SectionHeading overline="metadados" title="Outros campos" />
+          <div className="grid md:grid-cols-2 gap-4">
+            <div><label className="label-notebook">Resultados esperados</label><input name="resultadosEsperados" value={projeto.resultadosEsperados || ''} onChange={handleChange} className="input-notebook" /></div>
+            <div><label className="label-notebook">Palavras-chave</label><input name="palavrasChave" value={projeto.palavrasChave || ''} onChange={handleChange} className="input-notebook" /></div>
+            <div><label className="label-notebook">Colaboradores</label><input name="colaboradores" value={projeto.colaboradores || ''} onChange={handleChange} className="input-notebook" /></div>
+            <div><label className="label-notebook">Financiamento</label><input name="financiamento" value={projeto.financiamento || ''} onChange={handleChange} className="input-notebook" /></div>
+            <div><label className="label-notebook">Orçamento</label><input name="orcamento" value={projeto.orcamento || ''} onChange={handleChange} className="input-notebook" /></div>
+            <div><label className="label-notebook">Data início</label><input type="date" name="data_inicio" value={projeto.data_inicio || ''} onChange={handleChange} className="input-notebook" /></div>
+            <div><label className="label-notebook">Data fim</label><input type="date" name="data_fim" value={projeto.data_fim || ''} onChange={handleChange} className="input-notebook" /></div>
+            <div><label className="label-notebook">Link da imagem</label><input name="imageLink" value={projeto.imageLink || ''} onChange={handleChange} className="input-notebook" /></div>
+          </div>
+        </div>
+      )}
+
+      {projeto.imageLink && !modoEdicao && (
+        <div className="mb-10">
+          <img src={projeto.imageLink} alt="Imagem do Projeto" className="max-w-md rounded-lg shadow-card border border-tan/60" />
+        </div>
+      )}
+
+      {/* Coletas recentes */}
+      <div className="flex items-end justify-between mb-4">
+        <SectionHeading overline="saídas de campo" title="Coletas recentes" />
+        <button onClick={() => navigate('coletas/novo/')} className="btn-primary"><Plus className="w-4 h-4" /> Nova coleta</button>
+      </div>
+
+      <div className="space-y-3">
+        {coletas.length === 0 && (
+          <div className="card-notebook text-center py-10">
+            <FernIcon size={40} className="mx-auto opacity-50" />
+            <p className="font-script text-sage-600 text-lg mt-3">Nenhuma coleta registrada ainda.</p>
+          </div>
+        )}
+        {coletas.map((coleta) => {
+          const data = formatarData(coleta.data);
+          return (
+            <div
+              key={coleta.idColetas}
+              onClick={() => navigate(`/projetos/${id}/coletas/${coleta.idColetas}`)}
+              className="card-notebook flex items-center gap-5 cursor-pointer hover:shadow-notebook transition"
+            >
+              <div className="w-16 h-16 rounded-full bg-sage-200 border border-olive/30 flex flex-col items-center justify-center shrink-0">
+                <span className="heading-serif text-2xl leading-none">{data.dia || '—'}</span>
+                <span className="text-[10px] tracking-widest text-olive-light">{data.mes || ''}</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="heading-serif text-lg">{coleta.local}</h3>
+                <div className="text-sm text-olive-light flex flex-wrap items-center gap-x-4 gap-y-1 mt-0.5">
+                  <span>🕒 {coleta.hora_inicio}{coleta.hora_fim ? `–${coleta.hora_fim}` : ''}</span>
+                  <span>📍 {coleta.latitude}, {coleta.longitude}</span>
+                </div>
+                {coleta.observacoes && (
+                  <p className="font-script text-sage-600 text-base mt-1 line-clamp-1">{coleta.observacoes}</p>
+                )}
+              </div>
+              <div className="text-right shrink-0">
+                <span className="inline-block text-[10px] tracking-widest font-semibold uppercase text-olive border border-olive/40 rounded-full px-2.5 py-1 bg-paper-light">
+                  {contarAmostrasPorColeta(coleta.idColetas)} amostras
+                </span>
+                <div className="font-script text-sage-600 text-sm mt-2">ver detalhes →</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </PageShell>
   );
 }
 
