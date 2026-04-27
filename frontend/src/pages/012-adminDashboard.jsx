@@ -135,7 +135,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Conteúdo em abas (mantém componentes existentes) */}
-      <div className="card-notebook">
+      <div className="card-notebook" >
         <Tabs defaultValue="projects" className="space-y-6">
           <TabsList className="grid w-full grid-cols-4 bg-paper border border-tan/60 rounded-md p-1">
             <TabsTrigger value="projects" className="data-[state=active]:bg-sage-300 data-[state=active]:text-olive-dark rounded">

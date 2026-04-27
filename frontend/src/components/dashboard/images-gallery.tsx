@@ -3,8 +3,9 @@ import { obterUsuarioLogado } from "../../services/usuarioService";
 import { getProjetosByUsuarioId } from "../../services/projetoService";
 import { getColetaById } from "../../services/coletaService";
 import { getAmostraById } from "../../services/amostraService";
-import { getPresignedGetUrl } from "../../services/uploadService"; // 👈 mesmo service do AmostraDetalhes
+import { getPresignedGetUrl } from "../../services/uploadService";
 
+// ── Interfaces ────────────────────────────────────────────────────────────────
 export interface Usuario {
   idUsuarios: number;
   nome: string;
@@ -59,7 +60,7 @@ export interface Amostra {
   validade: string;
   identificacao_final: string;
   observacoes: string;
-  imageLink: string; // key do R2 ou URL completa
+  imageLink: string;
 }
 
 interface AmostraComUrl {
@@ -67,11 +68,12 @@ interface AmostraComUrl {
   url: string | null;
 }
 
+// ── Componente ────────────────────────────────────────────────────────────────
 export function ImagesGallery() {
   const [amostras, setAmostras] = useState<Amostra[]>([]);
-  const [cards, setCards] = useState<AmostraComUrl[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [cards, setCards]       = useState<AmostraComUrl[]>([]);
+  const [loading, setLoading]   = useState(true);
+  const [error, setError]       = useState<string | null>(null);
 
   useEffect(() => {
     const carregarAmostras = async () => {
@@ -79,116 +81,73 @@ export function ImagesGallery() {
         setLoading(true);
         setError(null);
 
-        // 1) Usuário logado
         const usuarioResponse = await obterUsuarioLogado();
         const usuarioData: Usuario = usuarioResponse.data;
         console.log("[ImagesGallery] Usuário logado:", usuarioData);
 
-        // 2) Projetos do usuário
-        const projetosResponse = await getProjetosByUsuarioId(
-          usuarioData.idUsuarios
-        );
+        const projetosResponse = await getProjetosByUsuarioId(usuarioData.idUsuarios);
         const projetosData: Projeto[] = Array.isArray(projetosResponse.data)
-          ? projetosResponse.data
-          : [];
-
+          ? projetosResponse.data : [];
         console.log("[ImagesGallery] projetosData:", projetosData);
 
         if (projetosData.length === 0) {
           console.warn("[ImagesGallery] Usuário não tem projetos.");
-          setAmostras([]);
-          setCards([]);
-          return;
+          setAmostras([]); setCards([]); return;
         }
 
-        // 3) Coletas de TODOS os projetos
         const respostasColetas = await Promise.all(
           projetosData.map((proj) => getColetaById(proj.idProjetos))
         );
-
         const coletasData: Coleta[] = respostasColetas.flatMap((resp, idx) => {
           const raw = resp.data;
           const arr = Array.isArray(raw) ? raw : raw ? [raw] : [];
-          console.log(
-            `[ImagesGallery] Coletas do projeto ${projetosData[idx].idProjetos}:`,
-            arr
-          );
+          console.log(`[ImagesGallery] Coletas do projeto ${projetosData[idx].idProjetos}:`, arr);
           return arr;
         });
 
         if (coletasData.length === 0) {
           console.warn("[ImagesGallery] Projetos não têm coletas.");
-          setAmostras([]);
-          setCards([]);
-          return;
+          setAmostras([]); setCards([]); return;
         }
 
         const coletasIds = coletasData.map((c) => c.idColetas);
         console.log("[ImagesGallery] IDs das coletas:", coletasIds);
-        console.log("Olha os coletasIds: ", coletasIds)
-        // 4) Amostras de TODAS as coletas
+
         const respostasAmostras = await Promise.all(
           coletasIds.map((coletaId) => getAmostraById(coletaId))
         );
         console.log("Chegou aqui");
-        
+
         const amostrasFlatten: Amostra[] = respostasAmostras.flatMap((resp, idx) => {
           const raw = resp.data;
           const arr = Array.isArray(raw) ? raw : raw ? [raw] : [];
-          console.log(
-            `[ImagesGallery] Amostras da coleta ${coletasIds[idx]}:`,
-            arr
-          );
+          console.log(`[ImagesGallery] Amostras da coleta ${coletasIds[idx]}:`, arr);
           return arr;
         });
 
         console.log("[ImagesGallery] Todas as amostras (flatten):", amostrasFlatten);
         setAmostras(amostrasFlatten);
 
-        // 5) Resolver URLs de imagem (via R2)
         const amostrasComLink = amostrasFlatten.filter(
           (a) => !!a.imageLink && a.imageLink.trim() !== ""
         );
-
-        console.log(
-          "[ImagesGallery] Amostras com imageLink preenchido:",
-          amostrasComLink
-        );
+        console.log("[ImagesGallery] Amostras com imageLink preenchido:", amostrasComLink);
 
         const cardsResolvidos: AmostraComUrl[] = await Promise.all(
           amostrasComLink.map(async (amostra) => {
             const keyOuUrl = amostra.imageLink;
             try {
-              // já é URL completa?
               if (keyOuUrl.startsWith("http")) {
-                console.log(
-                  "[ImagesGallery] imageLink já é URL, usando direto:",
-                  keyOuUrl
-                );
+                console.log("[ImagesGallery] imageLink já é URL, usando direto:", keyOuUrl);
                 return { amostra, url: keyOuUrl };
               }
-
-              console.log(
-                "[ImagesGallery] imageLink é KEY do R2, chamando presign-get:",
-                keyOuUrl
-              );
-
+              console.log("[ImagesGallery] imageLink é KEY do R2, chamando presign-get:", keyOuUrl);
               const resp = await getPresignedGetUrl(keyOuUrl);
-              console.log(
-                "[ImagesGallery] Resposta presign-get para",
-                keyOuUrl,
-                ":",
-                resp.data
-              );
-
+              console.log("[ImagesGallery] Resposta presign-get para", keyOuUrl, ":", resp.data);
               const url = resp.data?.url || resp.data?.downloadUrl || null;
               return { amostra, url };
             } catch (e) {
-              console.error(
-                "[ImagesGallery] Erro ao gerar presigned GET para",
-                keyOuUrl,
-                e
-              );
+              console.error("[ImagesGallery] Erro ao gerar presigned GET para", keyOuUrl, e);
               return { amostra, url: null };
             }
           })
@@ -198,75 +157,82 @@ export function ImagesGallery() {
       } catch (err: any) {
         console.error("[ImagesGallery] Erro na obtenção de informações:", err);
         setError(err?.message || "Erro ao carregar imagens.");
-        setAmostras([]);
-        setCards([]);
+        setAmostras([]); setCards([]);
       } finally {
         setLoading(false);
       }
     };
-
     carregarAmostras();
   }, []);
 
   return (
-    <div className="rounded-lg border bg-white shadow-sm p-6">
-      {/* Título */}
-      <h3 className="text-xl font-semibold flex items-center gap-2 mb-6">
-        <span className="text-2xl">📸</span>
-        Imagens de Amostras
-      </h3>
+    <div className="card-notebook">
+      {/* cabeçalho */}
+      <div className="mb-6">
+        <div className="font-script text-sage-600 text-sm italic leading-none mb-1">herbário digital</div>
+        <h3 className="heading-serif text-xl text-olive-dark">Imagens de Amostras</h3>
+        <div className="mt-2 h-px bg-gradient-to-r from-tan to-transparent" />
+      </div>
 
-      {loading && <p>Carregando imagens...</p>}
-
-      {error && (
-        <p className="text-sm text-red-600 mb-4">
-          {error}
+      {/* estados */}
+      {loading && (
+        <p className="font-script text-sage-600 text-base animate-pulse">
+          Carregando imagens…
         </p>
       )}
 
+      {error && (
+        <div className="bg-rust/10 border border-rust/40 text-rust text-sm rounded-lg p-3 mb-4">
+          {error}
+        </div>
+      )}
+
       {!loading && cards.length === 0 && (
-        <p className="text-sm text-gray-500">
+        <p className="font-script text-sage-600 text-base">
           Nenhuma amostra com imagem vinculada foi encontrada.
         </p>
       )}
 
-      {/* Grid de imagens dinâmicas */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Grid de imagens */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {cards.map(({ amostra, url }) => (
           <div
             key={amostra.idAmostras}
-            className="rounded-lg overflow-hidden border bg-white shadow-sm"
+            className="bg-paper-light border border-tan/60 rounded-lg overflow-hidden shadow-card hover:shadow-notebook transition"
           >
+            {/* imagem */}
             {url ? (
               <img
                 src={url}
                 alt={amostra.descricao || amostra.codigo}
                 className="w-full h-40 object-cover"
                 onError={(e) => {
-                  console.error(
-                    "[ImagesGallery] Falha ao carregar imagem no browser:",
-                    e
-                  );
+                  console.error("[ImagesGallery] Falha ao carregar imagem no browser:", e);
                 }}
               />
             ) : (
-              <div className="w-full h-40 bg-gray-100 flex items-center justify-center text-gray-400 text-sm">
-                Imagem indisponível
+              <div className="w-full h-40 bg-sage-100 flex items-center justify-center">
+                <span className="font-script text-sage-600/60 text-sm">imagem indisponível</span>
               </div>
             )}
 
+            {/* dados */}
             <div className="p-4">
-              <span className="inline-block text-xs px-2 py-1 rounded-md bg-blue-100 text-blue-700 font-medium">
-                Amostra
+              {/* badge tipo etiqueta */}
+              <span className="inline-block text-[10px] tracking-widest font-semibold uppercase border border-tan bg-paper text-olive rounded-full px-2.5 py-0.5">
+                {amostra.tipoAmostra || 'amostra'}
               </span>
-              <h4 className="mt-2 font-semibold text-gray-900">
+
+              <h4 className="mt-2 font-medium text-olive-dark text-sm">
                 {amostra.codigo || "Sem código"}
               </h4>
-              <p className="text-sm text-gray-500 line-clamp-2">
-                {amostra.descricao || "Sem descrição"}
+
+              <p className="font-script text-sage-600 text-sm italic line-clamp-2 mt-0.5">
+                {amostra.identificacao_final || amostra.descricao || "—"}
               </p>
-              <p className="text-xs text-gray-400 mt-1">
-                Coleta ID: {amostra.coletaId}
+
+              <p className="text-[10px] tracking-wider text-olive-light/60 mt-2 border-t border-dashed border-tan pt-2">
+                Coleta #{amostra.coletaId}
               </p>
             </div>
           </div>
