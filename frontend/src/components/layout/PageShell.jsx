@@ -6,12 +6,12 @@ import { Logo } from '../decor/Illustrations';
 // Cada entrada: { src, style CSS (top/left/right/bottom, rotate, scale, opacity) }
 const BG_DECOR = [
   // Formigas
-  { src: '/decor/ant.png',       style: { top: '6%',   left: '1%',   width: 90,  rotate: '-15deg', opacity: 100 } },
+  //{ src: '/decor/ant.png',       style: { top: '6%',   left: '1%',   width: 90,  rotate: '-15deg', opacity: 100 } },
   { src: '/decor/ant.png',       style: { top: '38%',  right: '0%',  width: 70,  rotate: '170deg', opacity: 100 } },
   { src: '/decor/ant.png',       style: { bottom: '8%',left: '18%',  width: 60,  rotate: '10deg',  opacity: 100 } },
   { src: '/decor/ant.png',       style: { top: '72%',  right: '22%', width: 50,  rotate: '-5deg',  opacity: 100 } },
   // Samambaias
-  { src: '/decor/fern.png',      style: { top: '2%',   right: '3%',  width: 130, rotate: '12deg',  opacity: 100 } },
+  //{ src: '/decor/fern.png',      style: { top: '2%',   right: '3%',  width: 130, rotate: '12deg',  opacity: 100 } },
   { src: '/decor/fern.png',      style: { bottom: '3%',left: '2%',   width: 160, rotate: '-8deg',  opacity: 100 } },
   { src: '/decor/fern.png',      style: { top: '45%',  left: '0%',   width: 100, rotate: '25deg',  opacity: 100 } },
   { src: '/decor/fern.png',      style: { bottom: '20%',right: '1%', width: 110, rotate: '-20deg', opacity: 100 } },
