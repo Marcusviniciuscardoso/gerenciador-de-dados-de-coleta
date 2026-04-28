@@ -55,12 +55,12 @@ function Login() {
             <div className="absolute right-16 bottom-8"><FlowerIcon size={36} /></div>
           </div>
 
-          <blockquote className="font-script text-olive-light text-xl leading-snug max-w-xs">
+          {/*<blockquote className="font-script text-olive-light text-xl leading-snug max-w-xs">
             "Cada espécime é uma página do livro da natureza."
             <footer className="mt-2 text-xs tracking-widest uppercase text-sage-600 font-sans not-italic">
               — Maria Sibylla Merian, 1705
             </footer>
-          </blockquote>
+          </blockquote>*/}
         </div>
 
         {/* Painel direito — formulário */}
